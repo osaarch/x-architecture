@@ -1,0 +1,130 @@
+/* ===== FUTURE MODE (data-theme="neo") =====
+   Reference: monochrome product sites that alternate pure black and pure white bands over a dot grid, with one or two loud accents.
+   Bands: black (default tokens), white (--bg:#fff), lime (--bg:#d6ff00). Every component reads the theme variables, so a band only
+   has to redefine them. Accents: acid lime (--lime) and hot pink (--hot). No purple, no orange, no blue. */
+.nxh,.nxm,.nxc,.nxp{display:none}
+html[data-theme=neo]{color-scheme:dark;--lime:#d6ff00;--hot:#ff2e93;--err:#ff6a5c;--bg:#000;--bg2:#0d0d0d;--bg3:#1a1a1a;--bgr:0,0,0;--inkr:255,255,255;--ink:#fff;--soft:#b2b2b2;--gr:255,255,255;--ar:214,255,0;--line:rgba(255,255,255,.4);--gold:#d6ff00;--gold2:#d6ff00;--ong:#000;--dot:rgba(255,255,255,.2);--glow:214,255,0;--ease:cubic-bezier(.2,.8,.2,1)}
+html[data-theme=neo] body,html[data-theme=neo] main{background:#000}
+html[data-theme=neo] #glow,html[data-theme=neo] #intro{display:none!important}
+html[data-theme=neo] ::selection{background:var(--lime);color:#000}
+/* ---- bands ---- */
+html[data-theme=neo] :is(#hm>section:nth-child(odd),#vs>section:nth-of-type(even),#vp>section,#vn>section:nth-of-type(odd)){color-scheme:light;--bg:#fff;--bg2:#f1f1ee;--bg3:#e2e2de;--bgr:255,255,255;--inkr:0,0,0;--ink:#000;--soft:#4d4d4d;--gr:0,0,0;--ar:0,0,0;--line:rgba(0,0,0,.45);--gold:#000;--gold2:#000;--ong:#fff;--dot:rgba(0,0,0,.2);--glow:255,46,147}
+html[data-theme=neo] :is(#hm>.hcta,#vk>section){color-scheme:light;--bg:#d6ff00;--bg2:#c9f200;--bg3:#bce500;--bgr:214,255,0;--inkr:0,0,0;--ink:#000;--soft:#2a3400;--gr:0,0,0;--ar:0,0,0;--line:rgba(0,0,0,.5);--gold:#000;--gold2:#000;--ong:#d6ff00;--dot:rgba(0,0,0,.2);--glow:255,255,255}
+html[data-theme=neo] :where(.hero,#hm>section,#vs>section,#vp>section,#vw>section,#va>section,#vn>section,#vk>section,#vc>section){position:relative;background-color:var(--bg);color:var(--ink);background-image:radial-gradient(280px circle at var(--gx,-999px) var(--gy,-999px),rgba(var(--glow),.16),transparent 100%),radial-gradient(circle,var(--dot) 1.3px,transparent 1.8px);background-size:auto,30px 30px;background-position:0 0,15px 15px;padding-block:clamp(56px,8vw,120px);margin:0}
+html[data-theme=neo] .w{max-width:1560px}
+/* ---- floating bar ---- */
+html[data-theme=neo] header{position:sticky;top:10px;margin:10px clamp(10px,2vw,28px) -78px;border-radius:16px;background:rgba(8,8,8,.9)!important;-webkit-backdrop-filter:blur(16px) saturate(1.4)!important;backdrop-filter:blur(16px) saturate(1.4)!important;border:1px solid rgba(255,255,255,.18);box-shadow:0 12px 40px rgba(0,0,0,.35);z-index:70;color:#fff}
+html[data-theme=neo] header .w{height:58px;padding:0 18px;max-width:none;position:relative}
+html[data-theme=neo] header .lg.lgo svg polygon{fill:#fff}
+html[data-theme=neo] header .lg.lgo svg #mxb{fill:var(--lime)}
+html[data-theme=neo] header .thb,html[data-theme=neo] header .lgb{color:#fff}
+html[data-theme=neo] header .thb .nx,html[data-theme=neo] header .thb svg{stroke:currentColor}
+html[data-theme=neo] .nxh{display:flex;position:absolute;inset-block:0;inset-inline:0;margin:auto;width:max-content;height:max-content;align-items:center;gap:14px;font-size:.7rem;letter-spacing:.16em;color:#b8b8b8;direction:ltr;pointer-events:none;white-space:nowrap}
+html[data-theme=neo] .nxh b{font-weight:500;color:#fff}
+html[data-theme=neo] .nxh i{width:7px;height:7px;border-radius:50%;background:var(--hot);box-shadow:0 0 10px var(--hot);animation:nxb 1.6s steps(2,end) infinite}
+@keyframes nxb{50%{opacity:.25}}
+@media(max-width:1020px){html[data-theme=neo] .nxh{display:none}}
+html[data-theme=neo] .mn a{border-radius:10px}
+/* ---- headings ---- */
+html[data-theme=neo] .hd{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:20px;row-gap:14px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:clamp(18px,2.4vw,30px);margin-bottom:clamp(28px,4vw,56px)}
+html[data-theme=neo] .hd small{grid-column:1;grid-row:1;justify-self:start;display:inline-flex;align-items:center;gap:10px;font-size:.72rem;letter-spacing:.24em;direction:ltr;color:var(--ink);border:1.5px solid var(--ink);border-radius:999px;padding:7px 14px;margin:0}
+html[data-theme=neo] .hd small::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--hot)}
+html[data-theme=neo] .hd h2{grid-column:1;grid-row:2;margin:0;font-size:clamp(2.3rem,6.4vw,6rem);line-height:1.02;font-weight:600}
+html[data-theme=neo] .hd .nct{grid-column:2;grid-row:1/3;align-self:end;margin:0}
+html[data-theme=neo] #hm .hd .nct{grid-column:2;grid-row:1/3}
+:is(html[lang=en],html[lang=fr],html[lang=tr])[data-theme=neo] .hd h2{letter-spacing:-.03em}
+html[data-theme=neo] h2::before{display:none}
+/* ---- buttons ---- */
+html[data-theme=neo] .b,html[data-theme=neo] .lk,html[data-theme=neo] .tabs button,html[data-theme=neo] .nbtn,html[data-theme=neo] .lbb{border-radius:999px;font-weight:600;border:2px solid var(--ink);background:none;color:var(--ink);letter-spacing:.01em}
+html[data-theme=neo] .b{padding:16px 32px;font-size:.92rem}
+html[data-theme=neo] .b.s{background:var(--gold);border-color:var(--gold);color:var(--ong)}
+html[data-theme=neo] .b:hover,html[data-theme=neo] .lk:hover,html[data-theme=neo] .tabs button:hover{background:var(--hot);border-color:var(--hot);color:#000}
+html[data-theme=neo] .tabs button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+html[data-theme=neo] .tabs button{padding:10px 20px}
+/* ---- hero ---- */
+html[data-theme=neo] #vh .hero{min-height:100svh;display:grid;align-items:center;padding-block:clamp(120px,17vh,180px) clamp(70px,10vh,120px);overflow:hidden}
+html[data-theme=neo] .hero .w{grid-template-columns:minmax(0,1fr);position:relative;z-index:2;padding-inline:clamp(20px,6vw,120px)}
+html[data-theme=neo] .hero .w>div:first-child{max-width:min(100%,64rem)}
+@media(min-width:900px){html[data-theme=neo] .hero .w>div:first-child{max-width:54%}}
+html[data-theme=neo] .hero .mk{display:none}
+html[data-theme=neo] .hero .eb{display:inline-flex;align-items:center;gap:12px;font-size:.78rem;letter-spacing:.26em;margin:0 0 clamp(18px,3vw,34px);padding:9px 16px;border:1.5px solid rgba(255,255,255,.5);border-radius:999px;color:#fff;font-weight:500;text-align:start;direction:ltr}
+html[data-theme=neo] .hero .eb::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--hot);box-shadow:0 0 12px var(--hot)}
+html[data-theme=neo] .hero h1{font-size:clamp(2.6rem,6.2vw,6.8rem);line-height:1.08;font-weight:600;margin:0 0 clamp(18px,3vw,34px);text-wrap:balance}
+:is(html[lang=en],html[lang=fr],html[lang=tr])[data-theme=neo] .hero h1{letter-spacing:-.035em;line-height:.98}
+html[data-theme=neo] .hero h1 em{display:inline-block;background:var(--lime);color:#000;padding:.02em .2em .06em;border-radius:.14em;transform:rotate(-1.6deg);font-style:normal;color:#000;-webkit-text-fill-color:#000;-webkit-background-clip:border-box;background-clip:border-box}
+html[data-theme=neo] .hero .lede{font-size:clamp(1.05rem,1.7vw,1.5rem);max-width:30ch;color:#cfcfcf;font-weight:400;margin:0}
+html[data-theme=neo] .hbt2{margin-top:clamp(24px,3.4vw,44px)}
+html[data-theme=neo] .nxc{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+/* ---- crossing bands ---- */
+html[data-theme=neo] .nxm{display:block;position:relative;height:clamp(170px,20vw,290px);overflow:hidden;background:#000;border-block:2px solid #000}
+html[data-theme=neo] .nxb{position:absolute;inset-inline:-10vw;top:50%;margin-top:calc(clamp(56px,6.8vw,92px)/-2);height:clamp(56px,6.8vw,92px);overflow:hidden;display:flex;align-items:center;font-weight:600;font-size:clamp(1.5rem,3.7vw,3.4rem);letter-spacing:.03em;direction:ltr;box-shadow:0 0 0 2px #000}
+html[data-theme=neo] .nxt{display:flex;width:max-content;will-change:transform}
+html[data-theme=neo] .nxb span{display:inline-flex;align-items:center;gap:clamp(20px,2.8vw,42px);padding-inline-end:clamp(20px,2.8vw,42px);white-space:nowrap}
+html[data-theme=neo] .nxb s{display:block;width:.42em;height:.42em;background:var(--hot);transform:rotate(45deg)}
+html[data-theme=neo] .nxb.a{background:var(--lime);color:#000;rotate:-3.2deg;z-index:2}
+html[data-theme=neo] .nxb.b{background:#fff;color:#000;rotate:3.2deg;z-index:1}
+/* ---- numbered doors ---- */
+html[data-theme=neo] .ix{border-top:2px solid var(--ink)}
+html[data-theme=neo] .ixr{grid-template-columns:clamp(72px,12vw,180px) minmax(0,1.2fr) minmax(0,1fr) 60px;padding:clamp(24px,3.2vw,44px) 0;border-bottom:2px solid var(--ink);overflow:hidden;isolation:isolate;gap:clamp(14px,3vw,48px);color:var(--ink)}
+html[data-theme=neo] .ixr::after{display:none}
+html[data-theme=neo] .ixr::before{content:"";position:absolute;inset:0;background:var(--lime);transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ease);z-index:-1}
+html[dir=rtl][data-theme=neo] .ixr::before{transform-origin:right}
+html[data-theme=neo] .ixr:hover::before,html[data-theme=neo] .ixr:focus-visible::before{transform:scaleX(1)}
+html[data-theme=neo] .ixr:hover,html[data-theme=neo] .ixr:focus-visible{color:#000}
+html[data-theme=neo] .ixn{font-size:clamp(2.8rem,8.5vw,7.4rem);font-weight:300;line-height:.9;letter-spacing:0;color:transparent;-webkit-text-stroke:1.5px var(--ink);transition:-webkit-text-stroke-color .3s,color .3s}
+html[data-theme=neo] .ixr:hover .ixn{-webkit-text-stroke-color:#000}
+html[data-theme=neo] .ixt b{font-size:clamp(1.8rem,4vw,3.5rem);font-weight:600;line-height:1.1}
+html[data-theme=neo] .ixr:hover .ixt b{color:#000}
+html[data-theme=neo] .ixt small{font-size:clamp(.9rem,1.2vw,1.05rem);color:var(--soft)}
+html[data-theme=neo] .ixr:hover .ixt small,html[data-theme=neo] .ixr:hover .ixc{color:#000}
+html[data-theme=neo] .ixc{gap:10px}
+html[data-theme=neo] .ixc i{border:1.5px solid currentColor;border-radius:999px;padding:6px 14px;font-size:.78rem}
+html[data-theme=neo] .ixc i+i::before{display:none}
+html[data-theme=neo] .ixa{width:56px;height:56px;border-radius:50%;border:2px solid var(--ink);color:var(--ink)}
+html[data-theme=neo] .ixr:hover .ixa{background:#000;border-color:#000;color:var(--lime)}
+@media(max-width:860px){html[data-theme=neo] .ixr{grid-template-columns:auto minmax(0,1fr) 48px}html[data-theme=neo] .ixn{font-size:clamp(2.6rem,14vw,4rem)}html[data-theme=neo] .ixa{width:46px;height:46px}}
+
+/* ---- caption pill: numbered when the markup has no caption ---- */
+html[data-theme=neo] #hm{counter-reset:nxs}
+html[data-theme=neo] #hm .hd{counter-increment:nxs}
+html[data-theme=neo] .hd small:empty::after{content:"N\00B0 0" counter(nxs)}
+html[data-theme=neo] #fxn{display:none}
+html[data-theme=neo] #fxp i{background:var(--hot)}
+/* ---- cards ---- */
+html[data-theme=neo] :is(.g4 .c,.rrc,.nc,.rmc,.ci){border:2px solid var(--ink);border-radius:0;background:transparent;transition:background .35s var(--ease),color .2s,border-color .2s}
+html[data-theme=neo] :is(.g4 .c,.rrc,.nc,.rmc):hover,html[data-theme=neo] :is(.g4 .c,.rrc,.nc):focus-within{background:var(--lime);color:#000;border-color:#000;--ink:#000;--soft:#2a3400;--gold:#000;--gold2:#000;--line:rgba(0,0,0,.45);--inkr:0,0,0;--gr:0,0,0}
+html[data-theme=neo] .g4{gap:0;border:0}
+html[data-theme=neo] .g4 .c{margin:0 -1px -1px 0}
+html[data-theme=neo] .g4 .c .im{color:var(--gold)}
+html[data-theme=neo] :is(.ix,.rr,.ct) a:focus-visible,html[data-theme=neo] :is(a,button,input,textarea,select):focus-visible{outline:3px solid var(--hot);outline-offset:3px}
+/* ---- footer ---- */
+html[data-theme=neo] footer{background:#000;color:#fff;padding:0;border-top:2px solid #000;overflow:hidden;position:relative;--gold:#d6ff00;--gold2:#d6ff00;--soft:#b2b2b2}
+html[data-theme=neo] .nxp{display:block;font-weight:700;font-size:clamp(1.9rem,12.4vw,15rem);line-height:.84;letter-spacing:-.045em;text-align:center;color:#fff;padding:clamp(30px,5vw,70px) 0 0;white-space:nowrap;direction:ltr;user-select:none;margin-bottom:-.06em}
+html[data-theme=neo] footer .w.fr{padding:18px clamp(16px,3vw,40px) 22px;position:relative;max-width:none}
+html[data-theme=neo] footer .fs a{border-radius:999px;border:1.5px solid #fff;color:#fff}
+html[data-theme=neo] footer .fs a:hover,html[data-theme=neo] footer .fs a:focus-visible{background:var(--lime);border-color:var(--lime);color:#000}
+html[data-theme=neo] footer .fc{color:#fff}
+html[data-theme=neo] .hcta h2{font-size:clamp(2rem,5.6vw,5rem);font-weight:600;line-height:1.1;margin:0}
+html[data-theme=neo] .hcta .w{padding-block:clamp(10px,3vw,40px)}
+html[data-theme=neo] .hcta p{color:var(--soft)}
+@media(max-width:899px){
+html[data-theme=neo] .nxc{opacity:.55}
+html[data-theme=neo] #vh .hero{min-height:max(100svh,720px);align-items:start;padding-block:clamp(120px,20vh,160px) 90px}
+html[data-theme=neo] .hero :is(.eb,h1,.lede){text-shadow:0 0 14px #000,0 0 28px #000}
+}
+html[data-theme=neo] .ct{border:0;background:none;padding:0;display:block}
+html[data-theme=neo] .ct h2{font-size:clamp(2.2rem,6.4vw,6rem);font-weight:600;line-height:1.05;margin:0 0 clamp(18px,3vw,36px)}
+html[data-theme=neo] .ci{padding:clamp(20px,3vw,36px);display:grid;gap:8px;margin-bottom:-2px}
+html[data-theme=neo] .ci:hover{background:#000;color:var(--lime);--ink:#d6ff00;--soft:#d6ff00}
+html[data-theme=neo] .cr{background:transparent;border:0}
+@media(max-width:700px){
+html[data-theme=neo] .g4{grid-template-columns:minmax(0,1fr)}
+html[data-theme=neo] .hd{grid-template-columns:minmax(0,1fr);row-gap:12px}
+html[data-theme=neo] .hd .nct,html[data-theme=neo] #hm .hd .nct{grid-column:1;grid-row:3;margin:6px 0 0;width:100%}
+html[data-theme=neo] .hd small,html[data-theme=neo] .hd h2{grid-column:1}
+}
+html[data-theme=neo] .ni .ns{background:#000;border-color:#000;color:var(--lime)}
+html[data-theme=neo] #fxl polygon,html[data-theme=neo] #fxl polygon:first-child,html[data-theme=neo] #fxl polygon:last-child{fill:var(--hot);stroke:#000}
+html[data-theme=neo] #fxl svg{filter:none}
+html[data-theme=neo] .fxk{border-color:var(--hot)}
+html[data-theme=neo] .hero h1 em{text-shadow:none}
