@@ -149,7 +149,7 @@ html[data-theme=neo] footer .fs a{border-radius:999px;border:1px solid rgba(255,
 html[data-theme=neo] footer .fs a:hover,html[data-theme=neo] footer .fs a:focus-visible{background:var(--gold);border-color:var(--gold);color:#2a0d55}
 html[data-theme=neo] footer .fc{color:#fff}
 @media(max-width:899px){
-html[data-theme=neo] .nxc{opacity:.6}
+html[data-theme=neo] .nxc{opacity:.85}
 html[data-theme=neo] #vh .hero{min-height:max(100svh,720px);align-items:start;padding-block:clamp(120px,20vh,160px) 90px}
 html[data-theme=neo] .hero :is(.eb,h1,.lede){text-shadow:0 0 14px #08040f,0 0 28px #08040f}
 html[data-theme=neo] .hero h1 em{text-shadow:none}
