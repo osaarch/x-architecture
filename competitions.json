@@ -1,1 +1,82 @@
-{"competitions":[]}
+{
+ "competitions": [
+  {
+   "id": "iraqhouse",
+   "t": {
+    "ar": "تصميم بيت يناسب أجواء العراق",
+    "en": "Design a house for Iraq's climate"
+   },
+   "d": {
+    "ar": "صمّم بيتاً سكنياً على قطعة أرض مساحتها 250 م² يتعامل بذكاء مع مناخ العراق: صيف شديد الحرارة والجفاف، وشتاء بارد نسبياً، وغبار وشمس قوية. نريد حلولاً معمارية حقيقية (التوجيه والتظليل والتهوية والفناء والمواد) وليس شكلاً جميلاً فقط. المسابقة تأتي في العطلة بين الفصلين بعد انتهاء امتحانات الكورس الأول.",
+    "en": "Design a family house on a 250 m² plot that deals smartly with Iraq's climate: a very hot, dry summer, a fairly cold winter, dust and strong sun. We want real architectural answers (orientation, shading, ventilation, courtyard, materials), not only a nice look. It runs during the break between the semesters, after the first-semester exams."
+   },
+   "r": {
+    "ar": [
+     "مساحة قطعة الأرض 250 م². الأبعاد (الواجهة × النزال) من اختيارك بشرط أن تعطي 250 م²، مثل 10 × 25 م أو 12.5 × 20 م.",
+     "بيت سكني لعائلة واحدة، والحلول المناخية هي أهم ما نقيّم: التوجيه، التظليل، التهوية، الفناء، المواد.",
+     "وضّح اتجاه الشمال وجهة الشارع من القطعة.",
+     "الصور (حتى 6): مسقط أفقي لكل طابق، مقطعان (سكشن) على الأقل، الواجهة الرئيسية، ولقطة ثلاثية الأبعاد.",
+     "اشرح الفكرة والحلول المناخية في وصف المشروع.",
+     "مشاركة واحدة لكل شخص، والعمل لك أو تملك حق نشره. تظهر المشاركة بعد مراجعتها."
+    ],
+    "en": [
+     "The plot is 250 m². The dimensions (frontage × depth) are your choice as long as they give 250 m², for example 10 × 25 m or 12.5 × 20 m.",
+     "A single-family house. The climate answers matter most: orientation, shading, ventilation, courtyard, materials.",
+     "Show the north and which side the street is on.",
+     "Pictures (up to 6): a plan of every floor, at least two sections, the main elevation and a 3D view.",
+     "Explain the idea and the climate answers in the project description.",
+     "One entry per person, and the work is yours or you have the right to publish it. An entry appears after review."
+    ]
+   },
+   "tpl": {
+    "ar": "الفكرة:\n\nالمساحة: 250 م²\nالأبعاد (الواجهة × النزال):\nالاتجاه (الشمال وجهة الشارع):\nالحلول المناخية:\n",
+    "en": "Idea:\n\nArea: 250 m²\nDimensions (frontage × depth):\nOrientation (north and street side):\nClimate answers:\n"
+   },
+   "pz": {
+    "ar": "ستُعلن الجوائز لاحقاً.",
+    "en": "Prizes will be announced later."
+   },
+   "start": "2027-01-17",
+   "end": "2027-01-30",
+   "win": []
+  },
+  {
+   "id": "myproject",
+   "t": {
+    "ar": "شارك بمشروعك",
+    "en": "Show your project"
+   },
+   "d": {
+    "ar": "مسابقة مفتوحة لأي مشروع معماري من أعمالك: دراسي أو شخصي أو تخرّج، وبأي نوع. المهم أن يُعرض كاملاً بحيث يفهمه من يشاهده بدون أن تشرح له: المساقط والمقاطع، والفكرة، وتفاصيل المشروع.",
+    "en": "An open competition for any architecture project of yours: a studio, personal or graduation project, of any type. What matters is that it is shown completely, so a viewer understands it without you explaining: the plans and sections, the idea and the project details."
+   },
+   "r": {
+    "ar": [
+     "أي مشروع معماري من أعمالك، وبأي نوع.",
+     "الصور (حتى 6): المساقط الأفقية والمقاطع (السكاشن)، مع واجهة أو لقطة ثلاثية الأبعاد.",
+     "وصف المشروع يحتوي: الفكرة، والمساحة، والأبعاد، والموقع.",
+     "مشاركة واحدة لكل شخص (تُحسب أول مشاركة ترسلها).",
+     "العمل لك أو تملك حق نشره. تظهر المشاركة بعد مراجعتها."
+    ],
+    "en": [
+     "Any architecture project of yours, of any type.",
+     "Pictures (up to 6): the plans and the sections, with an elevation or a 3D view.",
+     "The project description gives: the idea, the area, the dimensions and the location.",
+     "One entry per person (the first one you send counts).",
+     "The work is yours or you have the right to publish it. An entry appears after review."
+    ]
+   },
+   "tpl": {
+    "ar": "الفكرة:\n\nالمساحة:\nالأبعاد:\nالموقع:\n",
+    "en": "Idea:\n\nArea:\nDimensions:\nLocation:\n"
+   },
+   "pz": {
+    "ar": "ستُعلن الجوائز لاحقاً.",
+    "en": "Prizes will be announced later."
+   },
+   "start": "2026-11-01",
+   "end": "2026-12-31",
+   "win": []
+  }
+ ]
+}

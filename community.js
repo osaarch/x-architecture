@@ -448,7 +448,12 @@ function openComposer(mode,cid){
    +'<div class="fd w2"><label class="rgk2 cmok"><input type="checkbox" id="cmok"><span>'+esc(tt('أؤكد أن العمل لي أو أملك حق نشره، وأوافق على عرضه هنا. يحق لـ X Architecture إخفاء أي منشور.','I confirm this work is mine or I may publish it, and I agree to show it here. X Architecture may hide any post.'))+'</span></label></div>'
    +'<p class="rge" id="cmfe" role="alert"></p><p class="cmst2" id="cmfs" role="status"></p>'
    +'<div class="cmfb"><button type="submit" class="b s" id="cmsb">'+esc(tt('انشر','Publish'))+'</button><button type="button" class="b" data-cmx>'+esc(tt('إلغاء','Cancel'))+'</button></div></form>';
-  mopen(h,'new');cpDraw();$('cmf').addEventListener('submit',cpSubmit)}
+  mopen(h,'new');cpDraw();$('cmf').addEventListener('submit',cpSubmit);
+  /* a competition may carry a description template (`tpl` in competitions.json): it fills the empty description box so the required details are not forgotten; whatever the person has already typed is never replaced */
+  (function(){var sel=$('cmcp'),tx=$('cmtx'),last='';if(!sel||!tx)return;
+    function fill(){var c=kcGet(sel.value),t=c&&c.tpl?String(lx(c.tpl)).slice(0,600):'';
+      if(tx.value.trim()===''||tx.value===last){tx.value=t;last=t;var n=$('cmtc');if(n)n.textContent=tx.value.length+'/1500'}}
+    sel.addEventListener('change',fill);fill()})()}
 function cpErr(t){var e=$('cmfe');if(e)e.textContent=t||''}
 function cpBusy(on,msg){CP.busy=on;var b=$('cmsb');if(b)b.disabled=on;var s=$('cmfs');if(s)s.textContent=msg||''}
 function waitUploads(){return new Promise(function(ok){var n=0;(function chk(){var left=BD&&BD.state().cards.some(isLocalSrc);if(!left||n++>90)return ok(!left);resumeUploads();setTimeout(chk,700)})()})}
