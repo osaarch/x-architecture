@@ -87,4 +87,5 @@ button. It is free for registered students, 2 images a day each.
 
 ## Contact
 - One username for every platform: `xstudio4arch` (Instagram, Telegram, WhatsApp, YouTube, Behance, Linktree).
-- WhatsApp opens `https://wa.me/xstudio4arch` and replaces the email on the site (footer, contact page and the course / contact windows). WhatsApp username links are still rolling out; if the link does not open a chat for some visitors, add the phone number to `SITE` in `index.html` and use `https://wa.me/<number>`.
+- WhatsApp opens `https://wa.me/xstudio4arch` (footer, contact page and the course / contact windows). The contact page also lists the site email `info@xarch.site` (`SITE.email` in `index.html`; empty it to hide the row); the footer keeps the three icons.
+- The home page's main button is always "Join the platform" (`#hjc`, `rgui()`); for someone already signed in it opens their profile. WhatsApp username links are still rolling out; if the link does not open a chat for some visitors, add the phone number to `SITE` in `index.html` and use `https://wa.me/<number>`.
