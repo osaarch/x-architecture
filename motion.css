@@ -1,19 +1,8 @@
 /* X Architecture — motion layer ("kinetic" theme).
-   Everything below is gated by html[data-fx="1"], which motion.js sets from the header toggle
-   (remembered in localStorage "xm"; off by default for prefers-reduced-motion users).
+   Everything below is gated by html[data-fx="1"], which motion.js sets on every visit (there is no switch);
+   only visitors whose device asks for reduced motion do not get it.
    To go back to the classic look for good: delete this file, motion.js and their two tags in index.html.
    The untouched classic version is also kept on the git branch "classic". */
-
-/* ---------- toggle button ---------- */
-#fxb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-#fxb .sl{opacity:0;transition:opacity .2s}
-#fxb[aria-pressed=false]{opacity:.62}
-#fxb[aria-pressed=false] .sl{opacity:1}
-#fxb[hidden]{display:none}
-@media(max-width:700px){
-header #fxb{grid-column:2;grid-row:1;justify-self:start;width:auto;padding:8px 2px;margin-inline-start:30px}
-header #usb{margin-inline-start:62px}
-}
 
 html[data-fx="1"]{--fxe:cubic-bezier(.16,.84,.3,1)}
 html[data-fx="1"] ::selection{background:var(--gold);color:var(--ong)}

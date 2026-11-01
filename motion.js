@@ -1,6 +1,6 @@
 /* X Architecture — motion layer ("kinetic" theme). Pairs with motion.css.
    Self-contained: it only adds elements/attributes marked data-fxe / data-fxt and removes them all when switched off.
-   The header button toggles it (remembered in localStorage "xm"); prefers-reduced-motion keeps it off. */
+   It is always on: there is no switch. Only the visitor's own device setting (prefers-reduced-motion) keeps it off. */
 (function(){
 'use strict';
 var D=document.documentElement,
@@ -15,32 +15,15 @@ function $(s,r){return (r||document).querySelector(s)}
 function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
 function on(t,e,f,o){t.addEventListener(e,f,o);offs.push(function(){t.removeEventListener(e,f,o)})}
 function mk(tag,id){var n=document.createElement(tag);if(id)n.id=id;n.setAttribute('data-fxe','');n.setAttribute('aria-hidden','true');return n}
-function tt(ar,en){try{return typeof T==='function'?T(ar,en):en}catch(e){return en}}
 
-/* ---------- toggle ---------- */
-function stored(){var v=null;try{v=localStorage.getItem(KEY)}catch(e){}return v}
-function remember(v){try{localStorage.setItem(KEY,v?'1':'0')}catch(e){}}
-function label(){
-  var b=$('#fxb');if(!b)return;
-  var s=live?tt('تأثيرات الحركة: مفعّلة','Motion effects: on'):tt('تأثيرات الحركة: متوقفة','Motion effects: off');
-  b.setAttribute('aria-label',s);b.title=s;b.setAttribute('aria-pressed',live?'true':'false');
-}
-function button(){
-  if($('#fxb'))return;
-  var hr=$('header .hr'),th=$('#thb');if(!hr)return;
-  var b=document.createElement('button');
-  b.id='fxb';b.type='button';b.className='lgb thb';
-  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12.5h3.4l2.3-6.3 4 12.1 2.9-8.2 1.6 2.4h4.8"/><path class="sl" d="M4 20L20 4"/></svg>';
-  if(th&&th.nextSibling)hr.insertBefore(b,th.nextSibling);else hr.appendChild(b);
-  b.addEventListener('click',function(){live?stop(true):start(true)});
-  label();
-}
+/* an old "off" choice saved by the removed header switch must not keep anyone's motion off */
+try{localStorage.removeItem(KEY)}catch(e){}
 
 /* ---------- start / stop ---------- */
-function start(save){
+function start(){
   if(live)return;
   if(RM.matches)return;
-  live=true;D.setAttribute('data-fx','1');if(save)remember(true);
+  live=true;D.setAttribute('data-fx','1');
   sy=lastY=window.pageYOffset||0;vel=0;dirty=true;
   progress();pointer();lines();counts();
   if(FP.matches)hover();
@@ -48,11 +31,11 @@ function start(save){
   on(window,'resize',resize);on(window,'hashchange',function(){dirty=true;wake();setTimeout(function(){dirty=true;wake()},400)});
   if(window.MutationObserver){var mo=new MutationObserver(function(){if(net)net.touch();wake()});mo.observe(D,{attributes:true,attributeFilter:['data-theme']});offs.push(function(){mo.disconnect()})}
   on(document.documentElement,'mouseleave',function(){ptr.a=false;if(el.cur)el.cur.classList.remove('on')});
-  label();raf=0;wake();
+  raf=0;wake();
 }
-function stop(save){
+function stop(){
   if(!live)return;
-  live=false;D.removeAttribute('data-fx');if(save)remember(false);
+  live=false;D.removeAttribute('data-fx');
   cancelAnimationFrame(raf);raf=0;calm=0;
   offs.forEach(function(f){try{f()}catch(e){}});offs=[];
   $$('[data-fxe]').forEach(function(n){if(n.parentNode)n.parentNode.removeChild(n)});
@@ -62,7 +45,6 @@ function stop(save){
   $$('.pv i[data-v]').forEach(function(n){n.textContent=n.dataset.v;n.removeAttribute('data-v')});
   var h=$('header');if(h)h.classList.remove('fxu');
   el={};net=null;ptr={x:-1e4,y:-1e4,a:false};cur={x:-1e4,y:-1e4};
-  label();
 }
 
 /* ---------- main loop ---------- */
@@ -301,12 +283,8 @@ function hover(){
 
 /* ---------- boot ---------- */
 function boot(){
-  button();
-  var s=stored(),want=s!=='0'&&!RM.matches;
-  if(RM.matches){var b=$('#fxb');if(b)b.hidden=true}
-  if(want)start(false);else label();
-  if(window.MutationObserver)new MutationObserver(label).observe(D,{attributes:true,attributeFilter:['lang']});
-  var rmh=function(){if(RM.matches){stop(false);var b=$('#fxb');if(b)b.hidden=true}else{var b2=$('#fxb');if(b2)b2.hidden=false}};
+  if(!RM.matches)start();
+  var rmh=function(){if(RM.matches)stop();else start()};
   if(RM.addEventListener)RM.addEventListener('change',rmh);else if(RM.addListener)RM.addListener(rmh);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
