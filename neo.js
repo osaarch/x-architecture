@@ -197,19 +197,17 @@
     f.push({ v: [[-h, -h, -h], [h, -h, -h], [h, -h, h], [-h, -h, h]], o: [0, 0, 0], c: PU1, e: .6 });
     return { f: f, l: [] };
   }
-  /* the hero: the X mark floats over a small tower; three rings precess around it, cubes with the program icons ride the rings, thin lines join them to the mark */
+  /* the hero: the X mark alone, in one gold; three rings precess around it, cubes with the program icons ride the rings, thin lines join them to the mark */
   function heroObjs() {
-    var out = [], i, k, ic = [], CY = 1.0, ids = iconList().map(tex), n = ids.length, u = 175,
+    var out = [], i, k, ic = [], CY = 0, ids = iconList().map(tex), n = ids.length, u = 175,
       top = [[-273.5, 351.5], [273.5, 351.5], [0, -.5]].map(function (p) { return [p[0] / u, p[1] / u]; }),
       bot = [[0, .5], [273.5, -351.5], [-273.5, -351.5]].map(function (p) { return [p[0] / u, p[1] / u]; }),
-      rg = [{ R: 2.3, rx: .0, rz: .55, w: .00011, y0: 0, al: .6, c: GOLD }, { R: 2.8, rx: .45, rz: -.45, w: -.00008, y0: 1.7, al: .42, c: GOLD2 }, { R: 3.3, rx: -.55, rz: .1, w: .00006, y0: 3.2, al: .3, c: GOLD }],
+      rg = [{ R: 2.5, rx: .0, rz: .55, w: .00011, y0: 0, al: .6, c: GOLD }, { R: 3.0, rx: .45, rz: -.45, w: -.00008, y0: 1.7, al: .42, c: GOLD2 }, { R: 3.5, rx: -.55, rz: .1, w: .00006, y0: 3.2, al: .3, c: GOLD }],
       net;
     function ry(g, t) { return g.y0 + (RM.matches ? 0 : t * g.w); }
     function at(g, a, t) { var q = rot([Math.cos(a) * g.R, 0, Math.sin(a) * g.R], g.rx, ry(g, t), g.rz); return [q[0], q[1] + CY, q[2]]; }
-    /* the tower */
-    out.push({ mesh: tower(24, 2.4, .5, Math.PI * .2), y: -2.1, upd: function (t, o) { o.ry = RM.matches ? 0 : t * .0002; } });
     /* the mark: always turned to the viewer, swaying a little */
-    out.push({ mesh: merge(prism(top, -.42, .42, GOLD, .6, 1), prism(bot, -.42, .42, PU3, .6, 1)), s: .62, y: CY,
+    out.push({ mesh: merge(prism(top, -.42, .42, GOLD, .6, 1), prism(bot, -.42, .42, GOLD, .6, 1)), s: .8, y: CY,
       upd: function (t, o, st) { o.rx = -(st.pitNow || 0); o.ry = -(st.yawNow || 0) + (RM.matches ? .3 : Math.sin(t * .0008) * .75 + .1); } });
     /* rings */
     rg.forEach(function (g) {
@@ -219,7 +217,7 @@
     for (k = 0; k < 6; k++) {
       (function (k) {
         var g = rg[k % 3], a0 = (k < 3 ? 0 : Math.PI) + k * .45, sp = (k % 3 === 1 ? -1 : 1) * (.00026 - (k % 3) * .00004), o = { pos: null };
-        o.mesh = iconCube(.36, [ids[(k * 3) % n], ids[(k * 3 + 1) % n], ids[(k * 3 + 2) % n], ids[(k * 3 + 9) % n]]);
+        o.mesh = iconCube(.38, [ids[(k * 3) % n], ids[(k * 3 + 1) % n], ids[(k * 3 + 2) % n], ids[(k * 3 + 9) % n]]);
         o.upd = function (t) { var p = at(g, a0 + (RM.matches ? 0 : t * sp), t); o.pos = p; o.x = p[0]; o.y = p[1]; o.z = p[2]; o.ry = RM.matches ? k : t * .00045 + k; };
         ic.push(o); out.push(o);
       })(k);
@@ -269,7 +267,7 @@
   function logoObjs() {
     var u = 175, top = [[-273.5, 351.5], [273.5, 351.5], [0, -.5]].map(function (p) { return [p[0] / u, p[1] / u]; }),
       bot = [[0, .5], [273.5, -351.5], [-273.5, -351.5]].map(function (p) { return [p[0] / u, p[1] / u]; });
-    return [{ mesh: merge(prism(top, -.3, .3, GOLD, .6), prism(bot, -.3, .3, PU3, .6)), s: 1, upd: function (t, o) { o.ry = RM.matches ? .5 : Math.sin(t * .0007) * .9 + .3; } }];
+    return [{ mesh: merge(prism(top, -.3, .3, GOLD, .6, 1), prism(bot, -.3, .3, GOLD, .6, 1)), s: 1, upd: function (t, o) { o.ry = RM.matches ? .5 : Math.sin(t * .0007) * .9 + .3; } }];
   }
 
   /* ---------- one filter that puts any picture into the palette: shadows black, middle tones purple, highlights gold ---------- */
@@ -303,9 +301,9 @@
     addStage(el.cv, heroObjs(), {
       d: 8.5,
       center: function (W, H) {
-        var mob = W < 760, tab = !mob && W < 900, sc = mob ? Math.min(W * .125, H * .085) : tab ? Math.min(W * .115, H * .09) : Math.min(W * .08, H * .105),
-          cy = mob ? H * .72 : tab ? H * .76 : H * .53;
-        return [(mob || tab) ? W * .5 : W * (rtl() ? .27 : .73), cy + sc * .25, sc];
+        var mob = W < 760, tab = !mob && W < 900, sc = mob ? Math.min(W * .115, H * .075) : tab ? Math.min(W * .095, H * .075) : Math.min(W * .07, H * .105),
+          cy = mob ? H * .74 : tab ? H * .76 : H * .53;
+        return [(mob || tab) ? W * .5 : W * (rtl() ? .27 : .73), cy, sc];
       },
       yaw: function (t) { return (RM.matches ? .75 : .75 + t * .00012) + (S.px - .5) * 1.5 + (RM.matches ? 0 : (window.pageYOffset || 0) * .0025); },
       pit: function () { return .3 + (RM.matches ? 0 : (S.py - .5) * .22); }
@@ -328,12 +326,27 @@
       r.addEventListener('focusout', function () { st.hov = false; });
     });
   }
+  /* the call-to-action band: the mark sits in the free gap between the heading block and the buttons (middle when they wrap onto two rows) */
+  function ctaGap(cta, cv) {
+    var kids = [].slice.call(cta.querySelectorAll('.w > *')), bx = cv.getBoundingClientRect(), a, b, r;
+    if (kids.length !== 2) return null;
+    a = kids[0].getBoundingClientRect(); b = kids[1].getBoundingClientRect();
+    if (a.left > b.left) { r = a; a = b; b = r; }
+    if (Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) > Math.max(a.height, b.height) * .6 || b.left - a.right < 130) return null;
+    return { x: (a.right + b.left) / 2 - bx.left, w: b.left - a.right };
+  }
   function logoStage() {
     var cta = document.querySelector('#hm .hcta'); if (!cta || cta.querySelector('.nxl')) return;
-    var cv = mk('canvas', 'nxl'); cv.setAttribute('aria-hidden', 'true'); cta.insertBefore(cv, cta.firstChild);
+    var cv = mk('canvas', 'nxl'), gp = null, gt = -1e9, gw = 0;
+    cv.setAttribute('aria-hidden', 'true'); cta.insertBefore(cv, cta.firstChild);
     addStage(cv, logoObjs(), {
       d: 7, lw: 1,
-      center: function (W, H) { return [W / 2, H / 2, Math.min(W * .2, H * .15)]; },
+      center: function (W, H) {
+        var now = performance.now(), sc = Math.min(W * .2, H * .15);
+        if (now - gt > 500 || gw !== W) { gt = now; gw = W; gp = ctaGap(cta, cv); }
+        if (gp) sc = Math.min(sc, gp.w / 4);
+        return [gp ? gp.x : W / 2, H / 2, sc];
+      },
       yaw: function (t) { return (RM.matches ? 0 : 0) + (S.px - .5) * .9; },
       pit: function () { return .12 + (S.py - .5) * .25; }
     }, 'logo');

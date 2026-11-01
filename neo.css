@@ -15,7 +15,7 @@ html[data-theme=neo] .w{max-width:1560px}
 /* ---- floating glass bar ---- */
 html[data-theme=neo] header{position:sticky;top:10px;margin:10px clamp(10px,2vw,28px) -78px;border-radius:24px;background:rgba(16,8,30,.55)!important;-webkit-backdrop-filter:blur(24px) saturate(1.8)!important;backdrop-filter:blur(24px) saturate(1.8)!important;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 18px 50px -14px rgba(0,0,0,.65);z-index:70;color:#fff}
 html[data-theme=neo] header .w{height:58px;padding:0 18px;max-width:none;position:relative}
-html[data-theme=neo] header .lg.lgo svg polygon{fill:#fff}
+html[data-theme=neo] header .lg.lgo svg polygon{fill:var(--gold)}
 html[data-theme=neo] header .lg.lgo svg #mxb{fill:var(--gold)}
 html[data-theme=neo] header .thb,html[data-theme=neo] header .lgb{color:#fff}
 html[data-theme=neo] header .thb svg{stroke:currentColor}
@@ -31,18 +31,24 @@ html[dir=rtl][data-theme=neo] .nxh u{background:linear-gradient(270deg,transpare
 @media(max-width:1020px){html[data-theme=neo] .nxh .nxg,html[data-theme=neo] .nxh .nxd2,html[data-theme=neo] .nxh s{display:none}}
 html[data-theme=neo] .mn a{border-radius:14px}
 html[data-theme=neo] .mnp{border-radius:26px}
+/* ---- type: one family (the site's own), regular / medium / bold, Apple-like restraint ----
+   body 400, small captions 400, labels 500, headings bold with tight tracking on Latin; Arabic and Kurdish never get letter-spacing (it breaks the joins); Latin captions get a light one, no all-caps */
+html[data-theme=neo] :is(p,li,small,.ns,.ixn,.pkvt,.gqh,.fc,.kn){letter-spacing:.05em;text-transform:none}
+html[data-theme=neo] :is(p,li,small,.lede,.ns){font-weight:400}
+html[dir=rtl][data-theme=neo] *{letter-spacing:0}
+:is(html[lang=en],html[lang=fr],html[lang=tr])[data-theme=neo] :is(h1,h2,h3,.ixt b){letter-spacing:-.03em}
 /* ---- headings ---- */
 html[data-theme=neo] .hd{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:20px;row-gap:14px;align-items:end;border-bottom:1px solid var(--line);padding-bottom:clamp(18px,2.4vw,30px);margin-bottom:clamp(28px,4vw,56px)}
-html[data-theme=neo] .hd small{grid-column:1;grid-row:1;justify-self:start;display:inline-flex;align-items:center;gap:10px;font-size:.72rem;letter-spacing:.24em;direction:ltr;color:var(--ink);border:1px solid var(--line);background:rgba(var(--gr),.05);border-radius:999px;padding:7px 14px;margin:0}
+html[data-theme=neo] .hd small{grid-column:1;grid-row:1;justify-self:start;display:inline-flex;align-items:center;gap:10px;font-size:.72rem;letter-spacing:.1em;direction:ltr;color:var(--ink);border:1px solid var(--line);background:rgba(var(--gr),.05);border-radius:999px;padding:7px 14px;margin:0}
 html[data-theme=neo] .hd small::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--au)}
-html[data-theme=neo] .hd h2{grid-column:1;grid-row:2;margin:0;font-size:clamp(2.3rem,6.2vw,5.8rem);line-height:1.04;font-weight:600}
+html[data-theme=neo] .hd h2{grid-column:1;grid-row:2;margin:0;font-size:clamp(2.1rem,4.8vw,4.4rem);line-height:1.08;font-weight:600}
 html[data-theme=neo] .hd .nct{grid-column:2;grid-row:1/3;align-self:end;margin:0}
 html[data-theme=neo] #hm .hd .nct{grid-column:2;grid-row:1/3}
 :is(html[lang=en],html[lang=fr],html[lang=tr])[data-theme=neo] .hd h2{letter-spacing:-.035em}
 html[data-theme=neo] h2::before{display:none}
 html[data-theme=neo] .hd::after{display:none}
 /* ---- buttons ---- */
-html[data-theme=neo] .b,html[data-theme=neo] .lk,html[data-theme=neo] .tabs button,html[data-theme=neo] .nbtn,html[data-theme=neo] .lbb{border-radius:999px;font-weight:600;border:1px solid var(--line);background:rgba(var(--gr),.05);color:var(--ink);letter-spacing:.01em;transition:background .3s,color .3s,border-color .3s,transform .3s var(--ease)}
+html[data-theme=neo] .b,html[data-theme=neo] .lk,html[data-theme=neo] .tabs button,html[data-theme=neo] .nbtn,html[data-theme=neo] .lbb{border-radius:999px;font-weight:600;border:1px solid var(--line);background:rgba(var(--gr),.05);color:var(--ink);transition:background .3s,color .3s,border-color .3s,transform .3s var(--ease)}
 html[data-theme=neo] .b{padding:16px 32px;font-size:.92rem}
 html[data-theme=neo] .b.s{background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:transparent;color:var(--ong);box-shadow:0 10px 30px -10px rgba(var(--ar),.7)}
 html[data-theme=neo] .b:hover,html[data-theme=neo] .lk:hover,html[data-theme=neo] .tabs button:hover{background:rgba(var(--gr),.14);border-color:var(--gold);color:var(--ink);transform:translateY(-2px)}
@@ -50,19 +56,19 @@ html[data-theme=neo] .b.s:hover{background:linear-gradient(180deg,var(--gold2),v
 html[data-theme=neo] .tabs button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 html[data-theme=neo] .tabs button{padding:10px 20px}
 /* ---- hero ---- */
-html[data-theme=neo] #vh .hero{min-height:100svh;display:grid;align-items:center;padding-block:clamp(120px,17vh,180px) clamp(70px,10vh,120px);overflow:hidden;--bgi:radial-gradient(60% 70% at 73% 52%,rgba(109,40,217,.42),transparent 72%)}
+html[data-theme=neo] #vh .hero{min-height:100svh;display:grid;align-items:center;padding-block:clamp(96px,13vh,150px) clamp(48px,8vh,100px);overflow:hidden;--bgi:radial-gradient(60% 70% at 73% 52%,rgba(109,40,217,.42),transparent 72%)}
 html[dir=rtl][data-theme=neo] #vh .hero{--bgi:radial-gradient(60% 70% at 27% 52%,rgba(109,40,217,.42),transparent 72%)}
 html[data-theme=neo] .hero .w{grid-template-columns:minmax(0,1fr);position:relative;z-index:2;padding-inline:clamp(20px,6vw,120px)}
 html[data-theme=neo] .hero .w>div:first-child{max-width:min(100%,64rem)}
 @media(min-width:900px){html[data-theme=neo] .hero .w>div:first-child{max-width:54%}}
 html[data-theme=neo] .hero .mk{display:none}
-html[data-theme=neo] .hero .eb{display:inline-flex;align-items:center;gap:12px;font-size:.78rem;letter-spacing:.26em;margin:0 0 clamp(18px,3vw,34px);padding:9px 16px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);border-radius:999px;color:#fff;font-weight:500;text-align:start;direction:ltr}
+html[data-theme=neo] .hero .eb{display:inline-flex;align-items:center;gap:12px;font-size:.78rem;letter-spacing:.14em;margin:0 0 clamp(14px,2.4vh,28px);padding:8px 16px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.06);border-radius:999px;color:#fff;font-weight:500;text-align:start;direction:ltr}
 html[data-theme=neo] .hero .eb::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
-html[data-theme=neo] .hero h1{font-size:clamp(2.6rem,6.2vw,6.8rem);line-height:1.08;font-weight:600;margin:0 0 clamp(18px,3vw,34px);text-wrap:balance}
+html[data-theme=neo] .hero h1{font-size:clamp(2.6rem,min(5.9vw,8.6vh),6.6rem);line-height:1.08;font-weight:600;margin:0 0 clamp(14px,2.6vh,28px);text-wrap:balance}
 :is(html[lang=en],html[lang=fr],html[lang=tr])[data-theme=neo] .hero h1{letter-spacing:-.04em;line-height:1}
 html[data-theme=neo] .hero h1 em{display:inline-block;font-style:normal;background:linear-gradient(100deg,#f6ecc8,#d6bd7e 38%,#b08cff 78%,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;padding-block:.04em}
 html[data-theme=neo] .hero .lede{font-size:clamp(1.05rem,1.7vw,1.5rem);max-width:30ch;color:#d2c8ea;font-weight:400;margin:0}
-html[data-theme=neo] .hbt2{margin-top:clamp(24px,3.4vw,44px)}
+html[data-theme=neo] .hbt2{margin-top:clamp(18px,3.4vh,40px)}
 html[data-theme=neo] .nxc{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
 /* ---- crossing bands ---- */
 html[data-theme=neo] .nxm{display:block;position:relative;height:clamp(170px,20vw,290px);overflow:hidden;background:#08040f}
@@ -85,9 +91,9 @@ html[data-theme=neo] .ixr:hover,html[data-theme=neo] .ixr:focus-visible{color:#f
 html[data-theme=neo] .ixr:hover .ixt b,html[data-theme=neo] .ixr:focus-visible .ixt b{color:#fff}
 html[data-theme=neo] .ixr:hover .ixt small,html[data-theme=neo] .ixr:hover .ixc i{color:#e6dcfa}
 html[data-theme=neo] .nxd{display:block;width:100%;height:clamp(104px,11vw,150px);margin-top:8px}
-html[data-theme=neo] .ixn{position:absolute;inset-block-start:16px;inset-inline-start:20px;font-size:.7rem;letter-spacing:.2em;font-weight:500;color:var(--soft);z-index:2;line-height:1;-webkit-text-stroke:0;color:var(--soft)}
+html[data-theme=neo] .ixn{position:absolute;inset-block-start:16px;inset-inline-start:20px;font-size:.7rem;letter-spacing:.08em;font-weight:500;color:var(--soft);z-index:2;line-height:1;-webkit-text-stroke:0;color:var(--soft)}
 html[dir=rtl][data-theme=neo] .ixn{inset-inline-start:auto;inset-inline-end:20px}
-html[data-theme=neo] .ixt b{font-size:clamp(1.7rem,3.8vw,3.3rem);font-weight:600;line-height:1.1;color:var(--ink)}
+html[data-theme=neo] .ixt b{font-size:clamp(1.5rem,3vw,2.6rem);font-weight:600;line-height:1.1;color:var(--ink)}
 html[data-theme=neo] .ixt small{font-size:clamp(.9rem,1.2vw,1.05rem);color:var(--soft)}
 html[data-theme=neo] .ixc{gap:8px}
 html[data-theme=neo] .ixc i{border:1px solid var(--line);background:rgba(var(--gr),.05);border-radius:999px;padding:6px 14px;font-size:.78rem;color:var(--ink)}
@@ -104,7 +110,7 @@ html[data-theme=neo] .g4 .c .im{color:var(--gold);border-radius:var(--r2);overfl
 html[data-theme=neo] :is(a,button,input,textarea,select):focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
 html[data-theme=neo] :is(input,textarea,select){border-radius:var(--r3)}
 html[data-theme=neo] .ct{border:0;background:none;padding:0;display:block;box-shadow:none}
-html[data-theme=neo] .ct h2{font-size:clamp(2.2rem,6.2vw,5.8rem);font-weight:600;line-height:1.05;margin:0 0 clamp(18px,3vw,36px)}
+html[data-theme=neo] .ct h2{font-size:clamp(2.1rem,4.8vw,4.4rem);font-weight:600;line-height:1.08;margin:0 0 clamp(18px,3vw,36px)}
 html[data-theme=neo] .ci{padding:clamp(22px,3vw,38px);display:grid;gap:8px;margin-bottom:14px}
 html[data-theme=neo] .cr{background:transparent;border:0}
 html[data-theme=neo] .pms,html[data-theme=neo] #lgm{border-radius:var(--r1);border:1px solid rgba(255,255,255,.16);background:rgba(20,10,38,.82);-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6)}
@@ -125,9 +131,8 @@ html[data-theme=neo] .ni .ns{z-index:2;background:rgba(14,6,28,.78);border-color
 /* ---- call to action band: the X mark as a solid ---- */
 html[data-theme=neo] .hcta{overflow:hidden;position:relative}
 html[data-theme=neo] .hcta .w,html[data-theme=neo] .hcta .hmi{position:relative;z-index:2}
-html[data-theme=neo] .nxl{display:block;position:absolute;inset-block:0;inset-inline-start:50%;width:clamp(220px,30vw,440px);height:100%;min-height:260px;transform:translateX(-50%);z-index:1;pointer-events:none}
-html[dir=rtl][data-theme=neo] .nxl{transform:translateX(50%)}
-html[data-theme=neo] .hcta h2{font-size:clamp(2rem,5.6vw,5rem);font-weight:600;line-height:1.1;margin:0}
+html[data-theme=neo] .nxl{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+html[data-theme=neo] .hcta h2{font-size:clamp(1.8rem,4.2vw,3.6rem);font-weight:600;line-height:1.12;margin:0}
 html[data-theme=neo] .hcta .w{padding-block:clamp(14px,3.4vw,44px)}
 html[data-theme=neo] .hcta p{color:var(--soft)}
 /* ---- caption pill: numbered when the markup has no caption ---- */
@@ -154,6 +159,6 @@ html[data-theme=neo] .g4{grid-template-columns:minmax(0,1fr)}
 html[data-theme=neo] .hd{grid-template-columns:minmax(0,1fr);row-gap:12px}
 html[data-theme=neo] .hd .nct,html[data-theme=neo] #hm .hd .nct{grid-column:1;grid-row:3;margin:6px 0 0;width:100%}
 html[data-theme=neo] .hd small,html[data-theme=neo] .hd h2{grid-column:1}
-html[data-theme=neo] .nxl{width:70vw;opacity:.4}
+html[data-theme=neo] .nxl{opacity:.22}
 }
 @supports (corner-shape:squircle){html[data-theme=neo] :is(.ixr,.g4 .c,.rrc,.nc,.ci,.hxi,.gqp,.pms,#lgm,header,.nxb){corner-shape:squircle}}
