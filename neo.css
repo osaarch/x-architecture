@@ -81,7 +81,7 @@ html[data-theme=neo] .nxb.a s{background:#4a0a11}
 html[data-theme=neo] .nxb.b{background:linear-gradient(90deg,#8f0f1c,#b3121f 50%,#5c0c16);color:#fff;rotate:3.2deg;z-index:1}
 html[data-theme=neo] .nxb.b s{background:var(--gold)}
 /* ---- the four doors ---- */
-html[data-theme=neo] .ix{border:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.6vw,20px);margin-top:clamp(22px,3vw,40px)}
+html[data-theme=neo] .ix{border:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,1.6vw,20px);margin-top:clamp(22px,3vw,40px)}
 html[data-theme=neo] .hst .hd{margin-bottom:0}
 html[data-theme=neo] .ixr{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 52px;grid-template-areas:"d d" "t a" "c c";align-items:end;align-content:start;gap:10px 14px;padding:clamp(16px,2vw,24px) clamp(18px,2.2vw,28px) clamp(18px,2.2vw,28px);border:1px solid var(--line);border-radius:var(--r1);background:var(--bg2);color:var(--ink);overflow:hidden;isolation:isolate;box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 18px 44px -22px rgba(108,22,29,.35);transition:box-shadow .4s}
 html[data-theme=neo] .ixr::after{display:none}

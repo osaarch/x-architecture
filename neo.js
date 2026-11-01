@@ -314,7 +314,7 @@
     [].forEach.call(rows, function (r, i) {
       if (r.querySelector('.nxd')) return;
       var cv = mk('canvas', 'nxd'); cv.setAttribute('aria-hidden', 'true'); r.insertBefore(cv, r.firstChild);
-      var st = addStage(cv, doorObjs(i), {
+      var st = addStage(cv, doorObjs(+r.getAttribute('data-door') || i), {
         d: 6.5, lw: 1,
         center: function (W, H) { return [W / 2, H / 2 + 4, Math.min(W, H) * .34]; },
         yaw: function (t, s) { s.boost += ((s.hov ? 1 : 0) - s.boost) * .08; return (RM.matches ? .6 : t * .0004 * (1 + s.boost * 3.2)) + .4 + (s.hov ? (S.px - .5) * .8 : 0); },
