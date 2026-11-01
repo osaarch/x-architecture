@@ -1,10 +1,10 @@
 /* ===== Future mode (data-theme="neo"): the pieces that CSS alone cannot draw =====
    Everything here is created only after the theme is first switched on and is hidden by neo.css in every other theme.
    - a small 3D engine on a canvas (flat polygons, painter's sort, flat shading) that draws:
-       the hero scene (a twisting glass tower, a pavilion, floating cubes, two orbit rings),
+       the hero scene (the X mark floating over a glass tower, three precessing orbit rings, cubes whose faces carry the program icons, lines joining them),
        a small turning model on each of the four "doors" on the home page, and the X mark as a solid in the call-to-action band
    - two crossing bands of program names that slide with the scroll
-   - a Baghdad clock in the floating bar
+   - a live clock in the floating bar (a greeting for the hour, the date and the time, running by the second)
    - a soft tilt (with a moving sheen) on cards, and a glow that follows the pointer inside each band
    - a short letter scramble on Latin captions
    Nothing moves when the visitor prefers reduced motion (every model is drawn once). */
@@ -42,7 +42,7 @@
     return {
       f: m.f.map(function (f) {
         return { v: f.v.map(function (p) { var q = rot(p, 0, ry || 0, 0); return [q[0] + off[0], q[1] + off[1], q[2] + off[2]]; }),
-          o: (function () { var q = rot(f.o, 0, ry || 0, 0); return [q[0] + off[0], q[1] + off[1], q[2] + off[2]]; })(), c: tint || f.c, e: f.e, fl: f.fl, ds: f.ds };
+          o: (function () { var q = rot(f.o, 0, ry || 0, 0); return [q[0] + off[0], q[1] + off[1], q[2] + off[2]]; })(), c: tint || f.c, e: f.e, fl: f.fl, ds: f.ds, tx: f.tx, zb: f.zb };
       }), l: m.l.map(function (l) { return l; })
     };
   }
@@ -77,11 +77,11 @@
     l.push({ a: [0, -H / 2, 0], b: [0, H / 2 + .8, 0], c: GOLD2, al: .8 });
     return { f: f, l: l, top: [0, H / 2 + .8, 0] };
   }
-  function prism(pts, z0, z1, c, e) {
+  function prism(pts, z0, z1, c, e, flat) {
     var f = [], n = pts.length, cx = 0, cy = 0, i, j;
     pts.forEach(function (p) { cx += p[0] / n; cy += p[1] / n; });
-    f.push({ v: pts.map(function (p) { return [p[0], p[1], z1]; }), o: [cx, cy, (z0 + z1) / 2], c: c, e: e });
-    f.push({ v: pts.map(function (p) { return [p[0], p[1], z0]; }), o: [cx, cy, (z0 + z1) / 2], c: c, e: e });
+    f.push({ v: pts.map(function (p) { return [p[0], p[1], z1]; }), o: [cx, cy, (z0 + z1) / 2], c: c, e: e, fl: flat });
+    f.push({ v: pts.map(function (p) { return [p[0], p[1], z0]; }), o: [cx, cy, (z0 + z1) / 2], c: c, e: e, fl: flat });
     for (i = 0; i < n; i++) { j = (i + 1) % n; f.push({ v: [[pts[i][0], pts[i][1], z0], [pts[j][0], pts[j][1], z0], [pts[j][0], pts[j][1], z1], [pts[i][0], pts[i][1], z1]], o: [cx, cy, (z0 + z1) / 2], c: c, e: e }); }
     return { f: f, l: [] };
   }
@@ -104,15 +104,16 @@
       cen = o.center ? o.center(W, H) : [W / 2, H / 2, Math.min(W, H) * .2],
       yaw = o.yaw ? o.yaw(t, this) : t * .0003, pit = o.pit ? o.pit(t, this) : .3, i, j, ob, m, f, v, tv, p, n, nn, ctr, dd, ou, tr;
     if (!W || !H) return;
+    this.yawNow = yaw; this.pitNow = pit;
     cx.clearRect(0, 0, W, H);
     function tf(p, ob) {
       var q = [p[0] * (ob.s || 1), p[1] * (ob.s || 1), p[2] * (ob.s || 1)];
       q = rot(q, ob.rx || 0, ob.ry || 0, ob.rz || 0);
       q = [q[0] + (ob.x || 0), q[1] + (ob.y || 0), q[2] + (ob.z || 0)];
-      q = rot(q, pit, yaw, 0); q[2] += d; return q;
+      q = rot(q, 0, yaw, 0); q = rot(q, pit, 0, 0); q[2] += d; return q; /* spin first, then tilt toward the viewer: an upright model stays upright */
     }
     for (i = 0; i < objs.length; i++) {
-      ob = objs[i]; if (ob.upd) ob.upd(t, ob); m = ob.mesh;
+      ob = objs[i]; if (ob.upd) ob.upd(t, ob, this); m = ob.mesh;
       for (j = 0; j < m.f.length; j++) {
         f = m.f[j]; tv = []; ctr = [0, 0, 0];
         for (v = 0; v < f.v.length; v++) { p = tf(f.v[v], ob); tv.push(p); ctr[0] += p[0] / f.v.length; ctr[1] += p[1] / f.v.length; ctr[2] += p[2] / f.v.length; }
@@ -151,6 +152,18 @@
         for (zi = 1; zi < q.p.length; zi++) { pp = pr(q.p[zi]); cx.lineTo(pp[0], pp[1]); }
         cx.closePath();
         cx.fillStyle = 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')'; cx.fill();
+        if (q.f.tx != null && q.p.length === 4) {
+          /* a picture on a face: the first three corners (top-left, top-right, bottom-left) fix an affine map, the polygon clips it, a dark veil does the shading */
+          var im = TX[q.f.tx], P1 = pr(q.p[1]), P3 = pr(q.p[3]);
+          if (im && im.complete && im.naturalWidth && (P1[0] - a0[0]) * (P3[1] - a0[1]) - (P1[1] - a0[1]) * (P3[0] - a0[0]) > 0) {
+            cx.save(); cx.clip();
+            cx.setTransform(this.dpr * (P1[0] - a0[0]) / im.naturalWidth, this.dpr * (P1[1] - a0[1]) / im.naturalWidth, this.dpr * (P3[0] - a0[0]) / im.naturalHeight, this.dpr * (P3[1] - a0[1]) / im.naturalHeight, this.dpr * a0[0], this.dpr * a0[1]);
+            cx.drawImage(im, 0, 0);
+            cx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+            cx.fillStyle = 'rgba(10,5,18,' + Math.max(0, .55 - .75 * q.I).toFixed(3) + ')'; cx.fillRect(0, 0, W, H);
+            cx.restore();
+          }
+        }
         if (q.f.e) { cx.lineWidth = .8; cx.strokeStyle = 'rgba(236,220,170,' + q.f.e + ')'; cx.stroke(); }
       } else {
         var L = all[i].l, A = pr(L.a), B = pr(L.b), dz = (L.a[2] + L.b[2]) / 2 - d, al = L.al * Math.max(.2, Math.min(1, 1 - dz * .16));
@@ -162,29 +175,72 @@
   };
 
   /* ---------- the scenes ---------- */
+  /* program icons: the gold set already used by the programs rail, painted on the faces of small cubes */
+  var TX = [];
+  function tex(name) {
+    var i = TX.length, im = new Image();
+    im.onload = function () { stages.forEach(function (s) { s.dirty = true; }); kick(); };
+    im.src = 'icons/' + name + '-g.webp'; TX.push(im); return i;
+  }
+  function iconList() {
+    var all = ['autocad', 'revit', 'sketchup', 'rhinoceros', 'vray', 'lumion', 'enscape', 'photoshop', 'twinmotion', '3dsmax', 'blender', 'd5render', 'corona', 'grasshopper', 'illustrator', 'maya', 'unreal', 'vantage'],
+      o = window.PGO, r = [];
+    if (o && o.length) o.forEach(function (k) { if (all.indexOf(k) > -1) r.push(k); });
+    all.forEach(function (k) { if (r.indexOf(k) < 0) r.push(k); });
+    return r;
+  }
+  /* a cube whose four sides carry pictures (tx: four texture numbers, in order); the top and bottom stay plain */
+  function iconCube(h, tx) {
+    var f = [], i, front = [[-h, h, -h], [h, h, -h], [h, -h, -h], [-h, -h, -h]];
+    for (i = 0; i < 4; i++) f.push({ v: front.map(function (p) { return rot(p, 0, i * Math.PI / 2, 0); }), o: [0, 0, 0], c: PU1, e: .6, tx: tx[i] });
+    f.push({ v: [[-h, h, -h], [h, h, -h], [h, h, h], [-h, h, h]], o: [0, 0, 0], c: PU3, e: .6 });
+    f.push({ v: [[-h, -h, -h], [h, -h, -h], [h, -h, h], [-h, -h, h]], o: [0, 0, 0], c: PU1, e: .6 });
+    return { f: f, l: [] };
+  }
+  /* the hero: the X mark floats over a small tower; three rings precess around it, cubes with the program icons ride the rings, thin lines join them to the mark */
   function heroObjs() {
-    var out = [], tw = tower(28, 4.2, .74, Math.PI * .26), i, cols = [PU2, PU3, PU1, GOLD, PU2, PU3, GOLD, PU1, PU2], pav, ob;
-    out.push({ mesh: tw, ry: 0, upd: function (t, o) { o.ry = RM.matches ? 0 : t * .00018; } });
-    /* orbit rings */
-    out.push({ mesh: ring(2.55, 90, GOLD, .5, 0), rx: .5, upd: function (t, o) { o.ry = t * .00012; o.rz = .15; } });
-    out.push({ mesh: ring(3.15, 110, GOLD2, .26, 0), rx: -.35, upd: function (t, o) { o.ry = -t * .00009; o.rz = -.2; } });
-    out.push({ mesh: ring(3.6, 120, GOLD, .22, -2.15) });
-    /* floating cubes */
-    for (i = 0; i < 9; i++) {
+    var out = [], i, k, ic = [], CY = 1.0, ids = iconList().map(tex), n = ids.length, u = 175,
+      top = [[-273.5, 351.5], [273.5, 351.5], [0, -.5]].map(function (p) { return [p[0] / u, p[1] / u]; }),
+      bot = [[0, .5], [273.5, -351.5], [-273.5, -351.5]].map(function (p) { return [p[0] / u, p[1] / u]; }),
+      rg = [{ R: 2.3, rx: .0, rz: .55, w: .00011, y0: 0, al: .6, c: GOLD }, { R: 2.8, rx: .45, rz: -.45, w: -.00008, y0: 1.7, al: .42, c: GOLD2 }, { R: 3.3, rx: -.55, rz: .1, w: .00006, y0: 3.2, al: .3, c: GOLD }],
+      net;
+    function ry(g, t) { return g.y0 + (RM.matches ? 0 : t * g.w); }
+    function at(g, a, t) { var q = rot([Math.cos(a) * g.R, 0, Math.sin(a) * g.R], g.rx, ry(g, t), g.rz); return [q[0], q[1] + CY, q[2]]; }
+    /* the tower */
+    out.push({ mesh: tower(24, 2.4, .5, Math.PI * .2), y: -2.1, upd: function (t, o) { o.ry = RM.matches ? 0 : t * .0002; } });
+    /* the mark: always turned to the viewer, swaying a little */
+    out.push({ mesh: merge(prism(top, -.42, .42, GOLD, .6, 1), prism(bot, -.42, .42, PU3, .6, 1)), s: .62, y: CY,
+      upd: function (t, o, st) { o.rx = -(st.pitNow || 0); o.ry = -(st.yawNow || 0) + (RM.matches ? .3 : Math.sin(t * .0008) * .75 + .1); } });
+    /* rings */
+    rg.forEach(function (g) {
+      out.push({ mesh: ring(g.R, 100, g.c, g.al, 0), y: CY, rx: g.rx, rz: g.rz, upd: function (t, o) { o.ry = ry(g, t); } });
+    });
+    /* six cubes with program icons, two on each ring */
+    for (k = 0; k < 6; k++) {
+      (function (k) {
+        var g = rg[k % 3], a0 = (k < 3 ? 0 : Math.PI) + k * .45, sp = (k % 3 === 1 ? -1 : 1) * (.00026 - (k % 3) * .00004), o = { pos: null };
+        o.mesh = iconCube(.36, [ids[(k * 3) % n], ids[(k * 3 + 1) % n], ids[(k * 3 + 2) % n], ids[(k * 3 + 9) % n]]);
+        o.upd = function (t) { var p = at(g, a0 + (RM.matches ? 0 : t * sp), t); o.pos = p; o.x = p[0]; o.y = p[1]; o.z = p[2]; o.ry = RM.matches ? k : t * .00045 + k; };
+        ic.push(o); out.push(o);
+      })(k);
+    }
+    /* small plain cubes (they only add depth) */
+    for (i = 0; i < 6; i++) {
       (function (i) {
-        var sz = .1 + (i % 3) * .06, R0 = 1.75 + (i % 4) * .28, ph = i * 2.4, sp = .00022 + (i % 3) * .00007, yy = -1.4 + (i * 0.37) % 2.9;
-        out.push({ mesh: box(sz, sz, sz, cols[i], .5), upd: function (t, o) {
-          var a = ph + (RM.matches ? 0 : t * sp);
-          o.x = Math.cos(a) * R0; o.z = Math.sin(a) * R0; o.y = yy + (RM.matches ? 0 : Math.sin(t * .0007 + ph) * .12);
-          o.ry = a * 1.6; o.rx = a * .9;
-        } });
+        var g = rg[i % 3], a0 = i * 1.9 + .8, sp = (i % 2 ? -1 : 1) * (.0004 + i * .00003), h = .07 + (i % 3) * .03, c = i % 2 ? PU3 : GOLD;
+        out.push({ mesh: box(h, h, h, c, .55), upd: function (t, o) { var p = at(g, a0 + (RM.matches ? 0 : t * sp), t); o.x = p[0]; o.y = p[1]; o.z = p[2]; o.ry = t * .0009 * (RM.matches ? 0 : 1) + i; o.rx = i * .7; } });
       })(i);
     }
-    /* pavilion: a roof on four columns */
-    pav = merge(place(box(.78, .05, .54, PU2, .5), [0, .55, 0], 0), place(box(.05, .3, .05, GOLD, .4), [-.62, .22, -.42], 0), place(box(.05, .3, .05, GOLD, .4), [.62, .22, -.42], 0),
-      place(box(.05, .3, .05, GOLD, .4), [-.62, .22, .42], 0), place(box(.05, .3, .05, GOLD, .4), [.62, .22, .42], 0), place(box(.82, .03, .58, PU1, .3), [0, -.1, 0], 0));
-    ob = { mesh: pav, s: .85, upd: function (t, o) { var a = 2.2 + (RM.matches ? 0 : t * .00016); o.x = Math.cos(a) * 2.45; o.z = Math.sin(a) * 2.45; o.y = -1.1; o.ry = -a * .9; } };
-    out.push(ob);
+    /* thin lines: from the mark to every icon cube, and from cube to cube */
+    net = { mesh: { f: [], l: [] }, upd: function () {
+      var l = [], j, p, q;
+      for (j = 0; j < ic.length; j++) {
+        p = ic[j].pos; q = ic[(j + 1) % ic.length].pos; if (!p || !q) continue;
+        l.push({ a: [0, CY, 0], b: p, c: GOLD, al: .17 }); l.push({ a: p, b: q, c: GOLD2, al: .14 });
+      }
+      net.mesh.l = l;
+    } };
+    out.push(net);
     return out;
   }
   function doorObjs(k) {
@@ -247,8 +303,9 @@
     addStage(el.cv, heroObjs(), {
       d: 8.5,
       center: function (W, H) {
-        var mob = W < 760, tab = !mob && W < 900;
-        return [(mob || tab) ? W * .5 : W * (rtl() ? .27 : .73), mob ? H * .7 : tab ? H * .74 : H * .55, mob ? Math.min(W * .21, H * .12) : tab ? Math.min(W * .15, H * .1) : Math.min(W * .105, H * .14)];
+        var mob = W < 760, tab = !mob && W < 900, sc = mob ? Math.min(W * .125, H * .085) : tab ? Math.min(W * .115, H * .09) : Math.min(W * .08, H * .105),
+          cy = mob ? H * .72 : tab ? H * .76 : H * .53;
+        return [(mob || tab) ? W * .5 : W * (rtl() ? .27 : .73), cy + sc * .25, sc];
       },
       yaw: function (t) { return (RM.matches ? .75 : .75 + t * .00012) + (S.px - .5) * 1.5 + (RM.matches ? 0 : (window.pageYOffset || 0) * .0025); },
       pit: function () { return .3 + (RM.matches ? 0 : (S.py - .5) * .22); }
@@ -299,8 +356,9 @@
       }, { rootMargin: '80px' });
     }
     if (hd) {
-      el.hud = mk('div', 'nxh', '<i></i><b>BAGHDAD</b><span>33.31°N 44.37°E</span><span class="nxk">--:--:--</span>');
-      el.hud.setAttribute('aria-hidden', 'true'); hd.appendChild(el.hud); el.clk = el.hud.querySelector('.nxk');
+      el.hud = mk('div', 'nxh', '<i></i><b class="nxg"></b><s></s><span class="nxd2"></span><s></s><span class="nxk">--:--:--</span><u></u>');
+      el.hud.setAttribute('aria-hidden', 'true'); hd.appendChild(el.hud);
+      el.clk = el.hud.querySelector('.nxk'); el.gr = el.hud.querySelector('.nxg'); el.dt = el.hud.querySelector('.nxd2'); el.sb = el.hud.querySelector('u');
     }
     heroStage();
     if (hero) {
@@ -313,7 +371,8 @@
     sweep();
     var hm = document.getElementById('hm');
     if (hm && window.MutationObserver) { mo = new MutationObserver(function () { clearTimeout(mo.t); mo.t = setTimeout(function () { sweep(); kick(); }, 60); }); mo.observe(hm, { childList: true }); }
-    addEventListener('resize', function () { stages.forEach(function (s) { s.size(); }); S.bandW = 0; kick(); }, { passive: true });
+    addEventListener('resize', function () { stages.forEach(function (s) { s.size(); }); S.bandW = 0; kick(); fit(); }, { passive: true });
+    setTimeout(fit, 700);
   }
 
   /* ---------- bands that slide with the scroll ---------- */
@@ -394,11 +453,51 @@
   }
   function kick() { if (S.on && !S.raf) S.raf = requestAnimationFrame(tick); }
 
+  /* the clock in the bar: a greeting for the hour, the day, and the time by the second; it follows the visitor's own clock and the page language */
+  var GR = {
+    ar: ['صباح الخير', 'طاب يومك', 'مساء الخير', 'طابت ليلتك'], en: ['Good morning', 'Good afternoon', 'Good evening', 'Good night'],
+    tr: ['Günaydın', 'İyi günler', 'İyi akşamlar', 'İyi geceler'], fr: ['Bonjour', 'Bon après-midi', 'Bonsoir', 'Bonne nuit'],
+    ckb: ['بەیانی باش', 'ڕۆژ باش', 'ئێوارە باش', 'شەو باش']
+  }, LOCS = { ar: 'ar-IQ-u-nu-latn', en: 'en-GB', tr: 'tr-TR', fr: 'fr-FR', ckb: 'ckb-u-nu-latn' }, dfm = {};
+  function z2(n) { return n < 10 ? '0' + n : '' + n; }
+  /* on narrow screens the bar is crowded: slide the clock into the widest free gap between the buttons nearest the centre */
+  function fit() {
+    var h = el.hud, bar, hr, items, gaps = [], i, x, best = null, w, c, d;
+    if (!h) return;
+    h.style.transform = '';
+    if (window.innerWidth > 640) return;
+    bar = h.parentNode.getBoundingClientRect(); hr = h.getBoundingClientRect(); w = hr.width + 10;
+    function shown(n) { var c; while (n && n !== h.parentNode) { c = getComputedStyle(n); if (c.display === 'none' || c.visibility === 'hidden' || +c.opacity === 0) return false; n = n.parentElement; } return true; }
+    items = [].slice.call(h.parentNode.querySelectorAll('a,button')).filter(shown).map(function (n) { return n.getBoundingClientRect(); }).filter(function (r) { return r.width > 0 && r.height > 0; })
+      .sort(function (a, b) { return a.left - b.left; });
+    x = bar.left + 6;
+    for (i = 0; i < items.length; i++) { if (items[i].left - x >= w) gaps.push([x, items[i].left]); x = Math.max(x, items[i].right); }
+    if (bar.right - 6 - x >= w) gaps.push([x, bar.right - 6]);
+    c = hr.left + hr.width / 2;
+    gaps.forEach(function (g) { var m = (g[0] + g[1]) / 2, dd = Math.abs(m - c); if (!best || dd < best.dd) best = { m: m, dd: dd, g: g }; });
+    if (!best) return;
+    d = best.m - c;
+    if (hr.left + d < best.g[0]) d = best.g[0] - hr.left; if (hr.right + d > best.g[1]) d = best.g[1] - hr.right;
+    h.style.transform = 'translateX(' + Math.round(d) + 'px)';
+  }
   function clock() {
     if (!el.clk) return;
+    var d = new Date(), h = d.getHours(), sec = d.getSeconds(), lg = (R.lang || 'ar').slice(0, 3), g, loc, key;
+    lg = GR[lg] ? lg : (GR[lg.slice(0, 2)] ? lg.slice(0, 2) : 'ar');
+    g = GR[lg][h >= 5 && h < 12 ? 0 : h >= 12 && h < 17 ? 1 : h >= 17 && h < 21 ? 2 : 3];
+    el.clk.textContent = z2(h) + ':' + z2(d.getMinutes()) + ':' + z2(sec);
+    if (el.gr.textContent !== g) el.gr.textContent = g;
     try {
-      el.clk.textContent = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Baghdad', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date());
-    } catch (e) { el.clk.textContent = new Date().toISOString().slice(11, 19); }
+      if (!dfm[lg]) {
+        loc = LOCS[lg];
+        if (lg === 'ckb' && !(Intl.DateTimeFormat.supportedLocalesOf && Intl.DateTimeFormat.supportedLocalesOf(['ckb']).length)) loc = LOCS.ar; /* no Kurdish names in this browser: Arabic ones */
+        dfm[lg] = new Intl.DateTimeFormat(loc, { weekday: 'long', day: 'numeric', month: 'long' });
+      }
+      key = dfm[lg].format(d);
+    } catch (e) { key = d.toDateString(); }
+    if (el.dt.textContent !== key) el.dt.textContent = key;
+    if (el.sb) { el.sb.style.transition = sec ? '' : 'none'; el.sb.style.setProperty('--s', sec / 59); }
+    if (!(sec % 6)) fit();
   }
 
   /* ---------- letter scramble on Latin captions ---------- */

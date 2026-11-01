@@ -19,11 +19,16 @@ html[data-theme=neo] header .lg.lgo svg polygon{fill:#fff}
 html[data-theme=neo] header .lg.lgo svg #mxb{fill:var(--gold)}
 html[data-theme=neo] header .thb,html[data-theme=neo] header .lgb{color:#fff}
 html[data-theme=neo] header .thb svg{stroke:currentColor}
-html[data-theme=neo] .nxh{display:flex;position:absolute;inset-block:0;inset-inline:0;margin:auto;width:max-content;height:max-content;align-items:center;gap:14px;font-size:.7rem;letter-spacing:.16em;color:#bdb3d8;direction:ltr;pointer-events:none;white-space:nowrap}
-html[data-theme=neo] .nxh b{font-weight:500;color:#fff}
-html[data-theme=neo] .nxh i{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:nxb 1.8s steps(2,end) infinite}
+html[data-theme=neo] .nxh{display:flex;position:absolute;inset-block:0;inset-inline:0;margin:auto;width:max-content;height:max-content;align-items:center;gap:12px;font-size:.8rem;line-height:1;color:#bdb3d8;pointer-events:none;white-space:nowrap}
+html[data-theme=neo] .nxh i{flex:none;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:nxb 1.8s steps(2,end) infinite}
+html[data-theme=neo] .nxh b{font-weight:600;color:#fff}
+html[data-theme=neo] .nxh s{flex:none;width:1px;height:12px;background:rgba(214,189,126,.35)}
+html[data-theme=neo] .nxh .nxd2{color:#b6abd6}
+html[data-theme=neo] .nxh .nxk{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:.07em;color:var(--gold2);min-width:8ch;text-align:center}
+html[data-theme=neo] .nxh u{position:absolute;inset-inline-start:0;bottom:-10px;height:1px;width:calc(var(--s,0)*100%);background:linear-gradient(90deg,transparent,var(--gold));transition:width 1s linear;opacity:.8}
+html[dir=rtl][data-theme=neo] .nxh u{background:linear-gradient(270deg,transparent,var(--gold))}
 @keyframes nxb{50%{opacity:.3}}
-@media(max-width:1020px){html[data-theme=neo] .nxh{display:none}}
+@media(max-width:1020px){html[data-theme=neo] .nxh .nxg,html[data-theme=neo] .nxh .nxd2,html[data-theme=neo] .nxh s{display:none}}
 html[data-theme=neo] .mn a{border-radius:14px}
 html[data-theme=neo] .mnp{border-radius:26px}
 /* ---- headings ---- */
