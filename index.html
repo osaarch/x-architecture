@@ -1228,7 +1228,7 @@ var BK=[
 ["Cities for People","Jan Gehl","تصميم المدن على مقياس الإنسان."],
 ["Design with Nature","Ian McHarg","التخطيط المنسجم مع الطبيعة والبيئة."]]];
 var L='ar',CS=0,lgb=document.getElementById('lgb'),thb=document.getElementById('thb');
-var TH=['dark','light','neo'],THN={dark:['الوضع الداكن','Dark mode'],light:['الوضع الفاتح','Light mode'],neo:['وضع المستقبل','Future mode']},THC={dark:'#050505',light:'#ffffff',neo:'#000000'};/* mono and red are paused: their CSS is kept, add the name to TH to bring one back */
+var TH=['dark','light','neo'],THN={dark:['الوضع الداكن','Dark mode'],light:['الوضع الفاتح','Light mode'],neo:['وضع المستقبل','Future mode']},THC={dark:'#050505',light:'#ffffff',neo:'#08040f'};/* mono and red are paused: their CSS is kept, add the name to TH to bring one back */
 function thm(){var a=document.documentElement.getAttribute('data-theme');return TH.indexOf(a)>0?a:'dark'}
 function thx(m){return TH[(TH.indexOf(m)+1)%TH.length]}
 function isL(){return thm()==='light'}
