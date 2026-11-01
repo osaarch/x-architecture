@@ -16,8 +16,8 @@
     S = { built: false, on: false, raf: 0, gl: 0, px: .7, py: .4, tx: .7, ty: .4, mqVis: false, bandW: 0, bandV: 0 },
     TAU = Math.PI * 2, el = {}, stages = [], clockT = 0, IO = null, scrIO = null, gcache = null, gtime = 0, mo = null;
 
-  /* palette (the same purple, gold and black as neo.css) */
-  var PU1 = [40, 12, 84], PU2 = [98, 38, 190], PU3 = [150, 104, 250], GOLD = [214, 189, 126], GOLD2 = [236, 220, 170], INK = [10, 5, 18];
+  /* palette (the same red, gold and black as neo.css) */
+  var RD1 = [84, 12, 18], RD2 = [178, 28, 40], RD3 = [234, 76, 88], GOLD = [214, 189, 126], GOLD2 = [236, 220, 170], INK = [18, 5, 6];
 
     function isNeo() { return R.getAttribute('data-theme') === 'neo'; }
   function rtl() { return R.getAttribute('dir') === 'rtl'; }
@@ -64,7 +64,7 @@
       fl.push(cur);
     }
     for (k = 0; k < N; k++) {
-      c = lerp(PU1, [112, 50, 214], Math.pow(k / N, .9));
+      c = lerp(RD1, [200, 34, 48], Math.pow(k / N, .9));
       for (i = 0; i < 4; i++) {
         nx = (i + 1) % 4;
         f.push({ v: [fl[k][i], fl[k][nx], fl[k + 1][nx], fl[k + 1][i]], o: [0, fl[k][0][1], 0], c: c, e: .16 });
@@ -160,7 +160,7 @@
             cx.setTransform(this.dpr * (P1[0] - a0[0]) / im.naturalWidth, this.dpr * (P1[1] - a0[1]) / im.naturalWidth, this.dpr * (P3[0] - a0[0]) / im.naturalHeight, this.dpr * (P3[1] - a0[1]) / im.naturalHeight, this.dpr * a0[0], this.dpr * a0[1]);
             cx.drawImage(im, 0, 0);
             cx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-            cx.fillStyle = 'rgba(10,5,18,' + Math.max(0, .55 - .75 * q.I).toFixed(3) + ')'; cx.fillRect(0, 0, W, H);
+            cx.fillStyle = 'rgba(18,5,6,' + Math.max(0, .55 - .75 * q.I).toFixed(3) + ')'; cx.fillRect(0, 0, W, H);
             cx.restore();
           }
         }
@@ -192,9 +192,9 @@
   /* a cube whose four sides carry pictures (tx: four texture numbers, in order); the top and bottom stay plain */
   function iconCube(h, tx) {
     var f = [], i, front = [[-h, h, -h], [h, h, -h], [h, -h, -h], [-h, -h, -h]];
-    for (i = 0; i < 4; i++) f.push({ v: front.map(function (p) { return rot(p, 0, i * Math.PI / 2, 0); }), o: [0, 0, 0], c: PU1, e: .6, tx: tx[i] });
-    f.push({ v: [[-h, h, -h], [h, h, -h], [h, h, h], [-h, h, h]], o: [0, 0, 0], c: PU3, e: .6 });
-    f.push({ v: [[-h, -h, -h], [h, -h, -h], [h, -h, h], [-h, -h, h]], o: [0, 0, 0], c: PU1, e: .6 });
+    for (i = 0; i < 4; i++) f.push({ v: front.map(function (p) { return rot(p, 0, i * Math.PI / 2, 0); }), o: [0, 0, 0], c: RD1, e: .6, tx: tx[i] });
+    f.push({ v: [[-h, h, -h], [h, h, -h], [h, h, h], [-h, h, h]], o: [0, 0, 0], c: RD3, e: .6 });
+    f.push({ v: [[-h, -h, -h], [h, -h, -h], [h, -h, h], [-h, -h, h]], o: [0, 0, 0], c: RD1, e: .6 });
     return { f: f, l: [] };
   }
   /* the hero: the X mark alone, in one gold; three rings precess around it, cubes with the program icons ride the rings, thin lines join them to the mark */
@@ -225,7 +225,7 @@
     /* small plain cubes (they only add depth) */
     for (i = 0; i < 6; i++) {
       (function (i) {
-        var g = rg[i % 3], a0 = i * 1.9 + .8, sp = (i % 2 ? -1 : 1) * (.0004 + i * .00003), h = .07 + (i % 3) * .03, c = i % 2 ? PU3 : GOLD;
+        var g = rg[i % 3], a0 = i * 1.9 + .8, sp = (i % 2 ? -1 : 1) * (.0004 + i * .00003), h = .07 + (i % 3) * .03, c = i % 2 ? RD3 : GOLD;
         out.push({ mesh: box(h, h, h, c, .55), upd: function (t, o) { var p = at(g, a0 + (RM.matches ? 0 : t * sp), t); o.x = p[0]; o.y = p[1]; o.z = p[2]; o.ry = t * .0009 * (RM.matches ? 0 : 1) + i; o.rx = i * .7; } });
       })(i);
     }
@@ -245,12 +245,12 @@
     var out = [], i, j, m;
     if (k === 0) { /* steps: a staircase going up */
       m = { f: [], l: [] };
-      for (i = 0; i < 6; i++) m = merge(m, place(box(.9, .1 + i * .13, .22, i % 2 ? PU2 : PU3, .5), [0, -.9 + (.1 + i * .13) , -1.1 + i * .44], 0));
+      for (i = 0; i < 6; i++) m = merge(m, place(box(.9, .1 + i * .13, .22, i % 2 ? RD2 : RD3, .5), [0, -.9 + (.1 + i * .13) , -1.1 + i * .44], 0));
       out.push({ mesh: merge(m, { f: [], l: [{ a: [-.95, -.9, -1.2], b: [-.95, .72, 1.4], c: GOLD, al: .8 }, { a: [.95, -.9, -1.2], b: [.95, .72, 1.4], c: GOLD, al: .8 }] }), s: .78, y: .05, ry: 1.1 });
     } else if (k === 1) { /* stacked cubes */
       m = { f: [], l: [] };
       [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [-1, 0, 0]].forEach(function (p, i) {
-        m = merge(m, place(box(.47, .47, .47, i === 3 ? GOLD : i % 2 ? PU3 : PU2, .55), [p[0], p[1] - .45, p[2]], 0));
+        m = merge(m, place(box(.47, .47, .47, i === 3 ? GOLD : i % 2 ? RD3 : RD2, .55), [p[0], p[1] - .45, p[2]], 0));
       });
       out.push({ mesh: m, s: .9 });
     } else if (k === 2) { /* a small twisting tower */
@@ -258,7 +258,7 @@
     } else { /* a network of nodes */
       m = { f: [], l: [] };
       var pts = [[0, 1.05, 0], [1, .35, .3], [-.9, .3, .55], [.55, -.55, -.85], [-.5, -.7, -.7], [.1, -.15, 1.05], [-.1, .1, -.1]];
-      pts.forEach(function (p, i) { m = merge(m, place(box(.15, .15, .15, i === 6 ? GOLD : i % 2 ? PU3 : PU2, .6), p, 0)); });
+      pts.forEach(function (p, i) { m = merge(m, place(box(.15, .15, .15, i === 6 ? GOLD : i % 2 ? RD3 : RD2, .6), p, 0)); });
       for (i = 0; i < pts.length - 1; i++) { m.l.push({ a: pts[i], b: pts[6], c: GOLD, al: .7 }); m.l.push({ a: pts[i], b: pts[(i + 1) % 6], c: GOLD2, al: .35 }); }
       out.push({ mesh: m, s: 1 });
     }
@@ -270,12 +270,12 @@
     return [{ mesh: merge(prism(top, -.3, .3, GOLD, .6, 1), prism(bot, -.3, .3, GOLD, .6, 1)), s: 1, upd: function (t, o) { o.ry = RM.matches ? .5 : Math.sin(t * .0007) * .9 + .3; } }];
   }
 
-  /* ---------- one filter that puts any picture into the palette: shadows black, middle tones purple, highlights gold ---------- */
+  /* ---------- one filter that puts any picture into the palette: shadows black, middle tones red, highlights gold ---------- */
   function duo() {
     if (document.getElementById('nxduo')) return;
     var n = document.createElement('div');
     n.setAttribute('aria-hidden', 'true'); n.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
-    n.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" focusable="false"><filter id="nxduo" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix type="matrix" values=".33 .59 .11 0 0  .33 .59 .11 0 0  .33 .59 .11 0 0  0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="0.03 0.06 0.40 0.93"/><feFuncG type="table" tableValues="0.016 0.02 0.14 0.84"/><feFuncB type="table" tableValues="0.06 0.14 0.78 0.62"/></feComponentTransfer></filter></svg>';
+    n.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" focusable="false"><filter id="nxduo" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix type="matrix" values=".33 .59 .11 0 0  .33 .59 .11 0 0  .33 .59 .11 0 0  0 0 0 1 0"/><feComponentTransfer><feFuncR type="table" tableValues="0.04 0.10 0.72 0.93"/><feFuncG type="table" tableValues="0.012 0.015 0.09 0.84"/><feFuncB type="table" tableValues="0.014 0.02 0.13 0.62"/></feComponentTransfer></filter></svg>';
     document.body.appendChild(n);
   }
   /* ---------- build once ---------- */
