@@ -81,26 +81,38 @@ html[data-theme=neo] .nxb.a s{background:#4a0a11}
 html[data-theme=neo] .nxb.b{background:linear-gradient(90deg,#8f0f1c,#b3121f 50%,#5c0c16);color:#fff;rotate:3.2deg;z-index:1}
 html[data-theme=neo] .nxb.b s{background:var(--gold)}
 /* ---- the four doors ---- */
-html[data-theme=neo] .ix{border:0;display:grid;gap:clamp(12px,1.6vw,18px)}
-html[data-theme=neo] .ixr{position:relative;display:grid;grid-template-columns:clamp(104px,11vw,164px) minmax(0,1.2fr) minmax(0,1fr) 56px;align-items:center;gap:clamp(14px,2.6vw,40px);padding:clamp(14px,1.8vw,22px) clamp(20px,3vw,40px) clamp(14px,1.8vw,22px) clamp(14px,2vw,26px);border:1px solid var(--line);border-radius:var(--r1);background:var(--bg2);color:var(--ink);overflow:hidden;isolation:isolate;box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 18px 44px -22px rgba(108,22,29,.35);transition:box-shadow .4s}
-html[dir=rtl][data-theme=neo] .ixr{padding:clamp(14px,1.8vw,22px) clamp(14px,2vw,26px) clamp(14px,1.8vw,22px) clamp(20px,3vw,40px)}
+html[data-theme=neo] .ix{border:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.6vw,20px);margin-top:clamp(22px,3vw,40px)}
+html[data-theme=neo] .hst .hd{margin-bottom:0}
+html[data-theme=neo] .ixr{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 52px;grid-template-areas:"d d" "t a" "c c";align-items:end;align-content:start;gap:10px 14px;padding:clamp(16px,2vw,24px) clamp(18px,2.2vw,28px) clamp(18px,2.2vw,28px);border:1px solid var(--line);border-radius:var(--r1);background:var(--bg2);color:var(--ink);overflow:hidden;isolation:isolate;box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 18px 44px -22px rgba(108,22,29,.35);transition:box-shadow .4s}
 html[data-theme=neo] .ixr::after{display:none}
 html[data-theme=neo] .ixr::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#b22531,#4a0a11 70%);opacity:0;transition:opacity .5s var(--ease);z-index:-1}
-html[data-theme=neo] .ixr:hover::before,html[data-theme=neo] .ixr:focus-visible::before{opacity:1}
-html[data-theme=neo] .ixr:hover,html[data-theme=neo] .ixr:focus-visible{color:#fff;--ink:#fff;--soft:#f0c9c6;--gold:#ecdcaa;--gold2:#f6ecc8;--line:rgba(255,255,255,.25);--gr:255,255,255;border-color:transparent}
-html[data-theme=neo] .ixr:hover .ixt b,html[data-theme=neo] .ixr:focus-visible .ixt b{color:#fff}
-html[data-theme=neo] .ixr:hover .ixt small,html[data-theme=neo] .ixr:hover .ixc i{color:#f9dddf}
-html[data-theme=neo] .nxd{display:block;width:100%;height:clamp(104px,11vw,150px);margin-top:8px}
+html[data-theme=neo] a.ixr:hover::before,html[data-theme=neo] a.ixr:focus-visible::before{opacity:1}
+html[data-theme=neo] a.ixr:hover,html[data-theme=neo] a.ixr:focus-visible{color:#fff;--ink:#fff;--soft:#f0c9c6;--gold:#ecdcaa;--gold2:#f6ecc8;--line:rgba(255,255,255,.25);--gr:255,255,255;border-color:transparent}
+html[data-theme=neo] a.ixr:hover .ixt b,html[data-theme=neo] a.ixr:focus-visible .ixt b{color:#fff}
+html[data-theme=neo] a.ixr:hover .ixt small,html[data-theme=neo] a.ixr:hover .ixc i{color:#f9dddf}
+html[data-theme=neo] .nxd{grid-area:d;display:block;width:100%;height:clamp(110px,12vw,150px)}
 html[data-theme=neo] .ixn{position:absolute;inset-block-start:16px;inset-inline-start:20px;font-size:.7rem;letter-spacing:.08em;font-weight:500;color:var(--soft);z-index:2;line-height:1;-webkit-text-stroke:0;color:var(--soft)}
 html[dir=rtl][data-theme=neo] .ixn{inset-inline-start:auto;inset-inline-end:20px}
-html[data-theme=neo] .ixt b{font-size:clamp(1.5rem,3vw,2.6rem);font-weight:600;line-height:1.1;color:var(--ink)}
-html[data-theme=neo] .ixt small{font-size:clamp(.9rem,1.2vw,1.05rem);color:var(--soft)}
-html[data-theme=neo] .ixc{gap:8px}
+html[data-theme=neo] .ixt{grid-area:t}
+html[data-theme=neo] .ixt b{font-size:clamp(1.4rem,2.3vw,2.1rem);font-weight:600;line-height:1.15;color:var(--ink)}
+html[data-theme=neo] .ixt small{font-size:clamp(.88rem,1.05vw,1rem);line-height:1.7;color:var(--soft);max-width:none}
+html[data-theme=neo] .ixc{grid-area:c;align-self:end;gap:8px}
 html[data-theme=neo] .ixc i{border:1px solid var(--line);background:rgba(var(--gr),.05);border-radius:999px;padding:6px 14px;font-size:.78rem;color:var(--ink)}
 html[data-theme=neo] .ixc i+i::before{display:none}
-html[data-theme=neo] .ixa{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);color:var(--ink);background:rgba(var(--gr),.05);transition:background .3s,color .3s}
-html[data-theme=neo] .ixr:hover .ixa{background:var(--gold);border-color:var(--gold);color:#4a0a11}
-@media(max-width:860px){html[data-theme=neo] .ixr{grid-template-columns:86px minmax(0,1fr) 46px;gap:12px}html[data-theme=neo] .nxd{height:96px}html[data-theme=neo] .ixa{width:44px;height:44px}html[data-theme=neo] .ixc{display:none}}
+html[data-theme=neo] .ixa{grid-area:a;align-self:center;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);color:var(--ink);background:rgba(var(--gr),.05);transition:background .3s,color .3s}
+html[data-theme=neo] a.ixr:hover .ixa,html[data-theme=neo] .ixa:hover,html[data-theme=neo] .ixa:focus-visible{background:var(--gold);border-color:var(--gold);color:#4a0a11}
+html[data-theme=neo] .ixm{grid-column:1/-1;grid-template-columns:clamp(104px,11vw,164px) minmax(0,1fr) 52px;grid-template-areas:"d t a" "s s s";align-items:center;gap:12px clamp(14px,2.6vw,36px)}
+html[data-theme=neo] .ixm .nxd{height:clamp(96px,10vw,140px)}
+html[data-theme=neo] .ixs{grid-area:s;list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(8px,1vw,12px)}
+html[data-theme=neo] .ixs li{min-width:0}
+html[data-theme=neo] .ixs a{display:grid;grid-template-columns:30px minmax(0,1fr);align-content:start;gap:6px 10px;height:100%;padding:14px 14px 16px;border:1px solid var(--line);border-radius:var(--r3);background:rgba(var(--gr),.04);color:var(--ink);text-decoration:none;transition:border-color .3s,background .3s,transform .3s var(--ease)}
+html[data-theme=neo] .ixs i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--ong);font-style:normal;font-size:.82rem;font-weight:600;line-height:1}
+html[data-theme=neo] .ixs b{align-self:center;font-weight:600;font-size:1.02rem;line-height:1.25}
+html[data-theme=neo] .ixs small{grid-column:1/-1;font-size:.82rem;line-height:1.7;color:var(--soft)}
+html[data-theme=neo] .ixs a:hover,html[data-theme=neo] .ixs a:focus-visible{border-color:var(--gold);background:rgba(var(--gr),.1);transform:translateY(-2px)}
+html[data-theme=neo] .ixs a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media(max-width:1100px){html[data-theme=neo] .ixs small{font-size:.8rem}}
+@media(max-width:900px){html[data-theme=neo] .ix{grid-template-columns:1fr}html[data-theme=neo] .ixr{grid-template-columns:86px minmax(0,1fr) 46px;grid-template-areas:"d t a" "c c c";align-items:center;gap:12px}html[data-theme=neo] .ixm{grid-template-columns:86px minmax(0,1fr) 46px;grid-template-areas:"d t a" "s s s"}html[data-theme=neo] .nxd,html[data-theme=neo] .ixm .nxd{height:96px}html[data-theme=neo] .ixa{width:44px;height:44px}html[data-theme=neo] .ixs{grid-template-columns:1fr}html[data-theme=neo] .ixs a{grid-template-columns:30px minmax(0,1fr);padding:12px 14px}}
 /* ---- cards ---- */
 html[data-theme=neo] :is(.g4 .c,.rrc,.nc,.rmc,.ci){border:1px solid var(--line);border-radius:var(--r1);background-color:var(--bg2);overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 20px 50px -28px rgba(0,0,0,.7);transition:background-color .4s var(--ease),color .2s,border-color .3s,box-shadow .4s;background-image:radial-gradient(240px circle at var(--tx,50%) var(--ty,50%),rgba(255,255,255,var(--sa,0)),transparent)}
 html[data-theme=neo] :is(.g4 .c,.rrc,.nc,.ci):hover,html[data-theme=neo] :is(.g4 .c,.rrc,.nc):focus-within{background-color:#650d17;color:#fff;border-color:rgba(236,220,170,.5);--ink:#fff;--soft:#f0c9c6;--gold:#ecdcaa;--gold2:#f6ecc8;--line:rgba(255,255,255,.25);--inkr:255,255,255;--gr:255,255,255}
