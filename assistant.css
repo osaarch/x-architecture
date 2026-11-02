@@ -1,0 +1,122 @@
+/* X Assistant: the floating helper on the home page. Colours come only from the site's theme variables, so it follows dark+gold and light+gold. */
+.xas [hidden]{display:none!important}
+.xas button{font:inherit;color:inherit;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.xas svg{display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.xas svg.xc{fill:none;stroke:none}
+
+/* the character: a small figure that waves hello; it is the button and it can be dragged anywhere */
+.xas-b{position:fixed;z-index:80;width:84px;height:84px;padding:0;border:0;border-radius:50%;background:none;color:var(--gold);
+  touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;transition:transform .25s}
+.xas-b .xc{width:100%;height:100%;overflow:visible;pointer-events:none;filter:drop-shadow(0 10px 18px rgba(0,0,0,.4))}
+html[data-theme=light] .xas-b .xc{filter:drop-shadow(0 10px 16px rgba(60,48,20,.28))}
+.xas-b:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.xas-b:hover{transform:translateY(-2px)}
+.xas.mv .xas-b{cursor:grabbing;transform:scale(1.07);transition:none}
+.xas.mv .xas-p,.xas.mv .xas-tip{transition:none}
+
+.xc-disc{fill:var(--bg2);transition:fill .25s}
+.xas-b:hover .xc-disc,.xas.on .xc-disc{fill:var(--bg3)}
+.xc-ring{fill:none;stroke:var(--gold);stroke-width:1.6}
+.xc-shirt{fill:var(--gold)}
+.xc-mark{fill:var(--ong)}
+.xc-skin{fill:#e8c6a0}
+.xc-skin2{fill:#d3a77c}
+.xc-hair{fill:#2a1f16;stroke:var(--gold2);stroke-width:.9;stroke-linejoin:round}
+.xc-ink{fill:#2a1f16}
+.xc-brow{fill:none;stroke:#2a1f16;stroke-width:1.4;stroke-linecap:round}
+.xc-glass{fill:none;stroke:var(--gold2);stroke-width:1.6}
+.xc-gold{fill:var(--gold)}
+.xc-cheek{fill:rgba(var(--gr),.3)}
+.xc-smile{fill:none;stroke:#2a1f16;stroke-width:1.9;stroke-linecap:round}
+.xc-o{fill:#2a1f16;visibility:hidden;transform-box:fill-box;transform-origin:center}
+.xc-eyes{transform-box:fill-box;transform-origin:center;animation:xcblink 5.5s infinite}
+.xc-body{animation:xcbob 4.2s ease-in-out infinite}
+.xc-arm{transform-origin:80px 92px;transition:opacity .25s}
+.xc-under{fill:none;stroke:var(--bg2);stroke-width:14;stroke-linecap:round}
+.xc-sleeve{fill:none;stroke:var(--gold);stroke-width:10.5;stroke-linecap:round}
+.xas.on .xc-arm{opacity:0}
+.xas.wave .xc-arm{animation:xcwave .75s ease-in-out 3}
+.xas.talk .xc-s{opacity:0}
+.xas.talk .xc-o{visibility:visible;animation:xctalk .26s ease-in-out infinite alternate}
+@keyframes xcwave{0%,100%{transform:rotate(0)}25%{transform:rotate(-17deg)}75%{transform:rotate(15deg)}}
+@keyframes xcblink{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.1)}}
+@keyframes xcbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.3px)}}
+@keyframes xctalk{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+
+/* the greeting bubble next to the figure */
+.xas-tip{position:fixed;z-index:80;display:flex;flex-direction:column;gap:10px;padding:12px 12px 12px 14px;background:var(--bg2);color:var(--ink);border:1px solid var(--gold);
+  box-shadow:0 14px 40px rgba(0,0,0,.35);font-size:.9rem;line-height:1.6;animation:xasin .35s ease both}
+.xas-tip[dir=rtl]{padding:12px 14px 12px 12px}
+.xas-tb{display:flex;align-items:flex-start;gap:8px}
+.xas-tb span{flex:1;padding-block:3px;font-weight:400}
+.xas-tx{flex:none;width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--soft)}
+.xas-tx svg{width:14px;height:14px}
+.xas-tx:hover{color:var(--gold)}
+.xas-tq{display:flex;flex-wrap:wrap;gap:6px}
+html[data-theme=light] .xas-tip{box-shadow:0 14px 34px rgba(60,48,20,.2)}
+
+/* the chat */
+.xas-p{position:fixed;z-index:85;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);border:1px solid var(--gold);
+  box-shadow:0 34px 90px rgba(0,0,0,.5);overflow:hidden;animation:xasin .26s cubic-bezier(.2,.7,.2,1) both;font-family:var(--f)}
+html[data-theme=light] .xas-p{box-shadow:0 28px 70px rgba(60,48,20,.22)}
+@keyframes xasin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.xas-h{flex:none;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;background:var(--bg3);border-bottom:1px solid var(--line);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.xas-p[dir=rtl] .xas-h{padding:10px 14px 10px 10px}
+.xas.mv .xas-h{cursor:grabbing}
+.xas-av{flex:none;width:46px;height:46px;display:block}
+.xas-av .xc{width:100%;height:100%;display:block}
+.xas-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.xas-nm{display:block;font-size:.95rem;font-weight:700;letter-spacing:.01em;color:var(--ink)}
+.xas-sb{display:block;font-size:.72rem;font-weight:300;color:var(--soft);line-height:1.4}
+.xas-i{flex:none;width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--soft);transition:color .2s}
+.xas-i svg{width:17px;height:17px}
+.xas-i:hover{color:var(--gold)}
+.xas-i:focus-visible,.xas-tx:focus-visible,.xas-c:focus-visible,.xas-l:focus-visible,.xas-f button:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+
+.xas-pk{flex:none;padding:12px 14px 14px;background:var(--bg2);border-bottom:1px solid var(--line)}
+.xas-pl{display:block;margin-bottom:10px;font-size:.78rem;color:var(--soft)}
+.xas-po{display:flex;gap:10px}
+.xas-ch{flex:1;display:flex;align-items:center;gap:10px;padding:8px 12px;background:none;border:1px solid var(--line);color:var(--soft);font-size:.86rem;transition:border-color .2s,color .2s,background-color .2s}
+.xas-ch .xc{width:44px;height:44px;flex:none}
+.xas-ch:hover{border-color:var(--gold);color:var(--gold2)}
+.xas-ch[aria-pressed=true]{border-color:var(--gold);color:var(--ink);background:rgba(var(--gr),.12)}
+.xas-ch:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.xas-m{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+.xas-m:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.xas-g{max-width:90%;padding:10px 13px;font-size:.9rem;line-height:1.75;animation:xasin .22s ease both}
+.xas-g p{margin:0;padding:0;max-width:none;color:inherit;font-size:inherit;font-weight:300;white-space:pre-line;overflow-wrap:anywhere;text-align:start}
+.xas-g.me p{font-weight:400}
+.xas-g.bot{align-self:flex-start;background:var(--bg2);border:1px solid var(--line);border-inline-start:2px solid var(--gold)}
+.xas-g.me{align-self:flex-end;background:var(--gold);color:var(--ong)}
+.xas-r{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.xas-l{display:inline-block;padding:5px 11px;border:1px solid var(--gold);color:var(--gold2);background:none;font-size:.76rem;line-height:1.5;text-decoration:none;transition:background-color .2s,color .2s}
+.xas-l:hover{background:var(--gold);color:var(--ong)}
+.xas-d{display:flex;gap:5px;align-items:center;padding:14px 16px}
+.xas-d i{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.35;animation:xasdot 1s ease-in-out infinite}
+.xas-d i:nth-child(2){animation-delay:.15s}.xas-d i:nth-child(3){animation-delay:.3s}
+@keyframes xasdot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+.xas-q{flex:none;display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;max-height:92px;overflow-y:auto}
+.xas-c{padding:6px 11px;background:none;border:1px solid var(--line);color:var(--soft);font-size:.78rem;line-height:1.5;transition:border-color .2s,color .2s}
+.xas-c:hover{border-color:var(--gold);color:var(--gold2)}
+
+.xas-f{flex:none;display:flex;align-items:stretch;border-top:1px solid var(--line);background:var(--bg2)}
+.xas-f input{flex:1;width:auto;max-width:none;height:auto;min-width:0;padding:14px;background:none;border:0;border-radius:0;color:var(--ink);font:inherit;font-size:16px;outline:0}
+.xas-f input::placeholder{color:var(--soft);opacity:.8}
+.xas-f:focus-within{box-shadow:inset 0 -2px 0 var(--gold)}
+.xas-f button{flex:none;width:50px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--gold);transition:background-color .2s,color .2s}
+.xas-f button svg{width:20px;height:20px}
+.xas-p[dir=rtl] .xas-f button svg{transform:scaleX(-1)}
+.xas-f button:hover{background:var(--gold);color:var(--ong)}
+.xas-n{flex:none;margin:0;padding:6px 14px 9px;font-size:.68rem;line-height:1.5;color:var(--soft);text-align:center;background:var(--bg2)}
+
+@media(max-width:700px){
+  .xas-b{width:72px;height:72px}
+  .xas-g{max-width:94%}
+}
+@media(prefers-reduced-motion:reduce){
+  .xas-b,.xas-p,.xas-tip,.xas-g,.xc-body,.xc-eyes,.xc-arm,.xc-o{animation:none!important;transition:none!important}
+  .xas-d i{animation:none;opacity:.7}
+}
+@media print{.xas{display:none!important}}
