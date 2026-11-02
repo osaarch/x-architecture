@@ -344,10 +344,14 @@ function mclose(){
   var m=$('cmm');if(!m||m.hidden)return;m.hidden=true;S.modal=null;$('cmmc').innerHTML='';document.body.style.overflow='';CP=null;
   if(PV&&PV.bd){PV.bd.destroy();PV.bd=null}PV=null;
   if(LASTF&&LASTF.focus&&LASTF.isConnected)try{LASTF.focus({preventScroll:true})}catch(e){}}
-function baseHash(){return S.dr==='mine'?'#community/mine':S.dr==='comp'?'#community/c'+(S.cmp?'/'+S.cmp:''):'#community'}
+var PM=false;   /* page mode: the Competitions section (#competitions...) is its own page, not the board workspace */
+function PMODE(){return/^#competitions(\/|$)/.test(location.hash)}
+function hCmp(id){return'#competitions'+(id?'/'+id:'')}
+function hProj(id){return(PM?'#competitions/p/':'#community/p/')+id}
+function baseHash(){return PM?hCmp(S.cmp):S.dr==='mine'?'#community/mine':S.dr==='comp'?'#community/c'+(S.cmp?'/'+S.cmp:''):'#community'}
 function closeReq(){
   if(S.modal==='new'&&CP&&CP.busy)return;
-  if(S.modal==='p'&&/^#community\/p\//.test(location.hash)){try{history.replaceState(null,'',baseHash())}catch(e){location.hash=baseHash()}}
+  if(S.modal==='p'&&/^#(community|competitions)\/p\//.test(location.hash)){try{history.replaceState(null,'',baseHash())}catch(e){location.hash=baseHash()}}
   mclose()}
 
 /* ---------- a project (or a published board) in full ---------- */
@@ -358,13 +362,13 @@ function pview(p){
   var isb=p.k==='b',own=isOwn(p),im=p.im||[];
   PV={p:p,i:0,bd:null};
   var gl=isb?'<div id="cmvb" class="cbhost ro"></div>':'<div class="cmgl" dir="ltr"><div class="cmgm"><img id="cmgi" alt="" data-id="'+esc(im[0]||'')+'" src="'+esc(imgUrl(im[0],1400))+'">'+(im.length>1?'<button type="button" class="cmgb p" data-g="-1" aria-label="'+esc(tt('السابق','Previous'))+'">'+ico('left')+'</button><button type="button" class="cmgb n" data-g="1" aria-label="'+esc(tt('التالي','Next'))+'">'+ico('right')+'</button>':'')+'</div>'+(im.length>1?'<div class="cmgt">'+im.map(function(id,i){return'<button type="button" class="'+(i?'':'on')+'" data-gi="'+i+'" aria-label="'+(i+1)+'"><img alt="" loading="lazy" data-id="'+esc(id)+'" src="'+esc(imgUrl(id,200))+'"></button>'}).join('')+'</div>':'')+'</div>';
-  var h='<div class="cmv">'+gl+'<div class="cmd"><h2 id="cmmt" dir="auto">'+esc(p.ti)+'</h2><p class="cmm1"><a href="#community/u/'+esc(p.a)+'" dir="auto">'+esc(p.n)+'</a>'+(p.u?' · <span dir="auto">'+esc(p.u)+'</span>':'')+' · '+esc(dateStr(p.t))+'</p>'+(function(){var k=kcOf(p),c=k?kcGet(k):null;return c?'<p class="cmm1"><a class="kcx" href="#community/c/'+esc(k)+'">'+ico('trophy')+'<span dir="auto">'+esc(tt('مشاركة في مسابقة: ','Competition entry: ')+lx(c.t))+'</span></a></p>':''})()+(p.tx?'<p class="cmtx" dir="auto">'+esc(p.tx)+'</p>':'')+'<div class="cmcs">'+chips(p,12)+'</div>'
+  var h='<div class="cmv">'+gl+'<div class="cmd"><h2 id="cmmt" dir="auto">'+esc(p.ti)+'</h2><p class="cmm1"><a href="#community/u/'+esc(p.a)+'" dir="auto">'+esc(p.n)+'</a>'+(p.u?' · <span dir="auto">'+esc(p.u)+'</span>':'')+' · '+esc(dateStr(p.t))+'</p>'+(function(){var k=kcOf(p),c=k?kcGet(k):null;return c?'<p class="cmm1"><a class="kcx" href="'+esc(hCmp(k))+'">'+ico('trophy')+'<span dir="auto">'+esc(tt('مشاركة في مسابقة: ','Competition entry: ')+lx(c.t))+'</span></a></p>':''})()+(p.tx?'<p class="cmtx" dir="auto">'+esc(p.tx)+'</p>':'')+'<div class="cmcs">'+chips(p,12)+'</div>'
    +'<div class="cmac"><button type="button" class="b cmlk'+(S.liked[p.id]?' on':'')+'" data-like="'+esc(p.id)+'" data-cm="like">'+ico('heart')+'<em>'+(p.lk||0)+'</em></button>'
    +(isb?'':'<button type="button" class="b" data-cm="save">'+ico('board')+'<span>'+esc(tt('إلى لوحتي','To my board'))+'</span></button>')
    +'<button type="button" class="b" data-cm="share">'+ico('link')+'<span>'+esc(tt('انسخ الرابط','Copy link'))+'</span></button>'
    +(own?'<button type="button" class="b" data-cm="del">'+ico('trash')+'<span>'+esc(tt('حذف','Delete'))+'</span></button>':'<button type="button" class="b" data-cm="rep">'+ico('flag')+'<span>'+esc(tt('إبلاغ','Report'))+'</span></button>')+'</div></div></div>';
   mopen(h,'p');$('cmm').setAttribute('aria-label',p.ti);
-  if(isb){var host=$('cmvb');PV.bd=mkBoard(host,{ro:true,onProj:function(id){location.hash='#community/p/'+id}});PV.bd.load({cards:(p.bd&&p.bd.cards)||[],links:(p.bd&&p.bd.links)||[]});requestAnimationFrame(function(){if(PV&&PV.bd)PV.bd.fit()})}}
+  if(isb){var host=$('cmvb');PV.bd=mkBoard(host,{ro:true,onProj:function(id){location.hash=hProj(id)}});PV.bd.load({cards:(p.bd&&p.bd.cards)||[],links:(p.bd&&p.bd.links)||[]});requestAnimationFrame(function(){if(PV&&PV.bd)PV.bd.fit()})}}
 function gal(d){
   if(!PV||PV.p.k==='b')return;var im=PV.p.im||[];if(im.length<2)return;PV.i=(PV.i+d+im.length)%im.length;galTo(PV.i)}
 function galTo(i){
@@ -375,7 +379,7 @@ function openProj(id){
   if(p&&(p.k!=='b'||p.bd)){pview(p);return}
   if(!API||!S.srv||S.srv==='err'){if(p){pview(p);return}toast(emsg('gone'));try{history.replaceState(null,'',baseHash())}catch(e){}return}
   jget('a=cget&id='+encodeURIComponent(id)).then(function(j){
-    if(j&&j.ok&&j.post){var q=findPost(id);if(q)q.bd=j.post.bd;else S.feed.push(j.post);if(!/^#community\/p\//.test(location.hash)||location.hash.split('/')[2]!==id)return;pview(q||j.post)}
+    if(j&&j.ok&&j.post){var q=findPost(id);if(q)q.bd=j.post.bd;else S.feed.push(j.post);if(!/^#(community|competitions)\/p\//.test(location.hash)||location.hash.split('/')[2]!==id)return;pview(q||j.post)}
     else if(p){pview(p)}
     else{toast(emsg('gone'));try{history.replaceState(null,'',baseHash())}catch(e){}}},function(){if(p)pview(p);else toast(emsg(''))})}
 function updHearts(id){
@@ -388,7 +392,7 @@ function toggleLike(id){
   function back(){S.liked[id]=on?0:1;if(p)p.lk=Math.max(0,(p.lk||0)+(on?-1:1));updHearts(id)}
   ap({a:'clike',id:id}).then(function(j){if(j&&j.ok){S.liked[id]=j.on?1:0;if(p)p.lk=j.n;updHearts(id)}else{back();if(j&&j.err)toast(emsg(j.err))}},back)}
 function copyLink(id){
-  var u=location.origin+location.pathname+'#community/p/'+id;
+  var u=location.origin+location.pathname+hProj(id);
   function ok(){toast(tt('نُسخ الرابط','Link copied'))}
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,function(){prompt('',u)});else{try{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();ok()}catch(e){prompt('',u)}}}
 function twoStep(b,txt,fn){
@@ -400,7 +404,7 @@ function doDelete(id,after){
 function modalClick(e){
   var t=e.target,g=t.closest('[data-g]');if(g){gal(+g.dataset.g);return}
   var gi=t.closest('[data-gi]');if(gi){galTo(+gi.dataset.gi);return}
-  var a=t.closest('a[href^="#community"]');if(a&&S.modal==='p'){if(a.getAttribute('href').indexOf('#community/p/')!==0)mclose();return}
+  var a=t.closest('a[href^="#community"],a[href^="#competitions"]');if(a&&S.modal==='p'){if(!/^#(community|competitions)\/p\//.test(a.getAttribute('href')))mclose();return}
   var c=t.closest('[data-cm]');if(!c)return;var k=c.dataset.cm;
   if(S.modal==='p'&&PV){var p=PV.p;
     if(k==='like')toggleLike(p.id);
@@ -511,13 +515,13 @@ function kcNeed(c){/* winners that fell out of the newest-posts list are fetched
     jget('a=cget&id='+encodeURIComponent(id)).then(function(j){if(j&&j.ok&&j.post){KC.x[id]=j.post;refresh()}},function(){})})}
 function kcCard(c){
   var st=kcSt(c),n=S.srv===true?kcEntries(c).length:-1;
-  return'<article class="kcc '+st+'"><a class="kcl" href="#community/c/'+esc(c.id)+'"><span class="kcb '+st+'">'+esc(kcSL(st))+'</span><b dir="auto">'+esc(lx(c.t))+'</b>'+(lx(c.d)?'<small dir="auto">'+esc(lx(c.d))+'</small>':'')
+  return'<article class="kcc '+st+'"><a class="kcl" href="'+esc(hCmp(c.id))+'"><span class="kcb '+st+'">'+esc(kcSL(st))+'</span><b dir="auto">'+esc(lx(c.t))+'</b>'+(lx(c.d)?'<small dir="auto">'+esc(lx(c.d))+'</small>':'')
    +'<span class="kcm">'+esc(kcWhen(c))+(n>=0?' · '+n+' '+esc(tt('مشاركة','entries')):'')+'</span></a>'
    +(st==='open'?'<button type="button" class="b s" data-kc="join" data-id="'+esc(c.id)+'">'+ico('plus')+'<span>'+esc(tt('شارك','Enter'))+'</span></button>':'')+'</article>'}
 function kcDetail(c){
   var st=kcSt(c),en=kcEntries(c),rules=lx(c.r),pz=lx(c.pz),h='';kcNeed(c);
   var win=(c.win||[]).map(kcPost).filter(Boolean);
-  h+='<div class="kcd"><a class="wsc2 kcback" href="#community/c">'+ico('left')+'<span>'+esc(tt('كل المسابقات','All competitions'))+'</span></a>'
+  h+='<div class="kcd"><a class="wsc2 kcback" href="'+hCmp('')+'">'+ico('left')+'<span>'+esc(tt('كل المسابقات','All competitions'))+'</span></a>'
    +'<span class="kcb '+st+'">'+esc(kcSL(st))+'</span><h3 dir="auto">'+esc(lx(c.t))+'</h3><p class="kcm">'+esc(kcWhen(c))+'</p>'
    +(lx(c.d)?'<p class="kct" dir="auto">'+esc(lx(c.d))+'</p>':'')
    +(Array.isArray(rules)&&rules.length?'<h4>'+esc(tt('الشروط','Rules'))+'</h4><ul class="kcr">'+rules.map(function(x){return'<li dir="auto">'+esc(x)+'</li>'}).join('')+'</ul>':'')
@@ -538,15 +542,15 @@ function kcDetail(c){
 function bodyComp(){
   if(KC.list===null)return skel(3);
   if(KC.err)return note('x',tt('تعذّر تحميل المسابقات','Could not load the competitions'),'<button type="button" class="b" data-kc="retry">'+esc(tt('أعد المحاولة','Retry'))+'</button>');
-  if(S.cmp){var c=kcGet(S.cmp);if(c)return kcDetail(c);return note('x',tt('هذه المسابقة غير موجودة','This competition does not exist'),'<a class="b" href="#community/c">'+esc(tt('كل المسابقات','All competitions'))+'</a>')}
+  if(S.cmp){var c=kcGet(S.cmp);if(c)return kcDetail(c);return note('x',tt('هذه المسابقة غير موجودة','This competition does not exist'),'<a class="b" href="'+hCmp('')+'">'+esc(tt('كل المسابقات','All competitions'))+'</a>')}
   var a=kcSorted();
   if(!a.length)return note('trophy',tt('لا توجد مسابقات الآن. نعلن عن المسابقة القادمة هنا.','No competitions right now. The next one will be announced here.'));
   return'<div class="kcs">'+a.map(kcCard).join('')+'</div>'}
 function kcBanner(){
   var o=(KC.list||[]).filter(function(c){return kcSt(c)==='open'})[0];if(!o)return'';
-  return'<a class="kcp" href="#community/c/'+esc(o.id)+'">'+ico('trophy')+'<span><small>'+esc(tt('مسابقة مفتوحة','Open competition'))+'</small><b dir="auto">'+esc(lx(o.t))+'</b></span>'+ico('right')+'</a>'}
+  return'<a class="kcp" href="'+esc(hCmp(o.id))+'">'+ico('trophy')+'<span><small>'+esc(tt('مسابقة مفتوحة','Open competition'))+'</small><b dir="auto">'+esc(lx(o.t))+'</b></span>'+ico('right')+'</a>'}
 function copyComp(id){
-  var u=location.origin+location.pathname+'#community/c/'+id;
+  var u=location.origin+location.pathname+hCmp(id);
   function ok(){toast(tt('نُسخ الرابط','Link copied'))}
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,function(){prompt('',u)});else{try{var t=document.createElement('textarea');t.value=u;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();ok()}catch(e){prompt('',u)}}}
 
@@ -618,6 +622,7 @@ function isWide(){return window.innerWidth>=1000}
 var RAIL=[['img','img','صورة','Picture'],['note','note','ملاحظة','Note'],['conn','conn','ربط','Connect'],'-',['find','search','بحث','Search'],['feed','grid','المجتمع','Community'],['comp','trophy','المسابقات','Competitions'],'-',['undo','undo','تراجع','Undo'],['pub','share','انشر لوحتي','Publish my board']];
 function shell(){
   root=$('cm');if(!root)return;rendered=false;
+  if(PM){pgShell();return}
   var rail=RAIL.map(function(r){if(r==='-')return'<i class="wsp" aria-hidden="true"></i>';var l=tt(r[2],r[3]);
     return'<button type="button" class="wsb" data-ws="'+r[0]+'" aria-label="'+esc(l)+'" data-tip="'+esc(l)+'"'+(r[0]==='conn'?' aria-pressed="false"':'')+(r[0]==='undo'?' disabled':'')+'>'+ico(r[1])+'</button>'}).join('');
   var starts=[['img','img','صورة','Picture'],['note','note','ملاحظة','Note'],['find','search','ابحث','Search']].map(function(r){return'<button type="button" class="wsg" data-ws="'+r[0]+'"><span>'+ico(r[1])+'</span><em>'+esc(tt(r[2],r[3]))+'</em></button>'}).join('');
@@ -626,27 +631,30 @@ function shell(){
    +'<div class="wst"><div class="cmq">'+ico('search')+'<input id="cmi" type="search" autocomplete="off" enterkeyhint="search" placeholder="'+esc(tt('ابحث: صور، مشاريع، مقالات، أشخاص','Search pictures, projects, articles, people'))+'" aria-label="'+esc(tt('ابحث في المجتمع وفي المصادر','Search the community and free sources'))+'"><button type="button" class="wsx" id="cmq0" aria-label="'+esc(tt('مسح','Clear'))+'" hidden>'+ico('x')+'</button></div><p class="wsh" id="wsh" role="status" hidden></p></div>'
    +'<nav class="wsr" role="toolbar" aria-orientation="vertical" aria-label="'+esc(tt('أدوات اللوحة','Board tools'))+'">'+rail+'</nav>'
    +'<aside class="wsd" id="wsd" aria-label="'+esc(tt('المجتمع والمصادر','Community and sources'))+'" hidden><div class="wsdh"><div class="wsdt" role="tablist">'
-   +[['feed','grid','المجتمع','Community'],['comp','trophy','المسابقات','Competitions'],['find','search','نتائج البحث','Results'],['mine','person','مشاريعي','My posts']].map(function(t){return'<button type="button" role="tab" data-dr="'+t[0]+'" aria-label="'+esc(tt(t[2],t[3]))+'" data-tip="'+esc(tt(t[2],t[3]))+'">'+ico(t[1])+'</button>'}).join('')
+   +[['feed','grid','المجتمع','Community'],['find','search','نتائج البحث','Results'],['mine','person','مشاريعي','My posts']].map(function(t){return'<button type="button" role="tab" data-dr="'+t[0]+'" aria-label="'+esc(tt(t[2],t[3]))+'" data-tip="'+esc(tt(t[2],t[3]))+'">'+ico(t[1])+'</button>'}).join('')
    +'</div><button type="button" class="wsb sm" data-cm="new" aria-label="'+esc(tt('انشر مشروعاً','Post a project'))+'" data-tip="'+esc(tt('انشر مشروعاً','Post a project'))+'">'+ico('plus')+'</button><button type="button" class="wsb sm" data-dr="" aria-label="'+esc(tt('إغلاق','Close'))+'">'+ico('x')+'</button></div><div class="wsdb" id="wsdb"></div></aside>'
    +'<div id="cmtoast" class="cmtoast" role="status" aria-live="polite"></div><input type="file" id="cmfi" accept="image/*" multiple hidden></div>';
-  root._lang=L;hh();
+  root._lang=L;root._pm=false;hh();
   BDO={noHint:true,
     onCount:function(n){var e=$('wse');if(e)e.hidden=n>0},
     onUndo:function(n){var u=root&&root.querySelector('[data-ws=undo]');if(u)u.disabled=!n},
     onMode:function(on,from){var b=root&&root.querySelector('[data-ws=conn]'),h=$('wsh');if(b){b.classList.toggle('on',!!on);b.setAttribute('aria-pressed',on?'true':'false')}
       if(h){h.hidden=!on;h.textContent=on?(from?tt('اختر العنصر الثاني','Pick the second item'):tt('اختر العنصر الأول','Pick the first item')):''}},
     onDropExt:function(it,pos){if(BD)BD.addExt(it,pos)}};
+  bindRoot()}
+function bindRoot(){
   if(!root._cm){root._cm=1;
     root.addEventListener('click',rootClick);
     root.addEventListener('change',function(e){if(e.target.id==='cmfi'){if(BD)BD.addImgs(e.target.files);e.target.value=''}});
     root.addEventListener('input',function(e){if(e.target.id==='cmi')onQuery()});
     root.addEventListener('keydown',rootKey);
     root.addEventListener('dragstart',function(e){var t=e.target.closest&&e.target.closest('[data-ext]');if(!t)return;var it=extGet(t.dataset.ext);if(!it){e.preventDefault();return}try{e.dataTransfer.setData('application/x-xarch',JSON.stringify(it));e.dataTransfer.effectAllowed='copy'}catch(x){}});
-    root.addEventListener('error',function(e){var im=e.target;if(im&&im.tagName==='IMG'&&im.dataset.id&&!im.dataset.fb&&im.dataset.id.indexOf('data:')!==0&&im.dataset.id.indexOf('https://')!==0){im.dataset.fb='1';im.src=imgFb(im.dataset.id,800)}},true)}}
+    root.addEventListener('error',function(e){var im=e.target;if(im&&im.tagName==='IMG'&&im.dataset.id&&!im.dataset.fb&&im.dataset.id.indexOf('data:')!==0&&im.dataset.id.indexOf('https://')!==0){im.dataset.fb='1';im.src=imgFb(im.dataset.id,800)}},true)}
+}
 /* --- results and lists --- */
 function extGet(k){var p=String(k).split(':'),a=p[0]==='i'?EXR.imgs:EXR.arts;return a&&a[+p[1]]}
 function cover(p){var im=p.im||[];if(p.k==='b')return'<span class="wtv bd n'+Math.min(4,im.length)+'">'+(im.length?im.slice(0,4).map(function(i){return imgTag(i,300)}).join(''):'<span class="wbi">'+ico('board')+'</span>')+'</span>';return'<span class="wtv">'+imgTag(im[0],500)+'</span>'}
-function ptile(p,win){return'<div class="wtl" data-id="'+esc(p.id)+'"><a class="wtc" href="#community/p/'+esc(p.id)+'" aria-label="'+esc(p.ti)+'">'+cover(p)+'<span class="wtt" dir="auto">'+esc(p.ti)+'</span></a><button type="button" class="wta" data-add="'+esc(p.id)+'" aria-label="'+esc(tt('أضف إلى لوحتي','Add to my board'))+'">'+ico('plus')+'</button><span class="cmh wth'+(S.liked[p.id]?' on':'')+'" data-h="'+esc(p.id)+'" role="button" tabindex="0" aria-label="'+esc(tt('إعجاب','Like'))+'">'+ico('heart')+'<em>'+(p.lk||0)+'</em></span>'+(win?'<span class="kcw">'+ico('trophy')+'<em>'+esc(tt('فائز','Winner'))+'</em></span>':'')+'</div>'}
+function ptile(p,win){return'<div class="wtl" data-id="'+esc(p.id)+'"><a class="wtc" href="'+esc(hProj(p.id))+'" aria-label="'+esc(p.ti)+'">'+cover(p)+'<span class="wtt" dir="auto">'+esc(p.ti)+'</span></a><button type="button" class="wta" data-add="'+esc(p.id)+'" aria-label="'+esc(tt('أضف إلى لوحتي','Add to my board'))+'">'+ico('plus')+'</button><span class="cmh wth'+(S.liked[p.id]?' on':'')+'" data-h="'+esc(p.id)+'" role="button" tabindex="0" aria-label="'+esc(tt('إعجاب','Like'))+'">'+ico('heart')+'<em>'+(p.lk||0)+'</em></span>'+(win?'<span class="kcw">'+ico('trophy')+'<em>'+esc(tt('فائز','Winner'))+'</em></span>':'')+'</div>'}
 function itile(it,i){return'<button type="button" class="wti" draggable="true" data-ext="i:'+i+'" aria-label="'+esc(tt('أضف إلى اللوحة: ','Add to board: ')+(it.cp||''))+'" title="'+esc((it.cp||'')+(it.cr?' — '+it.cr:''))+'"><img alt="" loading="lazy" referrerpolicy="no-referrer" draggable="false" src="'+esc(it.src)+'" style="aspect-ratio:'+Math.max(.6,Math.min(1.8,(it.w||4)/(it.h||3))).toFixed(2)+'"><span class="wad" aria-hidden="true">'+ico('plus')+'</span></button>'}
 function arow(it,i){return'<button type="button" class="wtr" draggable="true" data-ext="a:'+i+'" aria-label="'+esc(tt('أضف إلى اللوحة: ','Add to board: ')+it.ti)+'"><span class="wrv">'+(it.im?'<img alt="" loading="lazy" referrerpolicy="no-referrer" draggable="false" src="'+esc(it.im)+'">':ico('book'))+'</span><span class="wrt"><b dir="auto">'+esc(it.ti)+'</b><small dir="auto">'+esc(it.tx)+'</small></span><span class="wad" aria-hidden="true">'+ico('plus')+'</span></button>'}
 function skel(n){var h='';for(var i=0;i<n;i++)h+='<span class="wsk"></span>';return'<div class="wsks" aria-hidden="true">'+h+'</div>'}
@@ -684,16 +692,26 @@ function bodyMine2(){
   if(!S.mineLoaded)return skel(3);
   if(!S.mine.length)return note('img',tt('لم تنشر بعد','Nothing posted yet'),'<button type="button" class="b s" data-cm="new">'+ico('plus')+'<span>'+esc(tt('انشر','Post'))+'</span></button>');
   return'<div class="cmls">'+S.mine.map(function(p){var st=PST[p.s]||[p.s,p.s];return'<div class="cmrw" data-id="'+esc(p.id)+'"><a class="cmrt" href="#community/p/'+esc(p.id)+'"><span class="cmi sm">'+(p.k==='b'?'<span class="cmbi">'+ico('board')+'</span>':imgTag((p.im||[])[0],200))+'</span><b dir="auto">'+esc(p.ti)+'</b></a><span class="cmst s-'+esc(p.s)+'">'+esc(tt(st[0],st[1]))+'</span><span class="cmh">'+ico('heart')+'<em>'+(p.lk||0)+'</em></span><button type="button" class="cmdl" data-del="'+esc(p.id)+'" aria-label="'+esc(tt('حذف','Delete'))+'">'+ico('trash')+'</button></div>'}).join('')+'</div>'}
+function pgDraw(){
+  var b=$('cpb');if(!b)return;
+  var keep=b.dataset.k,k=S.cmp||'';
+  b.innerHTML=bodyComp();b.dataset.k=k;
+  if(keep!==undefined&&keep!==k&&!S.modal)window.scrollTo(0,0)}
+function pgShell(){
+  root.innerHTML='<div class="cpg"><header class="cph"><small>COMPETITIONS</small><h1>'+esc(tt('المسابقات','Competitions'))+'</h1><p>'+esc(tt('مسابقات مفتوحة لطلاب العمارة. شارك بمشروعك، والجوائز تُعلن مع كل مسابقة.','Open competitions for architecture students. Enter with your project; prizes are announced with each competition.'))+'</p></header>'
+   +'<div class="cpb" id="cpb" aria-live="polite"></div></div><div id="cmtoast" class="cmtoast" role="status" aria-live="polite"></div>';
+  root._lang=L;root._pm=true;rendered=false;bindRoot()}
 function drDraw(){
+  if(PM){pgDraw();return}
   var d=$('wsd'),b=$('wsdb'),ws=$('ws');if(!d||!b)return;
   var open=!!S.dr;d.hidden=!open;if(ws)ws.classList.toggle('dro',open);
   [].forEach.call(d.querySelectorAll('[data-dr]'),function(x){if(!x.dataset.dr)return;var on=x.dataset.dr===S.dr;x.classList.toggle('on',on);x.setAttribute('aria-selected',on?'true':'false')});
   var f=document.activeElement;
   if(!open)return;
-  var top=b.scrollTop;b.innerHTML=S.dr==='find'?bodyFind():S.dr==='mine'?bodyMine2():S.dr==='comp'?bodyComp():bodyFeed2();
+  var top=b.scrollTop;b.innerHTML=S.dr==='find'?bodyFind():S.dr==='mine'?bodyMine2():bodyFeed2();
   if(!b._keep)b.scrollTop=top;b._keep=0}
 function openDr(k){S.dr=k;drDraw()}
-function refresh(){if(!root||!$('wsd'))return;drDraw()}
+function refresh(){if(!root)return;if(PM){pgDraw();return}if(!$('wsd'))return;drDraw()}
 function onQuery(){
   var inp=$('cmi'),x=$('cmq0');if(!inp)return;S.q=inp.value.trim();if(x)x.hidden=!S.q;
   if(S.q){S.dr='find';drDraw();clearTimeout(S.qt);S.qt=setTimeout(runExt,450)}
@@ -710,7 +728,7 @@ document.addEventListener('keydown',function(e){
   if(!root||!document.body.classList.contains('rc')||e.ctrlKey||e.metaKey||e.altKey)return;var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;if($('cmm')&&!$('cmm').hidden)return;
   if(e.key==='/'){var i=$('cmi');if(i){e.preventDefault();i.focus()}}
-  else if(e.key==='Escape'&&S.dr&&!(BD&&BD.isLinking()))openDr('')});
+  else if(e.key==='Escape'&&!PM&&S.dr&&!(BD&&BD.isLinking()))openDr('')});
 function rootClick(e){
   var t=e.target,h=t.closest('[data-h]');
   if(h&&h.tagName!=='A'){e.preventDefault();e.stopPropagation();toggleLike(h.dataset.h);return}
@@ -724,14 +742,14 @@ function rootClick(e){
     else if(k==='pub')openComposer('b');
     else if(k==='find'){openDr('find');var i=$('cmi');if(i)i.focus()}
     else if(k==='feed')openDr(S.dr==='feed'?'':'feed');
-    else if(k==='comp'){if(S.dr==='comp')openDr('');else{S.cmp='';openDr('comp');loadComps().then(refresh)}}
+    else if(k==='comp'){location.hash='#competitions'}
     return}
-  var dr=t.closest('[data-dr]');if(dr){if(dr.dataset.dr==='comp'&&S.dr!=='comp')S.cmp='';openDr(dr.dataset.dr);if(dr.dataset.dr==='mine')loadMine().then(refresh);if(dr.dataset.dr==='comp')loadComps().then(refresh);return}
+  var dr=t.closest('[data-dr]');if(dr){openDr(dr.dataset.dr);if(dr.dataset.dr==='mine')loadMine().then(refresh);return}
   var kc=t.closest('[data-kc]');if(kc){var kk=kc.dataset.kc;
     if(kk==='join')openComposer('p',kc.dataset.id);
-    else if(kk==='sort'){KC.sort=kc.dataset.v;drDraw()}
+    else if(kk==='sort'){KC.sort=kc.dataset.v;pgDraw()}
     else if(kk==='share')copyComp(kc.dataset.id);
-    else if(kk==='retry'){KC.p=null;KC.list=null;drDraw();loadComps().then(refresh)}
+    else if(kk==='retry'){KC.p=null;KC.list=null;pgDraw();loadComps().then(refresh)}
     return}
   var ex=t.closest('[data-ext]');if(ex){addExtItem(extGet(ex.dataset.ext));return}
   var ad=t.closest('[data-add]');if(ad){var p=findPost(ad.dataset.add);if(p)addToBoard(p);return}
@@ -744,14 +762,22 @@ function rootClick(e){
   else if(k2==='again'){runExt()}
   else if(k2==='retry'){S.srv=null;drDraw();loadFeed(true).then(function(){refresh();loadMine().then(refresh)})}}
 function route(was){
-  if(!root||!root.isConnected||root._lang!==L)shell();
+  PM=PMODE();
+  /* old shared links to a competition inside the workspace now live on the Competitions page */
+  var m0=/^#community\/c(?:\/([a-z0-9]{2,14}))?$/.exec(location.hash);
+  if(m0){var nh='#competitions'+(m0[1]?'/'+m0[1]:'');try{history.replaceState(null,'',nh)}catch(x){location.hash=nh;return}PM=true}
+  if(!root||!root.isConnected||root._lang!==L||root._pm!==PM)shell();
   if(!root)return;
   var h=location.hash.replace(/^#/,'').split('/'),sub=h[1]||'',arg=h[2]||'',first=!rendered;
+  if(PM){sub=h[1]==='p'?'p':'c';arg=h[1]==='p'?(h[2]||''):(h[1]||'')}
   if(sub==='board'){try{history.replaceState(null,'','#community')}catch(x){}sub=''}
   var dr=S.dr,who=S.who;
   if(sub==='mine'){dr='mine';who=''}else if(sub==='u'){dr='feed';who=arg;S.flt='all'}else if(sub==='boards'){dr='feed';who='';S.flt='b'}else if(sub==='c'){dr='comp';who='';S.cmp=arg}else if(sub===''){who='';if(first)dr=isWide()?'feed':''}
   S.who=who;
-  if(first){rendered=true;S.dr=dr;drDraw();bdLoadInto($('cmbd')).then(function(){if(S.focusCard&&BD){BD.focus(S.focusCard);S.focusCard=null}})}
+  if(PM){if(sub==='c')S.cmp=arg;S.dr='comp';
+    if(first){rendered=true}
+    if(sub!=='p')pgDraw();else if(first)pgDraw()}
+  else if(first){rendered=true;S.dr=dr;drDraw();bdLoadInto($('cmbd')).then(function(){if(S.focusCard&&BD){BD.focus(S.focusCard);S.focusCard=null}})}
   else if(sub!=='p'&&(dr!==S.dr||sub==='u'||sub==='c')){S.dr=dr;drDraw()}
   if(!was)window.scrollTo(0,0);
   if(sub==='p'){
@@ -760,9 +786,9 @@ function route(was){
   else if(S.modal==='p')mclose();
   loadComps().then(refresh);
   if(S.srv===null||!was){
-    loadFeed().then(function(){refresh();if(pendingOpen){var id=pendingOpen;pendingOpen='';if(/^#community\/p\//.test(location.hash))openProj(id)}return loadMine()}).then(refresh)}}
+    loadFeed().then(function(){refresh();if(pendingOpen){var id=pendingOpen;pendingOpen='';if(/^#(community|competitions)\/p\//.test(location.hash))openProj(id)}return loadMine()}).then(refresh)}}
 window.CMOK={route:route,
-  relang:function(){if(document.body.classList.contains('rc')){mclose();shell();rendered=false;route(true)}else if(root)root._lang=null},
+  relang:function(){if(document.body.classList.contains('rc')){mclose();PM=PMODE();shell();rendered=false;route(true)}else if(root)root._lang=null},
   auth:function(){if(!root)return;S.mineLoaded=false;loadMine().then(function(){refresh();resumeUploads()})}};
 
 })();

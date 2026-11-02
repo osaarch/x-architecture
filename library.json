@@ -1,0 +1,260 @@
+{
+ "updated": "2026-11-02",
+ "items": [
+  {
+   "id": "autodesk",
+   "cat": "software",
+   "tag": "free",
+   "t": {
+    "ar": "Autodesk للطلاب",
+    "en": "Autodesk for students"
+   },
+   "d": {
+    "ar": "ترخيص تعليمي مجاني لسنة ويتجدد طالما أنت طالب، لمنتجات Autodesk التعليمية (منها AutoCAD). للتعلّم فقط بدون استخدام تجاري، ويحتاج إثبات صفة طالب.",
+    "en": "A free one-year educational licence, renewed while you are a student, for Autodesk's education products (AutoCAD among them). For learning only, no commercial use, and proof of student status is needed."
+   },
+   "src": "autodesk.com",
+   "u": "https://www.autodesk.com/education/home"
+  },
+  {
+   "id": "archicad",
+   "cat": "software",
+   "tag": "free",
+   "t": {
+    "ar": "Archicad التعليمي",
+    "en": "Archicad Education"
+   },
+   "d": {
+    "ar": "ترخيص تعليمي مجاني لسنة ويتمدّد حتى نهاية دراستك مجاناً. المشاريع تحمل علامة مائية «Educational»، ويلزم إثبات تسجيل رسمي بالجامعة.",
+    "en": "A free educational licence for one year, extended free until the end of your studies. Projects carry an \"Educational\" watermark and an official proof of enrolment is required."
+   },
+   "src": "graphisoft.com",
+   "u": "https://www.graphisoft.com/?p=69327"
+  },
+  {
+   "id": "lumion",
+   "cat": "software",
+   "tag": "free",
+   "t": {
+    "ar": "Lumion للطلاب",
+    "en": "Lumion Student"
+   },
+   "d": {
+    "ar": "نسخة Lumion Pro مجانية للطلاب لسنة تتجدد سنوياً ما دمت مسجلاً. تعمل على ويندوز فقط وتحتاج كارت شاشة قوي، ويتم التحقق من صفتك عبر SheerID.",
+    "en": "Lumion Pro is free for students for a year, renewable while you are enrolled. Windows only, needs a powerful graphics card, and your status is checked through SheerID."
+   },
+   "src": "lumion.com",
+   "u": "https://lumion.com/students.html"
+  },
+  {
+   "id": "twinmotion",
+   "cat": "software",
+   "tag": "free",
+   "t": {
+    "ar": "Twinmotion",
+    "en": "Twinmotion"
+   },
+   "d": {
+    "ar": "مجاني للطلاب والمؤسسات التعليمية (ومجاني أيضاً للأفراد والشركات الصغيرة التي إيرادها أقل من مليون دولار سنوياً).",
+    "en": "Free for students and educational institutions (also free for individuals and small businesses under US$1 million yearly revenue)."
+   },
+   "src": "twinmotion.com",
+   "u": "https://www.twinmotion.com/license"
+  },
+  {
+   "id": "chaos",
+   "cat": "software",
+   "tag": "discount",
+   "t": {
+    "ar": "Chaos: V-Ray، Enscape، Corona",
+    "en": "Chaos: V-Ray, Enscape and Corona"
+   },
+   "d": {
+    "ar": "حزم طلابية بسعر مخفّض (حوالي 80%): V-Ray وEnscape بـ149$ في السنة وCorona بـ64.8$، وتحتاج رفع إثبات صفة طالب عند الشراء. ليست مجانية.",
+    "en": "Student bundles at about 80% off: V-Ray and Enscape at US$149 a year, Corona at US$64.80, with proof of student status uploaded at checkout. Not free."
+   },
+   "src": "chaos.com",
+   "u": "https://www.chaos.com/education/students"
+  },
+  {
+   "id": "rhino",
+   "cat": "software",
+   "tag": "discount",
+   "t": {
+    "ar": "Rhino للتعليم",
+    "en": "Rhino Education"
+   },
+   "d": {
+    "ar": "خصم للطلاب والمدرّسين لحد 80% على الرخصة التجارية. الرخصة بنفس المزايا وبدون علامة مائية ولا تنتهي، ويلزم إثبات الصفة. ليست مجانية.",
+    "en": "Students and teachers save up to 80% on the commercial licence. Same features, no watermark, and it does not expire. Proof of status required. Not free."
+   },
+   "src": "rhino3d.com",
+   "u": "https://www.rhino3d.com/for/education/"
+  },
+  {
+   "id": "sketchup",
+   "cat": "software",
+   "tag": "info",
+   "t": {
+    "ar": "SketchUp للتعليم",
+    "en": "SketchUp for Education"
+   },
+   "d": {
+    "ar": "الإصدارات المجانية للتعليم موجّهة لطلاب المدارس (متصفح وiPad). لطلاب الجامعات تفاصيل الشراء والأهلية في صفحة SketchUp for Education.",
+    "en": "The free education versions are for school students (browser and iPad). For university students see the purchase and eligibility details on the SketchUp for Education page."
+   },
+   "src": "help.sketchup.com",
+   "u": "https://help.sketchup.com/en/sketchup-education"
+  },
+  {
+   "id": "blender",
+   "cat": "software",
+   "tag": "open",
+   "t": {
+    "ar": "Blender",
+    "en": "Blender"
+   },
+   "d": {
+    "ar": "برنامج نمذجة وإظهار مفتوح المصدر ومجاني بالكامل، ويشتغل على ويندوز وماك ولينكس.",
+    "en": "A fully free, open-source modelling and rendering program for Windows, macOS and Linux."
+   },
+   "src": "blender.org",
+   "u": "https://www.blender.org"
+  },
+  {
+   "id": "polyhaven",
+   "cat": "files",
+   "tag": "cc0",
+   "t": {
+    "ar": "Poly Haven",
+    "en": "Poly Haven"
+   },
+   "d": {
+    "ar": "خامات (Textures) وصور HDRI ومجسّمات ثلاثية الأبعاد بترخيص CC0: تُستخدم لأي غرض حتى التجاري وبدون ذكر المصدر.",
+    "en": "Textures, HDRIs and 3D models under CC0: use them for any purpose, commercial included, with no credit required."
+   },
+   "src": "polyhaven.com",
+   "u": "https://polyhaven.com/"
+  },
+  {
+   "id": "commons",
+   "cat": "files",
+   "tag": "open",
+   "t": {
+    "ar": "Wikimedia Commons",
+    "en": "Wikimedia Commons"
+   },
+   "d": {
+    "ar": "ملايين الصور والمخططات والخرائط بتراخيص حرّة. تأكد من ترخيص كل ملف واذكر المصدر عندما يطلب ذلك.",
+    "en": "Millions of images, drawings and maps under free licences. Check each file's licence and give credit where it asks."
+   },
+   "src": "commons.wikimedia.org",
+   "u": "https://commons.wikimedia.org"
+  },
+  {
+   "id": "autodesklearn",
+   "cat": "learn",
+   "tag": "free",
+   "t": {
+    "ar": "Autodesk Learn",
+    "en": "Autodesk Learn"
+   },
+   "d": {
+    "ar": "دروس رسمية لبرامج Autodesk (AutoCAD وRevit وغيرها).",
+    "en": "Official lessons for Autodesk programs (AutoCAD, Revit and more)."
+   },
+   "src": "autodesk.com",
+   "u": "https://www.autodesk.com/learn"
+  },
+  {
+   "id": "sketchuplearn",
+   "cat": "learn",
+   "tag": "free",
+   "t": {
+    "ar": "SketchUp Campus",
+    "en": "SketchUp Campus"
+   },
+   "d": {
+    "ar": "دروس رسمية لتعلّم SketchUp من الصفر.",
+    "en": "Official lessons to learn SketchUp from scratch."
+   },
+   "src": "learn.sketchup.com",
+   "u": "https://learn.sketchup.com"
+  },
+  {
+   "id": "rhinolearn",
+   "cat": "learn",
+   "tag": "free",
+   "t": {
+    "ar": "تعلّم Rhino",
+    "en": "Rhino: Learn"
+   },
+   "d": {
+    "ar": "مصادر Rhino الرسمية للتعلّم.",
+    "en": "Rhino's official learning resources."
+   },
+   "src": "rhino3d.com",
+   "u": "https://www.rhino3d.com/learn/"
+  },
+  {
+   "id": "chaoslearn",
+   "cat": "learn",
+   "tag": "free",
+   "t": {
+    "ar": "دروس Chaos: V-Ray، Corona",
+    "en": "Chaos: V-Ray and Corona tutorials"
+   },
+   "d": {
+    "ar": "دروس رسمية للإظهار المعماري من Chaos، وأكاديمية Corona.",
+    "en": "Official rendering tutorials from Chaos, and the Corona Academy."
+   },
+   "src": "chaos.com",
+   "u": "https://www.chaos.com/tutorials"
+  },
+  {
+   "id": "blenderlearn",
+   "cat": "learn",
+   "tag": "free",
+   "t": {
+    "ar": "تدريب Blender Studio",
+    "en": "Blender Studio: Training"
+   },
+   "d": {
+    "ar": "تدريبات Blender الرسمية.",
+    "en": "Blender's official training."
+   },
+   "src": "studio.blender.org",
+   "u": "https://studio.blender.org/training/"
+  },
+  {
+   "id": "epiclearn",
+   "cat": "learn",
+   "tag": "free",
+   "t": {
+    "ar": "تعلّم Unreal من Epic Games",
+    "en": "Epic Games: Learning"
+   },
+   "d": {
+    "ar": "مصادر تعلّم رسمية لـ Unreal Engine وTwinmotion.",
+    "en": "Official learning resources for Unreal Engine and Twinmotion."
+   },
+   "src": "dev.epicgames.com",
+   "u": "https://dev.epicgames.com/community/learning"
+  },
+  {
+   "id": "mitocw",
+   "cat": "learn",
+   "tag": "open",
+   "t": {
+    "ar": "MIT OpenCourseWare",
+    "en": "MIT OpenCourseWare"
+   },
+   "d": {
+    "ar": "مواد مقررات جامعة MIT مجاناً، منها استوديوهات تصميم معماري.",
+    "en": "Free course material from MIT, including architecture design studios."
+   },
+   "src": "ocw.mit.edu",
+   "u": "https://ocw.mit.edu"
+  }
+ ]
+}
