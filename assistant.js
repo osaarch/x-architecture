@@ -471,7 +471,7 @@
     var nav = W.navigator || {}, off = store('xas.3d') === '0' || !W.WebGLRenderingContext || (nav.connection && nav.connection.saveData) || (nav.deviceMemory && nav.deviceMemory <= 1);
     if (off) { X3.st = -1; flush3d(); return; }
     X3.st = 1;
-    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=1'; sc.async = true;
+    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=2'; sc.async = true;
     sc.onload = start3d; sc.onerror = function () { fail3d(); };
     D.head.appendChild(sc);
     setTimeout(function () { if (X3.st === 1) flush3d(); }, 6000);       /* a very slow connection: show the flat figure meanwhile */
