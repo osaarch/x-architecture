@@ -763,7 +763,7 @@ function shell(){
    +[['feed','grid','المجتمع','Community'],['find','search','نتائج البحث','Results'],['mine','person','مشاريعي','My posts']].map(function(t){return'<button type="button" role="tab" data-dr="'+t[0]+'" aria-label="'+esc(tt(t[2],t[3]))+'" data-tip="'+esc(tt(t[2],t[3]))+'">'+ico(t[1])+'</button>'}).join('')
    +'</div><button type="button" class="wsb sm" data-cm="new" aria-label="'+esc(tt('انشر مشروعاً','Post a project'))+'" data-tip="'+esc(tt('انشر مشروعاً','Post a project'))+'">'+ico('plus')+'</button><button type="button" class="wsb sm" data-dr="" aria-label="'+esc(tt('إغلاق','Close'))+'">'+ico('x')+'</button></div><div class="wsdb" id="wsdb"></div></aside>'
    +'<div id="cmtoast" class="cmtoast" role="status" aria-live="polite"></div><input type="file" id="cmfi" accept="image/*" multiple hidden></div>';
-  root._lang=L;root._pm=false;hh();
+  root._lang=L;root._pm=false;hh();fitTopInit();
   BDO={noHint:true,
     onCount:function(n){var e=$('wse');if(e)e.hidden=n>0},
     onUndo:function(n){var u=root&&root.querySelector('[data-ws=undo]');if(u)u.disabled=!n},
@@ -772,6 +772,20 @@ function shell(){
     onTool:function(t){toolUI(t)},onSel:function(c,live){qDraw(c,live)},
     onDropExt:function(it,pos){if(BD)BD.addExt(it,pos)}};
   bindRoot()}
+/* the search box leaves room for the labelled buttons at the top end, whatever the language, width or drawer state */
+function fitTop(){
+  var ws=root&&root.querySelector('.ws'),n=ws&&ws.querySelector('.wsn2'),t=ws&&ws.querySelector('.wst');
+  if(!n||!t)return;
+  if(getComputedStyle(n).display==='none'){t.style.paddingInlineEnd='';return}
+  var wr=ws.getBoundingClientRect(),nr=n.getBoundingClientRect(),rtl=getComputedStyle(ws).direction==='rtl';
+  t.style.paddingInlineEnd=Math.max(82,Math.ceil((rtl?nr.right-wr.left:wr.right-nr.left)+12))+'px'}
+function fitTopInit(){
+  var ws=root&&root.querySelector('.ws');if(!ws)return;
+  fitTop();
+  if(window.ResizeObserver){var ro=new ResizeObserver(fitTop);ro.observe(ws);var n=ws.querySelector('.wsn2');if(n)ro.observe(n)}
+  else window.addEventListener('resize',fitTop);
+  if(window.MutationObserver)new MutationObserver(fitTop).observe(ws,{attributes:true,attributeFilter:['class','style']});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTop)}
 function bindRoot(){
   if(!root._cm){root._cm=1;
     root.addEventListener('click',rootClick);
