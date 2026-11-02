@@ -240,6 +240,15 @@ function testMail() {
 }
 
 /* ---------- registration (upsert by email) ---------- */
+// a way to reach the person: a Telegram username (@name, t.me/name, name) or a phone number; '' when it is neither
+function contact_(v) {
+  var x = clean_(v, 80).replace(/[\u0660-\u0669]/g, function (c) { return String(c.charCodeAt(0) - 1632); })
+                       .replace(/[\u06f0-\u06f9]/g, function (c) { return String(c.charCodeAt(0) - 1776); });
+  var m = x.match(/^(?:https?:\/\/)?(?:www\.)?(?:t\.me|telegram\.me)\/@?([A-Za-z][A-Za-z0-9_]{4,31})\/?$/i) || x.match(/^@?([A-Za-z][A-Za-z0-9_]{4,31})$/);
+  if (m) return '@' + m[1];
+  var p = x.replace(/[\s().\-]/g, '').replace(/^00/, '+');
+  return /^\+?\d{7,15}$/.test(p) ? p : '';
+}
 function reg_(d) {
   if (d.hp) return { ok: true };                         // honeypot: bots fill hidden fields
   var email = clean_(d.email, 120).toLowerCase();
@@ -254,7 +263,7 @@ function reg_(d) {
     country: clean_(d.country, 2).toUpperCase(), countryName: clean_(d.countryName, 60),
     kind: kind, stage: kind === 'student' ? pick_(d.stage, STAGES) : '',
     spec: clean_(d.spec, 80), gradYear: kind === 'grad' ? clean_(d.gradYear, 4) : '',
-    uni: kind === 'other' ? '' : clean_(d.uni, 100), contact: clean_(d.contact, 60),
+    uni: kind === 'other' ? '' : clean_(d.uni, 100), contact: contact_(d.contact),
     interests: ints.join(','), lang: pick_(d.lang, ['ar', 'en', 'tr', 'fr', 'ku'])
   };
   if (verified) row.verified = now_();
@@ -264,6 +273,11 @@ function reg_(d) {
     if (f) at = f.getRow();
   }
   var t = now_();
+  // a contact is required to register; someone already on file who sends none (an old page) keeps the one we have
+  if (!row.contact) {
+    if (!at) return { ok: false, err: 'contact' };
+    delete row.contact;
+  }
   if (at) {                                              // existing person: update
     UCOLS.forEach(function (c) {
       if (c === 'uid' && !row.uid) return;
