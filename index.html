@@ -1036,16 +1036,6 @@ html[data-theme=red] .rmsw img{filter:hue-rotate(-56deg) saturate(4) brightness(
 /* ===== community (the rest of its styles load with community.js) ===== */
 #vc{display:none}.rc #vc{display:block}.rc #vh{display:none}
 /* ===== home index: four numbered doors in a fixed order, words only ===== */
-.dnv{display:none}
-@media(min-width:1000px){
-.dnv{display:flex;flex:1;justify-content:center;gap:clamp(18px,2.2vw,38px);font-size:.95rem;color:var(--soft);min-width:0}
-.dnv a{position:relative;padding:10px 2px;color:var(--soft);white-space:nowrap;transition:color .25s}
-.dnv a::after{content:"";position:absolute;inset-inline:0;bottom:4px;height:1px;background:var(--gold);transform:scaleX(0);transition:transform .35s cubic-bezier(.2,.7,.2,1)}
-.dnv a:hover,.dnv a:focus-visible,.dnv a.on{color:var(--gold2)}
-.dnv a.on::after,.dnv a:hover::after,.dnv a:focus-visible::after{transform:scaleX(1)}
-.dnv a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-header .w{gap:20px}
-}
 .lbq{margin:0 0 14px}
 .lbq input{width:100%;max-width:520px;height:46px;padding:0 16px;font:inherit;font-size:.95rem;color:var(--ink);background:var(--bg2);border:1px solid var(--line);outline:0;transition:border-color .25s}
 .lbq input:focus{border-color:var(--gold)}
@@ -1147,8 +1137,8 @@ T.push(setTimeout(fly,2150));o.addEventListener("click",fin);o.addEventListener(
 <div class="mnk" id="mnk"></div>
 <header><div class="w">
 <button type="button" class="lg lgo" id="mnb" aria-label="القائمة" aria-haspopup="true" aria-expanded="false" aria-controls="mnp"><svg viewBox="0 0 547 703" aria-hidden="true"><polygon id="mxa" points="0,0 547,0 274,352 274,352" fill="url(#ga)"/><polygon id="mxb" points="274,352 274,352 547,703 0,703" fill="url(#gb)"/><polygon id="mxc" points="274,352 274,352 274,352 274,352" fill="url(#gc)" opacity="0"/></svg></button>
-<div class="mnp" id="mnp"><div class="mn" id="mn" role="navigation" aria-label="القائمة"><a style="--i:0" href="#" data-n="home"><em></em><span>الرئيسية</span></a><a style="--i:1" href="#services" data-n="services"><span>الخدمات</span></a><a style="--i:2" href="#competitions" data-n="competitions"><span>المسابقات</span></a><a style="--i:3" href="#library" data-n="library"><span>المكتبة</span></a><a style="--i:4" href="#community" data-n="community"><span>المجتمع</span></a><a style="--i:5" href="#ai" data-n="ai"><span>الذكاء الاصطناعي</span></a><a style="--i:6" href="#works" data-n="works"><span>أعمال الطلاب</span></a><a style="--i:7" href="#news" data-n="news"><span>الأخبار</span></a><a style="--i:8" href="#contact" data-n="contact"><span>تواصل</span></a></div></div>
-<nav class="dnv" id="dnv" aria-label="الأقسام"><a href="#" data-n="home">الرئيسية</a><a href="#services" data-n="services">الخدمات</a><a href="#competitions" data-n="competitions">المسابقات</a><a href="#library" data-n="library">المكتبة</a><a href="#community" data-n="community">المجتمع</a><a href="#ai" data-n="ai">الذكاء الاصطناعي</a></nav>
+<div class="mnp" id="mnp"><div class="mn" id="mn" role="navigation" aria-label="القائمة"><a style="--i:0" href="#" data-n="home"><em></em><span>الرئيسية</span></a><a style="--i:1" href="#services" data-n="services"><span>الخدمات</span></a><a style="--i:2" href="#path" data-n="path"><span>المراحل</span></a><a style="--i:3" href="#competitions" data-n="competitions"><span>المسابقات</span></a><a style="--i:4" href="#library" data-n="library"><span>المكتبة</span></a><a style="--i:5" href="#works" data-n="works"><span>أعمال الطلاب</span></a><a style="--i:6" href="#community" data-n="community"><span>المجتمع</span></a><a style="--i:7" href="#ai" data-n="ai"><span>الذكاء الاصطناعي</span></a><a style="--i:8" href="#news" data-n="news"><span>الأخبار</span></a><a style="--i:9" href="#contact" data-n="contact"><span>تواصل</span></a></div></div>
+
 <div class="hr"><button id="usb" class="lgb thb usb" type="button" data-join hidden aria-label="التسجيل"><svg class="uic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/></svg><span class="uin" aria-hidden="true"></span></button><button id="thb" class="lgb thb" type="button" aria-label="الوضع الفاتح"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg><svg class="tcn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></svg><svg class="rd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="#b4091f" stroke="none"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="#8c8c94" stroke="none"/></svg><svg class="nx" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.5 5 13.5h6l-1 8 8.5-11h-6z"/></svg><svg class="mo" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button><div class="ls" id="ls"><button id="lgb" class="lgb" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lgm" aria-label="Language"><span id="lgc">AR</span><svg class="cv" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></button><ul id="lgm" hidden><li><button type="button" data-l="ar" lang="ar" dir="rtl">العربية</button></li><li><button type="button" data-l="en" lang="en" dir="ltr">English</button></li><li><button type="button" data-l="tr" lang="tr" dir="ltr">Türkçe</button></li><li><button type="button" data-l="fr" lang="fr" dir="ltr">Français</button></li><li><button type="button" data-l="ku" lang="ckb" dir="rtl">کوردی</button></li></ul></div></div>
 </div></header>
 
@@ -1265,12 +1255,10 @@ function route(){
   var was=document.body.classList.contains('rc'),h=location.hash.slice(1),
       cmp=(h==='competitions'||h.indexOf('competitions/')===0),
       v=(h==='news')?'n':h==='works'?'w':(h==='ai'||h==='tools'||h==='refs'||h==='render')?'a':(h==='services'||h==='courses')?'s':h==='contact'?'k':(h==='path'||h==='stages')?'p':(h==='community'||h==='cm'||h.indexOf('community/')===0||cmp)?'c':(h==='library'||h==='books'||h==='files'||h.indexOf('lib-')===0)?'l':'h',
-      K={n:'news',w:'works',a:'ai',s:'services',k:'contact',p:'library',c:'community',h:'home',l:'library'},
-      D={n:'library',w:'community',a:'ai',s:'services',k:'',p:'library',c:'community',h:'home',l:'library'};
+      K={n:'news',w:'works',a:'ai',s:'services',k:'contact',p:'path',c:'community',h:'home',l:'library'};
   ['n','w','a','s','k','p','c','l'].forEach(function(x){document.body.classList.toggle('r'+x,v===x)});
   document.body.classList.toggle('rq',cmp);
   document.querySelectorAll('#mn a').forEach(function(a){a.classList.toggle('on',a.dataset.n===(cmp?'competitions':K[v]))});
-  document.querySelectorAll('#dnv a').forEach(function(a){var on=a.dataset.n===(cmp?'competitions':D[v]);a.classList.toggle('on',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   if(v==='c'){setTimeout(function(){rc(was)},0);setTimeout(rvScan,30);return}
   if(v==='l')setTimeout(rl,0);   /* after the whole script has run: the first route() call happens before T() is ready */
   var t=h&&document.getElementById(h);
@@ -2563,10 +2551,9 @@ function rcr(){
 function lab(){
   bkl();
   var mh=document.querySelector('#mn [data-n=home] span');if(mh)mh.textContent=T('الرئيسية','Home');
-  var dh=document.querySelector('#dnv [data-n=home]');if(dh)dh.textContent=T('الرئيسية','Home');
   Array.prototype.forEach.call(document.querySelectorAll('footer .fs a'),function(a){var t=a.dataset.i==='ig'?T('إنستغرام','Instagram'):a.dataset.i==='wa'?T('واتساب','WhatsApp'):T('تيليجرام','Telegram'),w=a.querySelector('span');a.setAttribute('aria-label',t);a.setAttribute('title',t);if(w)w.textContent=t});
   Array.prototype.forEach.call(document.querySelectorAll('.c[data-sv]'),function(c){c.setAttribute('data-go',T('عرض التفاصيل','View details'))});
-  [['mnb','القائمة','Menu'],['mn','القائمة','Menu'],['dnv','الأقسام','Sections'],['npv','السابق','Previous'],['nnx','التالي','Next'],['lbx','إغلاق','Close'],['lbp','السابق','Previous'],['lbn','التالي','Next'],['lb','عرض العمل','View work'],['lgb','اللغة','Language'],['pmx','إغلاق','Close'],['rgx','إغلاق','Close'],['pmp','البرنامج السابق','Previous program'],['pmn','البرنامج التالي','Next program']].forEach(function(a){var e=document.getElementById(a[0]);if(e)e.setAttribute('aria-label',T(a[1],a[2]))});
+  [['mnb','القائمة','Menu'],['mn','القائمة','Menu'],['npv','السابق','Previous'],['nnx','التالي','Next'],['lbx','إغلاق','Close'],['lbp','السابق','Previous'],['lbn','التالي','Next'],['lb','عرض العمل','View work'],['lgb','اللغة','Language'],['pmx','إغلاق','Close'],['rgx','إغلاق','Close'],['pmp','البرنامج السابق','Previous program'],['pmn','البرنامج التالي','Next program']].forEach(function(a){var e=document.getElementById(a[0]);if(e)e.setAttribute('aria-label',T(a[1],a[2]))});
   Array.prototype.forEach.call(document.querySelectorAll('.pb'),function(b){var s=b.dataset.p;b.setAttribute('aria-label',T('تفاصيل البرنامج: ','Program details: ')+(s==='computer'?T('تعليم الحاسوب','Computer basics'):PGM[s].n))})}
 function setL(l){
   if(LG.indexOf(l)<0)l='ar';
