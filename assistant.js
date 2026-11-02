@@ -164,7 +164,7 @@
   /* ---- where things are on the screen ---- */
   function view() { var v = W.visualViewport; return { w: D.documentElement.clientWidth, h: v ? v.height : W.innerHeight, y: v ? v.offsetTop : 0 }; }
   function big() { return W.innerWidth <= 700; }
-  function baseSize() { return root.classList.contains('x3') ? (big() ? [100, 146] : [136, 196]) : (big() ? [72, 72] : [84, 84]); }
+  function baseSize() { return root.classList.contains('x3') ? (big() ? [112, 170] : [152, 230]) : (big() ? [72, 72] : [84, 84]); }
   function sw() { return btn.offsetWidth || Math.round(baseSize()[0] * S.sc); }
   function sh() { return btn.offsetHeight || Math.round(baseSize()[1] * S.sc); }
   function setPos(x, y) {

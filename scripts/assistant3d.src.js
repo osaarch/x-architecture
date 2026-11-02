@@ -7,7 +7,7 @@
      controller: kind(k) setKind(k, true) spins to the new look, theme(), resize(w,h), look(nx,ny), wave(ms), talk(ms), hop(), drag(on), push(vx), open(on, dir) (dir: -1 left, 1 right = where the chat is), run(on), snap(kind,w,h,'head'|'full'), dispose() */
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh,
-  SphereGeometry, CapsuleGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, Shape, ShapeGeometry, ExtrudeGeometry,
+  SphereGeometry, CapsuleGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, Shape, ShapeGeometry, ExtrudeGeometry, LatheGeometry, SplineCurve, Vector2,
   MeshStandardMaterial, MeshBasicMaterial, CanvasTexture, SRGBColorSpace, HemisphereLight, DirectionalLight, DoubleSide, AdditiveBlending, Color
 } from 'three';
 
@@ -33,9 +33,17 @@ const G = {
   slab: (() => { const g = new ExtrudeGeometry(roundRect(.54, .48, .16), { depth: .2, bevelEnabled: true, bevelThickness: .05, bevelSize: .05, bevelSegments: 7, curveSegments: 14 }); g.translate(0, 0, -.1); return g; })(),
   glass: new ShapeGeometry(roundRect(.5, .44, .12), 14),
   triTop: (() => { const s = new Shape(); s.moveTo(-.16, .165); s.lineTo(.16, .165); s.lineTo(0, 0); s.closePath(); return new ShapeGeometry(s); })(),
+  torso: torsoGeo(),
   triBot: (() => { const s = new Shape(); s.moveTo(0, 0); s.lineTo(.16, -.165); s.lineTo(-.16, -.165); s.closePath(); return new ShapeGeometry(s); })()
 };
 
+/* a smooth tapered limb piece (a cone-like tube), rt at the top and rb at the bottom */
+function limb(rt, rb, len) { return new CylinderGeometry(rt, rb, len, 24, 1); }
+/* the jacket: a smooth body of revolution (hips, waist, chest, shoulders, neck base), widened sideways and flattened front to back when it is placed */
+function torsoGeo() {
+  const pts = [[.001, -.2], [.15, -.2], [.18, -.15], [.18, -.07], [.158, .05], [.166, .15], [.19, .25], [.215, .35], [.226, .43], [.205, .5], [.125, .545], [.075, .565], [.062, .6], [.001, .6]].map(p => new Vector2(p[0], p[1]));
+  return new LatheGeometry(new SplineCurve(pts).getPoints(64), 44);
+}
 function mesh(geo, mat, x, y, z, sx, sy, sz) {
   const m = new Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0);
   if (sx != null) m.scale.set(sx, sy == null ? sx : sy, sz == null ? sx : sz);
@@ -72,48 +80,49 @@ function buildFigure(kind, M) {
   const root = new Group(), body = new Group(); root.add(body);
   J.root = root; J.body = body;
 
-  /* legs (hips at y = .60) */
-  const hip = new Group(); hip.position.y = .6; body.add(hip); J.hip = hip;
-  const lr = girl ? 1 : 1.06;
+  /* legs: long and slim, tapering to the ankle (hips at y = 1.0) */
+  const hip = new Group(); hip.position.y = 1.0; body.add(hip); J.hip = hip;
   [-1, 1].forEach(s => {
-    const leg = new Group(); leg.position.set(s * .108, 0, 0); hip.add(leg);
-    leg.add(mesh(G.cap(.078 * lr, .17), M.pants, 0, -.135, 0));
-    const shin = new Group(); shin.position.y = -.27; leg.add(shin);
-    shin.add(mesh(G.sph, M.pants, 0, 0, 0, .072 * lr, .072 * lr, .072 * lr));
-    shin.add(mesh(G.cap(.068 * lr, .15), M.pants, 0, -.115, 0));
-    shin.add(mesh(G.sph, M.shoe, 0, -.235, .05, .098, .068, .165));
-    shin.add(mesh(G.sph, M.sole, 0, -.292, .05, .104, .026, .17));
+    const leg = new Group(); leg.position.set(s * .105, 0, 0); hip.add(leg);
+    leg.add(mesh(limb(.1, .074, .47), M.pants, 0, -.235, 0));
+    const shin = new Group(); shin.position.y = -.47; leg.add(shin);
+    shin.add(mesh(G.sph, M.pants, 0, 0, 0, .074, .074, .074));
+    shin.add(mesh(limb(.074, .052, .43), M.pants, 0, -.215, 0));
+    shin.add(mesh(G.sph, M.shoe, 0, -.47, .05, .074, .062, .155));                    /* a clean sneaker: light upper, gold sole */
+    shin.add(mesh(G.sph, M.shoe, 0, -.45, .13, .06, .052, .08));
+    shin.add(mesh(G.sph, M.sole, 0, -.512, .055, .08, .022, .165));
     if (s < 0) { J.legL = leg; J.shinL = shin; } else { J.legR = leg; J.shinR = shin; }
   });
-  hip.add(mesh(G.sph, M.pants, 0, .015, 0, .205, .105, .15));
+  hip.add(mesh(G.sph, M.pants, 0, -.02, 0, .17, .09, .11));
   if (girl) {
-    const sk = new Mesh(new CylinderGeometry(.2, .335, .27, 40, 1, true), M.skirt); sk.position.y = -.075; sk.material.side = DoubleSide; hip.add(sk);
-    const hem = new Mesh(new TorusGeometry(.335, .012, 8, 48), M.gold); hem.rotation.x = Math.PI / 2; hem.position.y = -.21; hip.add(hem);
+    const sk = new Mesh(new CylinderGeometry(.2, .35, .38, 44, 1, true), M.skirt); sk.position.y = -.12; sk.material.side = DoubleSide; hip.add(sk);
+    const hem = new Mesh(new TorusGeometry(.35, .011, 8, 52), M.gold); hem.rotation.x = Math.PI / 2; hem.position.y = -.31; hip.add(hem);
     J.skirt = sk;
   }
 
-  /* torso (waist y = .64): a gold jacket with a darker roll collar */
-  const torso = new Group(); torso.position.y = .64; body.add(torso); J.torso = torso;
-  torso.add(mesh(G.cap(.2, .2), M.shirt, 0, .27, 0, 1.06, 1, .8));
-  const collar = new Mesh(new TorusGeometry(.082, .026, 10, 28), M.shirt2); collar.rotation.x = Math.PI / 2; collar.position.set(0, .565, .005); torso.add(collar);
+  /* torso (waist y = 1.08): a tailored gold jacket, broad at the shoulders and narrow at the waist, with a roll collar */
+  const torso = new Group(); torso.position.y = 1.08; body.add(torso); J.torso = torso;
+  const tj = new Mesh(G.torso, M.shirt); tj.scale.set(1.2, 1, .78); torso.add(tj);
+  const collar = new Mesh(new TorusGeometry(.078, .026, 12, 30), M.shirt2); collar.rotation.x = Math.PI / 2; collar.position.set(0, .575, .004); torso.add(collar);
 
-  /* arms: long sleeves with a light cuff, neutral (not skin coloured) hands */
+  /* arms: smooth sleeves tapering to the wrist, a slim cuff, a simple light hand with a thumb */
   [-1, 1].forEach(s => {
-    const arm = new Group(); arm.position.set(s * .262, .5, 0); torso.add(arm);
-    arm.add(mesh(G.sph, M.shirt, 0, 0, 0, .085, .085, .085));
-    arm.add(mesh(G.cap(.07, .15), M.shirt, 0, -.135, 0));
-    const fore = new Group(); fore.position.y = -.265; arm.add(fore);
-    fore.add(mesh(G.sph, M.shirt, 0, 0, 0, .066, .066, .066));
-    fore.add(mesh(G.cap(.06, .12), M.shirt, 0, -.11, 0));
-    const cuff = new Mesh(new TorusGeometry(.058, .017, 8, 22), M.shirt2); cuff.rotation.x = Math.PI / 2; cuff.position.y = -.205; fore.add(cuff);
-    fore.add(mesh(G.sph, M.hand, 0, -.255, .005, .072, .078, .068));
+    const arm = new Group(); arm.position.set(s * .27, .455, 0); torso.add(arm);
+    arm.add(mesh(G.sph, M.shirt, 0, 0, 0, .074, .074, .074));
+    arm.add(mesh(limb(.066, .054, .32), M.shirt, 0, -.16, 0));
+    const fore = new Group(); fore.position.y = -.32; arm.add(fore);
+    fore.add(mesh(G.sph, M.shirt, 0, 0, 0, .054, .054, .054));
+    fore.add(mesh(limb(.054, .04, .27), M.shirt, 0, -.135, 0));
+    const cuff = new Mesh(new TorusGeometry(.043, .013, 8, 22), M.shirt2); cuff.rotation.x = Math.PI / 2; cuff.position.y = -.27; fore.add(cuff);
+    fore.add(mesh(G.sph, M.hand, 0, -.335, 0, .043, .066, .03));
+    fore.add(mesh(G.sph, M.hand, -s * .036, -.31, .016, .017, .03, .017));
     if (s < 0) { J.armL = arm; J.foreL = fore; } else { J.armR = arm; J.foreR = fore; }
   });
 
-  /* neck and head (neck base at y = 1.22) */
-  const neck = new Group(); neck.position.y = 1.215; body.add(neck); J.neck = neck;
-  neck.add(mesh(new CylinderGeometry(.056, .066, .14, 20), M.pants, 0, .04, 0));
-  const head = new Group(); head.position.y = .385; neck.add(head); J.head = head;
+  /* neck and head (neck base at y = 1.64) */
+  const neck = new Group(); neck.position.y = 1.64; body.add(neck); J.neck = neck;
+  neck.add(mesh(new CylinderGeometry(.05, .058, .17, 20), M.pants, 0, .05, 0));
+  const head = new Group(); head.position.y = .39; head.scale.setScalar(1.02); neck.add(head); J.head = head;
 
   /* the head is a screen: a rounded slab of graphite, a glass front, and the gold hourglass X glowing on it */
   head.add(new Mesh(G.slab, M.shell));
@@ -154,7 +163,7 @@ function create(canvas, o) {
   /* materials (shared by the two figures); colours are filled by theme() */
   const M = {
     hair: std('#4a3322', .48), hand: std('#e3d6bb', .62),
-    shirt: std('#AD9154', .55, .08), shirt2: std('#d6bd7e', .5, .1), pants: std('#2a2620', .7), skirt: std('#2a2620', .7), shoe: std('#1a1713', .5), sole: std('#d6bd7e', .6),
+    shirt: std('#AD9154', .55, .08), shirt2: std('#d6bd7e', .5, .1), pants: std('#2a2620', .7), skirt: std('#2a2620', .7), shoe: std('#e8dfcb', .55), sole: std('#d6bd7e', .6),
     gold: std('#d6bd7e', .4, .25),
     shell: std('#1d1b19', .32, .45), glass: std('#050505', .1, .65),
     xmark: new MeshBasicMaterial({ color: 0xe6cd8a, side: DoubleSide }),
@@ -167,7 +176,7 @@ function create(canvas, o) {
     M.xmark.color.copy(X); M.glow.color.set(c.gold); light = c.light;        /* the X is always bright on the dark glass */
   }
   const shadowMat = new MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false });
-  const shadow = new Mesh(new CircleGeometry(.62, 32), shadowMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .004; scene.add(shadow);
+  const shadow = new Mesh(new CircleGeometry(.56, 32), shadowMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .004; scene.add(shadow);
 
   const figs = { boy: buildFigure('boy', M), girl: buildFigure('girl', M) };
   scene.add(figs.boy.root, figs.girl.root);
@@ -191,7 +200,7 @@ function create(canvas, o) {
   function resize(cw, ch) {
     w = Math.max(40, Math.round(cw || w)); h = Math.max(60, Math.round(ch || h));
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(w, h, false);
-    fit(w / h, 2.5, 1.86, 1.1);
+    fit(w / h, 2.78, 1.96, 1.29);
   }
   resize(o.w || 120, o.h || 172);
 
@@ -302,11 +311,11 @@ function create(canvas, o) {
     const fi = figs[k]; figs.boy.root.visible = k === 'boy'; figs.girl.root.visible = k === 'girl';
     const ns = { lx: 0, ly: 0, ex: 0, ey: 0, bl: 0, wv: 0, wt: 0, tk: 0, dg: 0, dvx: 0, hopY: 0, hvy: 0, sq: 0, sqv: 0, spinY: 0, fl: 0, open: 0, idle: 0 };
     pose(ns, 0, fi); renderer.setPixelRatio(1); renderer.setSize(sw, sh, false);
-    if (mode === 'head') fit(sw / sh, 1.3, 1.3, 1.66); else fit(sw / sh, 2.4, 1.7, 1.06);
+    if (mode === 'head') fit(sw / sh, 1.3, 1.3, 2.08); else fit(sw / sh, 2.72, 1.86, 1.24);
     renderer.render(scene, cam);
     const url = canvas.toDataURL('image/png');
     figs.boy.root.visible = keep.k === 'boy'; figs.girl.root.visible = keep.k === 'girl';
-    renderer.setPixelRatio(keep.pr); renderer.setSize(keep.cw, keep.ch, false); fit(keep.cw / keep.ch, 2.5, 1.86, 1.1);
+    renderer.setPixelRatio(keep.pr); renderer.setSize(keep.cw, keep.ch, false); fit(keep.cw / keep.ch, 2.78, 1.96, 1.29);
     pose(st, T, J); renderer.render(scene, cam);
     return url;
   }
