@@ -13,35 +13,32 @@ html[data-theme=light] .xas-b .xc{filter:drop-shadow(0 10px 16px rgba(60,48,20,.
 .xas-b:hover{transform:translateY(-2px)}
 .xas.mv .xas-b{cursor:grabbing;transform:scale(1.07);transition:none}
 .xas.mv .xas-p,.xas.mv .xas-tip{transition:none}
+.xas.mvp{cursor:grabbing}
 
 .xc-disc{fill:var(--bg2);transition:fill .25s}
 .xas-b:hover .xc-disc,.xas.on .xc-disc{fill:var(--bg3)}
 .xc-ring{fill:none;stroke:var(--gold);stroke-width:1.6}
 .xc-shirt{fill:var(--gold)}
-.xc-mark{fill:var(--ong)}
-.xc-skin{fill:#e8c6a0}
-.xc-skin2{fill:#d3a77c}
-.xc-hair{fill:#2a1f16;stroke:var(--gold2);stroke-width:.9;stroke-linejoin:round}
-.xc-ink{fill:#2a1f16}
-.xc-brow{fill:none;stroke:#2a1f16;stroke-width:1.4;stroke-linecap:round}
-.xc-glass{fill:none;stroke:var(--gold2);stroke-width:1.6}
-.xc-gold{fill:var(--gold)}
-.xc-cheek{fill:rgba(var(--gr),.3)}
-.xc-smile{fill:none;stroke:#2a1f16;stroke-width:1.9;stroke-linecap:round}
-.xc-o{fill:#2a1f16;visibility:hidden;transform-box:fill-box;transform-origin:center}
-.xc-eyes{transform-box:fill-box;transform-origin:center;animation:xcblink 5.5s infinite}
+.xc-shirt2{fill:var(--gold2)}
+.xc-neck{fill:#2a2620}
+.xc-scr{fill:#050505;stroke:var(--gold);stroke-width:1.2}
+.xc-xm{fill:var(--gold2);fill:color-mix(in srgb,var(--gold) 66%,#fff)}
+.xc-hair{fill:#4a3322;stroke:var(--gold2);stroke-width:.9;stroke-linejoin:round}
+.xc-gold{fill:var(--gold2)}
+.xc-hand{fill:#e3d6bb}
+.xc-x{transform-box:fill-box;transform-origin:center;animation:xcblink 5.5s infinite}
 .xc-body{animation:xcbob 4.2s ease-in-out infinite}
 .xc-arm{transform-origin:80px 92px;transition:opacity .25s}
 .xc-under{fill:none;stroke:var(--bg2);stroke-width:14;stroke-linecap:round}
 .xc-sleeve{fill:none;stroke:var(--gold);stroke-width:10.5;stroke-linecap:round}
 .xas.on .xc-arm{opacity:0}
 .xas.wave .xc-arm{animation:xcwave .75s ease-in-out 3}
-.xas.talk .xc-s{opacity:0}
-.xas.talk .xc-o{visibility:visible;animation:xctalk .26s ease-in-out infinite alternate}
+/* the X opens up while the figure talks */
+.xas.talk .xc-x{animation:xctalk .28s ease-in-out infinite alternate}
 @keyframes xcwave{0%,100%{transform:rotate(0)}25%{transform:rotate(-17deg)}75%{transform:rotate(15deg)}}
 @keyframes xcblink{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.1)}}
 @keyframes xcbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.3px)}}
-@keyframes xctalk{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+@keyframes xctalk{from{transform:scale(.94)}to{transform:scale(1.12)}}
 
 /* the 3D figure (assistant3d.js): a tall transparent canvas instead of the round icon; .pend hides the icon until the 3D figure (or the flat fallback) is ready */
 .xas.pend .xas-b{visibility:hidden}
@@ -56,6 +53,9 @@ html[data-theme=light] .xas-b .xc{filter:drop-shadow(0 10px 16px rgba(60,48,20,.
 .xas-tip{position:fixed;z-index:80;display:flex;flex-direction:column;gap:10px;padding:12px 12px 12px 14px;background:var(--bg2);color:var(--ink);border:1px solid var(--gold);
   box-shadow:0 14px 40px rgba(0,0,0,.35);font-size:.9rem;line-height:1.6;animation:xasin .35s ease both}
 .xas-tip[dir=rtl]{padding:12px 14px 12px 12px}
+.xas-tip::before{content:'';position:absolute;display:none;top:calc(var(--ty,24px) - 6px);width:12px;height:12px;background:var(--bg2);transform:rotate(45deg)}
+.xas-tip[data-s=r]::before{display:block;left:-7px;border-left:1px solid var(--gold);border-bottom:1px solid var(--gold)}
+.xas-tip[data-s=l]::before{display:block;right:-7px;border-right:1px solid var(--gold);border-top:1px solid var(--gold)}
 .xas-tb{display:flex;align-items:flex-start;gap:8px}
 .xas-tb span{flex:1;padding-block:3px;font-weight:400}
 .xas-tx{flex:none;width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--soft)}
@@ -72,7 +72,8 @@ html[data-theme=light] .xas-p{box-shadow:0 28px 70px rgba(60,48,20,.22)}
 
 .xas-h{flex:none;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 14px;background:var(--bg3);border-bottom:1px solid var(--line);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
 .xas-p[dir=rtl] .xas-h{padding:10px 14px 10px 10px}
-.xas.mv .xas-h{cursor:grabbing}
+.xas.mvp .xas-h{cursor:grabbing}
+.xas.mvp .xas-p{user-select:none;-webkit-user-select:none}
 .xas-av{flex:none;width:46px;height:46px;display:block}
 .xas-av .xc{width:100%;height:100%;display:block}
 .xas-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -83,7 +84,8 @@ html[data-theme=light] .xas-p{box-shadow:0 28px 70px rgba(60,48,20,.22)}
 .xas-i:hover{color:var(--gold)}
 .xas-i:focus-visible,.xas-tx:focus-visible,.xas-c:focus-visible,.xas-l:focus-visible,.xas-f button:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
 
-.xas-pk{flex:none;padding:12px 14px 14px;background:var(--bg2);border-bottom:1px solid var(--line)}
+.xas-pk{position:absolute;z-index:4;inset-inline:0;top:66px;padding:12px 14px 14px;background:var(--bg2);border-bottom:1px solid var(--gold);box-shadow:0 18px 36px rgba(0,0,0,.35);animation:xasin .2s ease both}
+html[data-theme=light] .xas-pk{box-shadow:0 18px 30px rgba(60,48,20,.18)}
 .xas-pl{display:block;margin-bottom:10px;font-size:.78rem;color:var(--soft)}
 .xas-po{display:flex;gap:10px}
 .xas-ch{flex:1;display:flex;align-items:center;gap:10px;padding:8px 12px;background:none;border:1px solid var(--line);color:var(--soft);font-size:.86rem;transition:border-color .2s,color .2s,background-color .2s}
@@ -91,11 +93,23 @@ html[data-theme=light] .xas-p{box-shadow:0 28px 70px rgba(60,48,20,.22)}
 .xas-ch:hover{border-color:var(--gold);color:var(--gold2)}
 .xas-ch[aria-pressed=true]{border-color:var(--gold);color:var(--ink);background:rgba(var(--gr),.12)}
 .xas-ch:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
-.xas-m{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+.xas-sz{display:flex;align-items:center;gap:8px;margin-top:12px}
+.xas-sz .xas-pl{flex:1;margin:0}
+.xas-zb{flex:none;width:36px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;background:none;border:1px solid var(--line);color:var(--soft);font-size:1.1rem;line-height:1;transition:border-color .2s,color .2s}
+.xas-zb:hover:not(:disabled){border-color:var(--gold);color:var(--gold2)}
+.xas-zb:disabled{opacity:.35;cursor:default}
+.xas-zb:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.xas-m{position:relative;flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
 .xas-m:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
 .xas-g{max-width:90%;padding:10px 13px;font-size:.9rem;line-height:1.75;animation:xasin .22s ease both}
 .xas-g p{margin:0;padding:0;max-width:none;color:inherit;font-size:inherit;font-weight:300;white-space:pre-line;overflow-wrap:anywhere;text-align:start}
 .xas-g.me p{font-weight:400}
+.xas-g.bot{max-width:96%}
+.xas-g p+p,.xas-g p+.xas-ul,.xas-g .xas-ul+p{margin-top:9px}
+.xas-g p.xas-hd{font-weight:700;color:var(--gold2)}
+.xas-ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.xas-ul li{position:relative;margin:0;padding:0;padding-inline-start:17px;font-weight:300;overflow-wrap:anywhere;color:inherit}
+.xas-ul li::before{content:'';position:absolute;inset-inline-start:2px;top:.86em;width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
 .xas-g.bot{align-self:flex-start;background:var(--bg2);border:1px solid var(--line);border-inline-start:2px solid var(--gold)}
 .xas-g.me{align-self:flex-end;background:var(--gold);color:var(--ong)}
 .xas-r{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -106,7 +120,9 @@ html[data-theme=light] .xas-p{box-shadow:0 28px 70px rgba(60,48,20,.22)}
 .xas-d i:nth-child(2){animation-delay:.15s}.xas-d i:nth-child(3){animation-delay:.3s}
 @keyframes xasdot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
 
-.xas-q{flex:none;display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;max-height:92px;overflow-y:auto}
+.xas-q{flex:none;display:flex;flex-wrap:nowrap;gap:6px;padding:2px 14px 10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.xas-q::-webkit-scrollbar{display:none}
+.xas-q .xas-c{flex:none;white-space:nowrap}
 .xas-c{padding:6px 11px;background:none;border:1px solid var(--line);color:var(--soft);font-size:.78rem;line-height:1.5;transition:border-color .2s,color .2s}
 .xas-c:hover{border-color:var(--gold);color:var(--gold2)}
 
@@ -120,13 +136,23 @@ html[data-theme=light] .xas-p{box-shadow:0 28px 70px rgba(60,48,20,.22)}
 .xas-f button:hover{background:var(--gold);color:var(--ong)}
 .xas-n{flex:none;margin:0;padding:6px 14px 9px;font-size:.68rem;line-height:1.5;color:var(--soft);text-align:center;background:var(--bg2)}
 
+/* the chat's resize grip: the bottom corner on the side away from the figure */
+.xas-rz{position:absolute;z-index:3;bottom:0;right:0;width:24px;height:24px;padding:0;display:flex;align-items:flex-end;justify-content:flex-end;background:none;border:0;color:var(--soft);opacity:.75;cursor:nwse-resize;touch-action:none;transition:color .2s,opacity .2s}
+.xas-rz svg{width:16px;height:16px;margin:0 2px 2px 0}
+.xas-rz:hover,.xas-rz:focus-visible{color:var(--gold);opacity:1}
+.xas-rz:focus-visible{outline:2px solid var(--gold2);outline-offset:-2px}
+.xas-p[data-s=l] .xas-rz{right:auto;left:0;cursor:nesw-resize}
+.xas-p[data-s=l] .xas-rz svg{transform:scaleX(-1);margin:0 0 2px 2px}
+.xas-p[data-s=v] .xas-rz{display:none}
+
 @media(max-width:700px){
+  .xas-rz{display:none}
   .xas-b{width:72px;height:72px}
   .xas.x3 .xas-b{width:100px;height:146px}
   .xas-g{max-width:94%}
 }
 @media(prefers-reduced-motion:reduce){
-  .xas-b,.xas-p,.xas-tip,.xas-g,.xc-body,.xc-eyes,.xc-arm,.xc-o{animation:none!important;transition:none!important}
+  .xas-b,.xas-p,.xas-tip,.xas-g,.xas-pk,.xc-body,.xc-x,.xc-arm{animation:none!important;transition:none!important}
   .xas-d i{animation:none;opacity:.7}
 }
 @media print{.xas{display:none!important}}
