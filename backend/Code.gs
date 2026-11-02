@@ -471,13 +471,27 @@ function num_(v, a, b, d) { v = +v; if (!isFinite(v)) return d; return Math.max(
 // a board arrives from the browser: keep only known card kinds and known fields, clamp the numbers, check every address
 function cleanBoard_(b) {
   var cards = [], ids = {};
-  (b && Array.isArray(b.cards) ? b.cards : []).slice(0, 80).forEach(function (c) {
+  (b && Array.isArray(b.cards) ? b.cards : []).slice(0, 400).forEach(function (c) {
     if (!c || typeof c !== 'object') return;
-    var t = (c.t === 'i' || c.t === 'n' || c.t === 'p' || c.t === 'a') ? c.t : '';
+    var t = (c.t === 'i' || c.t === 'n' || c.t === 'p' || c.t === 'a' || c.t === 's' || c.t === 'd' || c.t === 'h') ? c.t : '';
     var id = String(c.id || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 16);
     if (!t || !id || ids[id]) return;
-    var o = { id: id, t: t, x: num_(c.x, -20000, 20000, 0), y: num_(c.y, -20000, 20000, 0), w: num_(c.w, 40, 1200, 200), h: num_(c.h, 40, 1200, 150), z: num_(c.z, 0, 9999, 1) };
-    if (t === 'i') {
+    var drw = (t === 's' || t === 'd' || t === 'h');   // drawing cards (shapes, strokes, people) may be small and wide
+    var o = { id: id, t: t, x: num_(c.x, -20000, 20000, 0), y: num_(c.y, -20000, 20000, 0), w: num_(c.w, drw ? 4 : 40, drw ? 4000 : 1200, 200), h: num_(c.h, drw ? 4 : 40, drw ? 4000 : 1200, 150), z: num_(c.z, 0, 9999, 1) };
+    if (drw) {
+      o.c = num_(c.c, 0, 4, 0);
+      if (t === 'h') o.pk = num_(c.pk, 0, 2, 0);
+      else {
+        o.sw = num_(c.sw, 1, 16, 2); o.ds = num_(c.ds, 0, 2, 0);
+        if (t === 's') { o.k = c.k === 'e' ? 'e' : 'r'; o.fl = c.fl ? 1 : 0; }
+        else {
+          o.k = (c.k === 'l' || c.k === 'a') ? c.k : 'f';
+          var pp = String(c.p || '');           // points: 4 characters each (x, y as two base-32 digits), 2 to 48 points
+          if (!/^[0-9a-v]+$/.test(pp) || pp.length % 4 || pp.length < 8 || pp.length > 192) return;
+          o.p = pp;
+        }
+      }
+    } else if (t === 'i') {
       var src = String(c.src || '');
       if (!IDRE.test(src) && !EXTRE.test(src)) return;
       o.src = src;
@@ -507,7 +521,9 @@ function cleanBoard_(b) {
     seen[a + '|' + z] = 1;
     links.push({ id: id, a: a, b: z, tx: clean_(l.tx, 40) });
   });
-  return { cards: cards, links: links };
+  var out = { cards: cards, links: links };
+  if (b && /^[dgn][012]$/.test(String(b.bg || ''))) out.bg = String(b.bg);   // board background: pattern + tone
+  return out;
 }
 
 // a picture sent by a member (a JPEG already shrunk by the browser)
@@ -604,7 +620,7 @@ function cpost_(d) {
     if (!b || !Array.isArray(b.cards) || !b.cards.length) return { ok: false, err: 'empty' };
     var cb = cleanBoard_(b);
     if (!cb.cards.length) return { ok: false, err: 'empty' };
-    board = JSON.stringify({ cards: cb.cards, links: cb.links });
+    board = JSON.stringify({ cards: cb.cards, links: cb.links, bg: cb.bg });
     if (board.length > CBOARD_MAX) return { ok: false, err: 'bigboard' };
     imgs = [];
   }
@@ -692,7 +708,7 @@ function cbsave_(d) {
   var b = d.b;
   if (!b || typeof b !== 'object' || !Array.isArray(b.cards)) return { ok: false, err: 'bad' };
   if (!lim_('bs:' + u.ak, 240, 3600)) return { ok: false, err: 'limit' };
-  var cb = cleanBoard_(b), json = JSON.stringify({ v: 1, cards: cb.cards, links: cb.links });
+  var cb = cleanBoard_(b), json = JSON.stringify({ v: 1, cards: cb.cards, links: cb.links, bg: cb.bg });
   if (json.length > CBOARD_MAX) return { ok: false, err: 'bigboard' };
   var sh = sheet_(BOARDS, BCOLS), rows = rows_(sh, BCOLS), at = 0, ts = String(Date.now());
   for (var i = 0; i < rows.length; i++) if (rows[i][0] === u.ak) { at = i + 2; break; }
