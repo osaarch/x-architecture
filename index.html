@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>X Architecture | منصة معمارية للطلاب</title>
+<title>X للعمارة</title>
 <meta name="description" content="X Architecture (X.ARCH): منصة معمارية للطلاب — خدمات الإظهار والتصميم والنقد، وأعمال الطلاب، وكتب ومراجع مجانية لكل المراحل.">
-<meta property="og:title" content="X Architecture | X.ARCH">
+<meta property="og:title" content="X للعمارة">
 <meta property="og:description" content="منصة معمارية للطلاب: إظهار، تصميم، نقد وإشراف، وأعمال طلاب وكتب مجانية.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://xarch.site/">
@@ -653,10 +653,9 @@ html[data-theme=light]{--err:#b0392a;color-scheme:light;--bg:#ffffff;--bg2:#f4f1
 .thb{display:inline-flex;align-items:center;justify-content:center;flex:none;width:34px;height:34px;padding:0;color:var(--gold)}
 .thb:hover{background:none;color:var(--gold2)}
 .thb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.thb .mo,.thb .tcn,.thb .rd,.thb .nx{display:none}
-html[data-theme=light] .thb .si{display:none}
-html[data-theme=light] .thb .nx{display:block}
-.thb .nx{fill:currentColor;stroke:none}
+.thb .si{display:none}
+html[data-theme=light] .thb .si{display:block}
+html[data-theme=light] .thb .mo{display:none}
 #va{display:none}.ra #va{display:block}.ra #vh{display:none}
 /* language selector */
 .ls{position:relative}
@@ -1080,24 +1079,7 @@ a.ixr:hover .ixa,a.ixr:focus-visible .ixa,.ixa:hover,.ixa:focus-visible{backgrou
 a.ixr:hover .ixt b,a.ixr:focus-visible .ixt b{color:var(--gold2)}
 a.ixr:hover .ixa svg{transform:translateX(3px)}
 [dir=rtl] a.ixr:hover .ixa svg{transform:scaleX(-1) translateX(3px)}
-.ixm{grid-column:1/-1;grid-template-columns:clamp(150px,17vw,240px) minmax(0,1fr) auto;grid-template-areas:"i t a" "s s s"}
-.ixm .ixi{height:auto;min-height:100%;border-bottom:0;border-inline-end:1px solid var(--line)}
-.ixm .ixi svg{width:clamp(64px,6.4vw,88px);height:clamp(64px,6.4vw,88px)}
-.ixm .ixt{align-self:center;padding-block:clamp(22px,2.6vw,34px)}
-.ixm .ixa{align-self:center;margin-top:0}
-.ixs{grid-area:s;list-style:none;margin:0;padding:0 clamp(18px,2.4vw,32px) clamp(22px,2.6vw,32px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
-.ixs li{min-width:0;position:relative}
-.ixs li::before{content:"";position:absolute;top:3px;inset-inline:0;height:1px;background:var(--line)}
-.ixs a{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-content:start;gap:6px 12px;height:100%;padding-block:22px 6px;padding-inline-end:clamp(10px,1.6vw,24px);color:var(--ink);text-decoration:none}
-.ixs a::before{content:"";position:absolute;top:0;inset-inline-start:0;width:7px;height:7px;border-radius:50%;background:var(--gold);transition:transform .3s}
-.ixs i{display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--gold);border-radius:50%;font-style:normal;font-size:.78rem;line-height:1;color:var(--gold);transition:background .3s,color .3s}
-.ixs b{align-self:center;font-weight:500;font-size:1.02rem;line-height:1.3;transition:color .3s}
-.ixs small{grid-column:2;font-size:.84rem;line-height:1.7;color:var(--soft)}
-.ixs a:hover b,.ixs a:focus-visible b{color:var(--gold2)}
-.ixs a:hover::before,.ixs a:focus-visible::before{transform:scale(1.6)}
-.ixs a:hover i,.ixs a:focus-visible i{background:var(--gold);color:var(--ong)}
-.ixs a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-@media(max-width:900px){.ix{grid-template-columns:1fr}.ixm{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"i i" "t a" "s s"}.ixm .ixi{height:clamp(104px,28vw,130px);min-height:0;border-inline-end:0;border-bottom:1px solid var(--line)}.ixm .ixt{padding-block:clamp(18px,2vw,26px) 0}.ixm .ixa{align-self:start;margin-top:clamp(18px,2vw,26px)}.ixs{grid-template-columns:1fr;padding-top:6px}.ixs li::before{display:none}.ixs a{padding:14px 0;border-bottom:1px solid var(--line);padding-inline-end:0}.ixs li:last-child a{border-bottom:0}.ixs a::before{display:none}.ixs small{font-size:.86rem}}
+@media(max-width:900px){.ix{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="motion.css?v=13">
 </head>
@@ -1137,9 +1119,9 @@ T.push(setTimeout(fly,2150));o.addEventListener("click",fin);o.addEventListener(
 <div class="mnk" id="mnk"></div>
 <header><div class="w">
 <button type="button" class="lg lgo" id="mnb" aria-label="القائمة" aria-haspopup="true" aria-expanded="false" aria-controls="mnp"><svg viewBox="0 0 547 703" aria-hidden="true"><polygon id="mxa" points="0,0 547,0 274,352 274,352" fill="url(#ga)"/><polygon id="mxb" points="274,352 274,352 547,703 0,703" fill="url(#gb)"/><polygon id="mxc" points="274,352 274,352 274,352 274,352" fill="url(#gc)" opacity="0"/></svg></button>
-<div class="mnp" id="mnp"><div class="mn" id="mn" role="navigation" aria-label="القائمة"><a style="--i:0" href="#" data-n="home"><em></em><span>الرئيسية</span></a><a style="--i:1" href="#services" data-n="services"><span>الخدمات</span></a><a style="--i:2" href="#path" data-n="path"><span>المراحل</span></a><a style="--i:3" href="#competitions" data-n="competitions"><span>المسابقات</span></a><a style="--i:4" href="#library" data-n="library"><span>المكتبة</span></a><a style="--i:5" href="#works" data-n="works"><span>أعمال الطلاب</span></a><a style="--i:6" href="#community" data-n="community"><span>المجتمع</span></a><a style="--i:7" href="#ai" data-n="ai"><span>الذكاء الاصطناعي</span></a><a style="--i:8" href="#news" data-n="news"><span>الأخبار</span></a><a style="--i:9" href="#contact" data-n="contact"><span>تواصل</span></a></div></div>
+<div class="mnp" id="mnp"><div class="mn" id="mn" role="navigation" aria-label="القائمة"><a style="--i:0" href="#" data-n="home"><em></em><span>الرئيسية</span></a><a style="--i:1" href="#services" data-n="services"><span>الخدمات</span></a><a style="--i:2" href="#competitions" data-n="competitions"><span>المسابقات</span></a><a style="--i:3" href="#library" data-n="library"><span>المكتبة</span></a><a style="--i:4" href="#works" data-n="works"><span>أعمال الطلاب</span></a><a style="--i:5" href="#community" data-n="community"><span>المجتمع</span></a><a style="--i:6" href="#ai" data-n="ai"><span>الذكاء الاصطناعي</span></a><a style="--i:7" href="#news" data-n="news"><span>الأخبار</span></a><a style="--i:8" href="#contact" data-n="contact"><span>تواصل</span></a></div></div>
 
-<div class="hr"><button id="usb" class="lgb thb usb" type="button" data-join hidden aria-label="التسجيل"><svg class="uic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/></svg><span class="uin" aria-hidden="true"></span></button><button id="thb" class="lgb thb" type="button" aria-label="الوضع الفاتح"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg><svg class="tcn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></svg><svg class="rd" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="#b4091f" stroke="none"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="#8c8c94" stroke="none"/></svg><svg class="nx" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.5 5 13.5h6l-1 8 8.5-11h-6z"/></svg><svg class="mo" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button><div class="ls" id="ls"><button id="lgb" class="lgb" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lgm" aria-label="Language"><span id="lgc">AR</span><svg class="cv" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></button><ul id="lgm" hidden><li><button type="button" data-l="ar" lang="ar" dir="rtl">العربية</button></li><li><button type="button" data-l="en" lang="en" dir="ltr">English</button></li><li><button type="button" data-l="tr" lang="tr" dir="ltr">Türkçe</button></li><li><button type="button" data-l="fr" lang="fr" dir="ltr">Français</button></li><li><button type="button" data-l="ku" lang="ckb" dir="rtl">کوردی</button></li></ul></div></div>
+<div class="hr"><button id="usb" class="lgb thb usb" type="button" data-join hidden aria-label="التسجيل"><svg class="uic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/></svg><span class="uin" aria-hidden="true"></span></button><button id="thb" class="lgb thb" type="button" aria-label="الوضع الفاتح"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg><svg class="mo" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button><div class="ls" id="ls"><button id="lgb" class="lgb" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lgm" aria-label="Language"><span id="lgc">AR</span><svg class="cv" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></button><ul id="lgm" hidden><li><button type="button" data-l="ar" lang="ar" dir="rtl">العربية</button></li><li><button type="button" data-l="en" lang="en" dir="ltr">English</button></li><li><button type="button" data-l="tr" lang="tr" dir="ltr">Türkçe</button></li><li><button type="button" data-l="fr" lang="fr" dir="ltr">Français</button></li><li><button type="button" data-l="ku" lang="ckb" dir="rtl">کوردی</button></li></ul></div></div>
 </div></header>
 
 <main>
@@ -1246,15 +1228,15 @@ function rc(was){
   if(window.CMOK){CMOK.route(was);return}
   if(window.CMLD)return;window.CMLD=[was];
   el.innerHTML='<p class="note" style="padding:60px 0">'+esc(T('جارٍ التحميل…','Loading…'))+'</p>';
-  var l=document.createElement('link');l.rel='stylesheet';l.href='community.css?v=3';document.head.appendChild(l);
-  var s=document.createElement('script');s.src='community.js?v=3';
+  var l=document.createElement('link');l.rel='stylesheet';l.href='community.css?v=5';document.head.appendChild(l);
+  var s=document.createElement('script');s.src='community.js?v=5';
   s.onload=function(){var w=window.CMLD[0];window.CMLD=null;CMOK.route(w)};
   s.onerror=function(){window.CMLD=null;el.innerHTML='<p class="note" style="padding:60px 0">'+esc(T('تعذّر تحميل المجتمع. حدّث الصفحة وحاول مجدداً.','Could not load the community. Refresh and try again.'))+'</p>'};
   document.head.appendChild(s)}
 function route(){
   var was=document.body.classList.contains('rc'),h=location.hash.slice(1),
       cmp=(h==='competitions'||h.indexOf('competitions/')===0),
-      v=(h==='news')?'n':h==='works'?'w':(h==='ai'||h==='tools'||h==='refs'||h==='render')?'a':(h==='services'||h==='courses')?'s':h==='contact'?'k':(h==='path'||h==='stages')?'p':(h==='community'||h==='cm'||h.indexOf('community/')===0||cmp)?'c':(h==='library'||h==='books'||h==='files'||h.indexOf('lib-')===0)?'l':'h',
+      v=(h==='news')?'n':h==='works'?'w':(h==='ai'||h==='tools'||h==='refs'||h==='render')?'a':(h==='services'||h==='courses')?'s':h==='contact'?'k':(h==='path'||h==='stages')?'s':(h==='community'||h==='cm'||h.indexOf('community/')===0||cmp)?'c':(h==='library'||h==='books'||h==='files'||h.indexOf('lib-')===0)?'l':'h',
       K={n:'news',w:'works',a:'ai',s:'services',k:'contact',p:'path',c:'community',h:'home',l:'library'};
   ['n','w','a','s','k','p','c','l'].forEach(function(x){document.body.classList.toggle('r'+x,v===x)});
   document.body.classList.toggle('rq',cmp);
@@ -1721,20 +1703,13 @@ var IXI={map:'M8 86h16V72h16V58h16V44h16V30h8M80 30V8M80 8h12l-4 5 4 5H80',srv:'
 function ixsv(k){return '<span class="ixi" aria-hidden="true"><svg viewBox="0 0 96 96"><path d="'+IXI[k]+'"/></svg></span>'}
 function ixr(n,href,t,sub,chips,ic){
   return '<a class="ixr" href="'+href+'">'+ixsv(ic)+'<span class="ixn">'+n+'</span><span class="ixt"><b>'+esc(t)+'</b><small>'+esc(sub)+'</small></span><span class="ixc">'+chips.map(function(c){return '<i>'+esc(c)+'</i>'}).join('')+'</span><span class="ixa" aria-hidden="true">'+pkic('arrow')+'</span></a>'}
-function ixm(n,href,t,sub){/* the roadmap card: the five stages are shown, each one a link to that stage */
-  return '<div class="ixr ixm">'+ixsv('map')+'<span class="ixn">'+n+'</span><span class="ixt"><b>'+esc(t)+'</b><small>'+esc(sub)+'</small></span>'
-   +'<a class="ixa" href="'+href+'" aria-label="'+esc(T('افتح خارطة الطريق','Open the roadmap'))+'">'+pkic('arrow')+'</a>'
-   +'<ol class="ixs">'+PK.slice(0,5).map(function(d,i){return '<li><a href="'+href+'" data-stg="'+i+'"><i>'+(i+1)+'</i><b>'+esc(T(d.n[0],d.n[1]))+'</b><small>'+esc(T(d.g[0],d.g[1]))+'</small></a></li>'}).join('')+'</ol></div>'}
 function bnAll(){
-  var sw=['autocad','revit','sketchup','rhinoceros','vray','lumion'].map(function(p){return PGM[p].n}),more=Math.max(0,PGO.length-sw.length);
-  return '<section class="hms hst"><div class="w">'+rhHd('',T('من أين تبدأ؟','Where do you start?'),'','')
-   +'<p class="note">'+esc(T('اختر الطريق الأقرب لك وسنوصلك مباشرة.','Pick the path closest to you and we take you straight there.'))+'</p>'
-   +'<div class="ix" role="navigation" aria-label="'+esc(T('ابدأ من هنا','Start here'))+'">'
-   +ixm('01','#path',T('خارطة الطريق','The roadmap'),T('خمس مراحل، من أول رسم إلى مشروع التخرّج','Five stages, from your first drawing to your graduation project'))
-   +ixr('02','#services',T('الخدمات','Services'),T('نصمّم مشروعك أو نُظهره أو ننقده ونشرف عليه، وتجد الدورات داخلها','We design, visualize, critique and supervise your project, and the courses are inside'),INT.slice(1).map(function(o){return T(o[1],o[2])}).concat([T('الدورات','Courses')]),'srv')
-   +ixr('03','#competitions',T('المسابقات','Competitions'),T('مسابقات مفتوحة للطلاب: شارك بمشروعك وتابع الفائزين','Open student competitions: enter with your project and follow the winners'),[T('مسابقات مفتوحة','Open competitions'),T('شارك بمشروعك','Enter your project'),T('الفائزون','Winners')],'cmp')
-   +ixr('04','#library',T('المكتبة','Library'),T('كتب وملفات وبرامج ودروس، مجانية أو بسعر طلابي','Books, files, software and lessons, free or student-priced'),[T('كتب','Books'),T('ملفات وخامات','Files and materials'),T('برامج للطلاب','Software for students'),T('تعلّم مجاناً','Learn for free')],'lib')
-   +ixr('05','#community',T('المجتمع','Community'),T('انشر مشروعك وابنِ لوحتك وابحث عن مصادر حرّة','Post your project, build your board and find free sources'),[T('مشاريع الطلاب','Student projects'),T('لوحات','Boards'),T('مصادر مجانية','Free sources')],'com')
+  return '<section class="hms hst"><div class="w">'
+   +'<div class="ix" role="navigation" aria-label="'+esc(T('الأقسام','Sections'))+'">'
+   +ixr('01','#services',T('الخدمات','Services'),T('نصمّم مشروعك أو نُظهره أو ننقده ونشرف عليه، وتجد الدورات داخلها','We design, visualize, critique and supervise your project, and the courses are inside'),INT.slice(1).map(function(o){return T(o[1],o[2])}).concat([T('الدورات','Courses')]),'srv')
+   +ixr('02','#competitions',T('المسابقات','Competitions'),T('مسابقات مفتوحة للطلاب: شارك بمشروعك وتابع الفائزين','Open student competitions: enter with your project and follow the winners'),[T('مسابقات مفتوحة','Open competitions'),T('شارك بمشروعك','Enter your project'),T('الفائزون','Winners')],'cmp')
+   +ixr('03','#library',T('المكتبة','Library'),T('كتب وملفات وبرامج ودروس، مجانية أو بسعر طلابي','Books, files, software and lessons, free or student-priced'),[T('كتب','Books'),T('ملفات وخامات','Files and materials'),T('برامج للطلاب','Software for students'),T('تعلّم مجاناً','Learn for free')],'lib')
+   +ixr('04','#community',T('المجتمع','Community'),T('انشر مشروعك وابنِ لوحتك وابحث عن مصادر حرّة','Post your project, build your board and find free sources'),[T('مشاريع الطلاب','Student projects'),T('لوحات','Boards'),T('مصادر مجانية','Free sources')],'com')
    +'</div></div></section>'}
 function rw(){
   var h='<div class="hd" id="works"><small>STUDENT WORK</small><h2>'+T('أعمال الطلاب','Student work')+'</h2></div>'+gxBuild();
@@ -2303,7 +2278,7 @@ function rgInit(){RU=rgget();rgui();if(RU){rgsync();rgev('visit');if(REG&&!RU.to
 var FB=[[["Introduction to Architecture", "Kelsey Ferreira — Open Oregon", "كتاب تعليمي مفتوح للمبتدئين: مفردات العمارة وتحليل المباني ودراسات حالة، برخصة Creative Commons.", "An open textbook for beginners: architectural vocabulary, analyzing buildings and case studies, under a Creative Commons license.", "https://openoregon.pressbooks.pub/art101/", "web"], ["4.101 Experiencing Architecture Studio", "MIT OpenCourseWare", "مواد مقرر ستوديو كامل من MIT متاحة مجاناً على OpenCourseWare.", "Full studio course materials from MIT, free on OpenCourseWare.", "https://ocw.mit.edu/courses/4-101-experiencing-architecture-studio-spring-2003/resources/", "web"]], [["Basic Concepts of Structural Design for Architecture Students", "Anahita Khodadadi — Portland State University", "مدخل مبسّط للإنشاء لطلبة العمارة بأقل قدر من الرياضيات: الأحمال والقوى والأقواس والجسور الشبكية والإطارات.", "A simple introduction to structures for architecture students with minimal math: loads, forces, arches, trusses and frames.", "https://pdxscholar.library.pdx.edu/cgi/viewcontent.cgi?article=1042&context=pdxopen", "pdf"], ["The Seven Lamps of Architecture", "John Ruskin — Project Gutenberg", "كتاب كلاسيكي في المبادئ الأخلاقية والجمالية للعمارة، في الملك العام.", "A classic on the ethical and aesthetic principles of architecture, in the public domain.", "https://www.gutenberg.org/ebooks/35898", "web"]], [["The Architecture of A. Palladio, in Four Books", "Andrea Palladio (1715) — Smithsonian Libraries", "نسخة مصوّرة في الملك العام من كتب بالاديو الأربعة (1715). تُقرأ في المتصفح، وملف PDF متاح لكنه كبير (نحو 115 ميغابايت).", "A public-domain scan of Palladio’s Four Books (1715). Read it in the browser; a PDF is available but large (about 115 MB).", "https://archive.org/details/architecturePal00Pall", "web"], ["Drawing Futures", "Laura Allen & Luke Pearson (eds.) — UCL Press", "كتاب مفتوح الوصول (UCL Press، 2016) عن الرسم المعاصر في الفن والعمارة. في صفحة الكتاب زر Download PDF.", "An open-access book (UCL Press, 2016) on contemporary drawing in art and architecture. The book page has a Download PDF button.", "https://library.oapen.org/handle/20.500.12657/32018", "pdf"], ["4.125 Architecture Studio: Building in Landscapes", "MIT OpenCourseWare", "مواد ستوديو عن التصميم ضمن سياق الموقع الطبيعي، مجانية.", "Studio materials on designing within natural sites, free.", "https://ocw.mit.edu/courses/4-125-architecture-studio-building-in-landscapes-fall-2002/resources/", "web"]], [["Garden Cities of To-Morrow", "Ebenezer Howard — Project Gutenberg", "الكتاب المؤسس لفكرة المدينة الحدائقية والتخطيط الحضري الحديث، في الملك العام.", "The founding book of the garden-city idea and modern urban planning, in the public domain.", "https://www.gutenberg.org/ebooks/46134", "web"], ["The Poetry of Architecture", "John Ruskin — Project Gutenberg", "عن علاقة البيوت بطبيعة بلدها ومناخها وموقعها، في الملك العام.", "On how houses relate to the nature, climate and setting of their country, in the public domain.", "https://www.gutenberg.org/ebooks/17774", "web"]], [["Iraqi Journal of Architectural Engineering and Planning", "المجلة العراقية لهندسة العمارة والتخطيط (جامعة التكنولوجيا) — DOAJ", "مجلة علمية مفتوحة الوصول وبدون رسوم (CC BY-SA): بحوث معمارية وتخطيطية عراقية تُقرأ مجاناً وتفيد في أبحاث التخرج.", "An open-access journal (CC BY-SA, no fees) of Iraqi architecture and planning research, free to read and useful for graduation research.", "https://doaj.org/toc/2617-9555", "web"]]];
 function tx(k){return k==='r'?T('اقرأ الخبر ←','Read story →'):k==='d'?T('قراءة / تحميل مجاني','Read / download free'):T('استعارة مجانية للقراءة','Free to borrow & read')}
 var tb=document.getElementById('tb'),bl=document.getElementById('bl'),orig=new WeakMap();
-var LG=['ar','en','tr','fr','ku'],LC={ar:'AR',en:'EN',tr:'TR',fr:'FR',ku:'KU'},LDIR={ar:'rtl',en:'ltr',tr:'ltr',fr:'ltr',ku:'rtl'},LTAG={ar:'ar',en:'en',tr:'tr',fr:'fr',ku:'ckb'},LOC={ar:'ar-u-nu-latn',en:'en-GB',tr:'tr-TR',fr:'fr-FR',ku:'ckb-u-nu-latn'},TTL={"ar": "X Architecture | منصة معمارية للطلاب", "en": "X Architecture | Platform for Architecture Students", "tr": "X Architecture | Mimarlık Öğrencileri için Platform", "fr": "X Architecture | Plateforme pour les étudiants en architecture", "ku": "X Architecture | پلاتفۆرمی تەلارسازی بۆ قوتابیان"},MISS={};
+var LG=['ar','en','tr','fr','ku'],LC={ar:'AR',en:'EN',tr:'TR',fr:'FR',ku:'KU'},LDIR={ar:'rtl',en:'ltr',tr:'ltr',fr:'ltr',ku:'rtl'},LTAG={ar:'ar',en:'en',tr:'tr',fr:'fr',ku:'ckb'},LOC={ar:'ar-u-nu-latn',en:'en-GB',tr:'tr-TR',fr:'fr-FR',ku:'ckb-u-nu-latn'},TTL={"ar": "X للعمارة", "en": "X Architecture", "tr": "X Architecture", "fr": "X Architecture", "ku": "X Architecture"},MISS={};
 function TE(e){if(L==='ar'||L==='en')return e;var x=DT[L]&&DT[L][e];if(x==null){MISS[L+'|'+e]=1;return e}return x}
 function T(a,e){return L==='ar'?a:TE(e)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -2418,10 +2393,10 @@ function rl(){
   if(!n||!a||!b)return;
   n.textContent=T('كتب وملفات وبرامج ودروس للطالب المعماري: مجانية أو بسعر طلابي، ومرتبة حسب حاجتك.','Books, files, software and lessons for architecture students: free or student-priced, sorted by what you need.');
   if(s){s.placeholder=T('ابحث في المكتبة','Search the library');s.setAttribute('aria-label',s.placeholder)}
-  var chips=[['#lib-year1','المرحلة الأولى','First year'],['#books','كتب','Books'],['#lib-files','ملفات وخامات','Files and materials'],['#lib-software','برامج للطلاب','Software for students'],['#lib-learn','تعلّم مجاناً','Learn for free'],['#path','خارطة الطريق','Roadmap'],['#news','الأخبار','News']];
+  var chips=[['#lib-year1','المرحلة الأولى','First year'],['#books','كتب','Books'],['#lib-files','ملفات وخامات','Files and materials'],['#lib-software','برامج للطلاب','Software for students'],['#lib-learn','تعلّم مجاناً','Learn for free'],['#news','الأخبار','News']];
   if(t)t.innerHTML=chips.map(function(c){return '<a href="'+c[0]+'">'+esc(T(c[1],c[2]))+'</a>'}).join('');
   var its=(LB||[]),by=function(k){return its.filter(function(i){return i.cat===k}).map(lbcard).join('')};
-  var y1=(PK&&PK[0])?'<a class="lbc" data-q="'+esc(lbn('roadmap foundations stage 1 خارطة الطريق الأساس'))+'" href="#path"><span class="lbk free">'+esc(T('ابدأ من هنا','Start here'))+'</span><b>'+esc(T('خارطة الطريق: مرحلة الأساس','Roadmap: the Foundations stage'))+'</b><small>'+esc(T(PK[0].g[0],PK[0].g[1]))+'</small></a>':'';
+  var y1='';
   y1+='<a class="lbc" data-q="'+esc(lbn('books first year كتب المرحلة الأولى'))+'" href="#books"><b>'+esc(T('كتب المرحلة الأولى','First-year books'))+'</b><small>'+esc(T('كتب مقترحة تبدأ من أساسيات التصميم والرسم المعماري.','Suggested books starting from the basics of design and architectural drawing.'))+'</small></a>'+by('year1');
   a.innerHTML=lbsec(LBC[0],'<div class="lbg">'+y1+'</div>',(LB&&!its.some(function(i){return i.cat==='year1'}))?'<p class="lbn2">'+esc(T('ملفات ومحاضرات المرحلة الأولى تُضاف هنا قريباً.','First-year files and lectures are added here soon.'))+'</p>':'');
   b.innerHTML=LBC.slice(1).map(function(c){
