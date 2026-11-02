@@ -56,24 +56,25 @@
   var GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10 10 20M20 15l-5 5"/></svg>';
   var AGAIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></svg>';
 
-  /* ---- the flat 2D character (used only when the 3D one cannot run): the same figure as the 3D one, a screen with the platform's X instead of a face; the girl has hair ---- */
+  /* ---- the flat 2D character (used only when the 3D one cannot run): the same figure as the 3D one, sharp-edged: a screen with two eyes and the platform's X; the boy has a hook antenna, the girl has a bob and a bow ---- */
   function fig(kind, arm, id) {
     var girl = kind === 'girl', c = 'xcc' + id, h = '';
     h += '<svg class="xc" viewBox="-12 -12 124 124" aria-hidden="true" focusable="false"><defs><clipPath id="' + c + '"><circle cx="50" cy="56" r="46"/></clipPath></defs>';
     h += '<circle class="xc-disc" cx="50" cy="56" r="46"/><g clip-path="url(#' + c + ')"><g class="xc-body">';
-    if (girl) h += '<path class="xc-hair" d="M24 50C21 26 35 17 50 17C65 17 79 26 76 50C77 64 79 76 83 90C70 94 30 94 17 90C21 76 23 64 24 50Z"/>';
-    h += '<path class="xc-shirt" d="M6 112C6 86 26 78 50 78C74 78 94 86 94 112Z"/>';
-    h += '<rect class="xc-neck" x="44.5" y="63" width="11" height="17" rx="4"/>';
-    h += '<path class="xc-shirt2" d="M40 79Q50 88 60 79L62 84Q50 92 38 84Z"/>';
-    h += '<rect class="xc-scr" x="29" y="28" width="42" height="38" rx="11"/>';
-    h += '<g class="xc-x"><path class="xc-xm" d="M40.5 38H59.5L50 47.5ZM50 47.5L59.5 57H40.5Z"/></g>';
+    if (girl) h += '<path class="xc-hair" d="M22 30H78V78L70 90H30L22 78Z"/>';
+    h += '<path class="xc-shirt" d="M12 112L16 88L33 78H67L84 88L88 112Z"/>';
+    h += '<path class="xc-neck" d="M44 64H56V80H44Z"/>';
+    h += '<path class="xc-shirt2" d="M41 79H59L61 85H39Z"/>';
+    if (!girl) h += '<path class="xc-gold" d="M21.5 38H26.5V52H21.5ZM73.5 38H78.5V52H73.5Z"/><path class="xc-hook" d="M50 26V18L57 13L63 18V22"/><path class="xc-gold" d="M63 21.5L65.5 25L63 28.5L60.5 25Z"/>';
+    h += '<path class="xc-scr" d="M33 26H67L73 32V62L67 68H33L27 62V32Z"/>';
+    h += '<g class="xc-x"><path class="xc-xm" d="M32.5 41L39.5 40.5V52L33.5 52.5ZM60.5 40.5L67.5 41L66.5 52.5L60.5 52ZM43 38H57L50 47ZM50 47L57 56H43Z"/></g>';
     if (girl) {
-      h += '<path class="xc-hair" d="M26 42C23 24 36 16 50 16C64 16 77 24 74 42C70 32 62 26 50 26C38 26 30 32 26 42Z"/>';
-      h += '<path class="xc-hair" d="M26 38C25 52 26 64 27 76L33 76C32 64 32 52 33 40ZM74 38C75 52 74 64 73 76L67 76C68 64 68 52 67 40Z"/>';
-      h += '<circle class="xc-gold" cx="29" cy="62" r="1.9"/><circle class="xc-gold" cx="71" cy="62" r="1.9"/>';
+      h += '<path class="xc-hair" d="M25 22H75V28L58 31L25 34Z"/>';
+      h += '<path class="xc-hair" d="M22 36H28L27 62L23 64ZM78 36H72L73 62L77 64Z"/>';
+      h += '<path class="xc-gold" d="M28 16L35 20L28 24ZM42 16L35 20L42 24ZM35 18L37 20L35 22L33 20Z"/>';
     }
     h += '</g></g><circle class="xc-ring" cx="50" cy="56" r="46"/>';
-    if (arm) h += '<g class="xc-arm"><path class="xc-under" d="M80 92L93 62"/><path class="xc-sleeve" d="M80 92L93 62"/><circle class="xc-hand" cx="95" cy="54" r="6"/></g>';
+    if (arm) h += '<g class="xc-arm"><path class="xc-under" d="M80 92L93 62"/><path class="xc-sleeve" d="M80 92L93 62"/><path class="xc-hand" d="M89 47H101V59H89Z"/></g>';
     return h + '</svg>';
   }
 
@@ -471,7 +472,7 @@
     var nav = W.navigator || {}, off = store('xas.3d') === '0' || !W.WebGLRenderingContext || (nav.connection && nav.connection.saveData) || (nav.deviceMemory && nav.deviceMemory <= 1);
     if (off) { X3.st = -1; flush3d(); return; }
     X3.st = 1;
-    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=2'; sc.async = true;
+    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=3'; sc.async = true;
     sc.onload = start3d; sc.onerror = function () { fail3d(); };
     D.head.appendChild(sc);
     setTimeout(function () { if (X3.st === 1) flush3d(); }, 6000);       /* a very slow connection: show the flat figure meanwhile */
