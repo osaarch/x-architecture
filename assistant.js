@@ -1,12 +1,14 @@
 /* X Assistant ("إكس المساعد"): the floating helper on the home page.
-   A person icon that can be dragged anywhere on the screen; a tap opens a small chat that answers about services, courses, prices and the site's sections.
+   A small full-body 3D figure (boy or girl, the visitor chooses) that looks around, waves hello and can be dragged anywhere on the screen; a tap opens a small chat that answers about services, courses, prices and the site's sections.
+   The 3D figure comes from assistant3d.js (loaded only on the home page, after the opening animation). Without WebGL, or with data saver on, a flat 2D figure drawn below is used instead.
    The answers come from assistant-kb.json through assistant-core.js, in the language of the page. Nothing is sent anywhere and nothing is stored except the icon's position. */
 (function () {
   'use strict';
   var D = document, W = window, Q = W.XASCORE;
   if (!Q || !D.body) return;
 
-  var S = { kb: null, loading: null, open: false, pos: null, greeted: false, tipT: 0, drag: null, lang: '', ch: 'boy', waveT: 0, talkT: 0 };
+  var S = { kb: null, loading: null, open: false, pos: null, greeted: false, tipT: 0, drag: null, lang: '', ch: 'boy', waveT: 0, talkT: 0, x3: null };
+  var X3 = { st: 0, cbs: [], cache: {}, cv: null };      /* st: 0 not tried, 1 loading, 2 ready, -1 not available */
   var M = 8;                                  /* margin kept from the screen edges */
   var KEY = 'xas.pos', TIPKEY = 'xas.tip', CHKEY = 'xas.ch';
 
@@ -66,7 +68,7 @@
   }
 
   /* ---- the DOM ---- */
-  var root = el('div', 'xas'); root.id = 'xas'; root.hidden = true;
+  var root = el('div', 'xas pend'); root.id = 'xas'; root.hidden = true;
   var btn = el('button', 'xas-b'); btn.type = 'button'; btn.setAttribute('aria-haspopup', 'dialog'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'xas-p');
   var tip = el('div', 'xas-tip'); tip.hidden = true; tip.setAttribute('role', 'status');
   var tipB = el('div', 'xas-tb'), tipT = el('span'), tipX = el('button', 'xas-tx', CLOSE), tipQ = el('div', 'xas-tq'); tipX.type = 'button';
@@ -109,55 +111,70 @@
     s.q.forEach(function (q) { var b = el('button', 'xas-c'); b.type = 'button'; b.textContent = q; chips.appendChild(b); });
   }
 
+  /* a still picture of the 3D figure (for the chat's avatar and the choose-a-look buttons), cached until the theme changes */
+  function snap(k, mode) {
+    var key = k + mode; if (X3.cache[key]) return X3.cache[key];
+    try { return (X3.cache[key] = mode === 'head' ? S.x3.snap(k, 112, 112, 'head') : S.x3.snap(k, 112, 160, 'full')); } catch (x) { return ''; }
+  }
   function figs() {
-    btn.innerHTML = fig(S.ch, true, 'b'); av.innerHTML = fig(S.ch, false, 'h');
-    ['boy', 'girl'].forEach(function (k) { chB[k].innerHTML = fig(k, false, 'p' + k) + '<span>' + t()[k] + '</span>'; chB[k].setAttribute('aria-pressed', String(k === S.ch)); });
+    if (!S.x3) { btn.innerHTML = fig(S.ch, true, 'b'); av.innerHTML = fig(S.ch, false, 'h'); }
+    else av.innerHTML = '<img alt="" width="46" height="46" src="' + snap(S.ch, 'head') + '">';
+    ['boy', 'girl'].forEach(function (k) {
+      chB[k].innerHTML = (S.x3 ? '<img class="xc3" alt="" width="56" height="80" src="' + snap(k, 'full') + '">' : fig(k, false, 'p' + k)) + '<span>' + t()[k] + '</span>';
+      chB[k].setAttribute('aria-pressed', String(k === S.ch));
+    });
   }
   function setCh(k) {
     if (k !== 'boy' && k !== 'girl') k = 'boy';
-    var changed = k !== S.ch; S.ch = k; store(CHKEY, k); figs();
+    var changed = k !== S.ch; S.ch = k; store(CHKEY, k);
+    if (S.x3) S.x3.setKind(k, changed);
+    figs();
     return changed;
   }
   /* the figure waves hello, and moves its mouth while it answers */
   function wave() {
     if (S.open || root.hidden) return;
+    if (S.x3) { S.x3.wave(2400); return; }
     root.classList.remove('wave'); void root.offsetWidth; root.classList.add('wave');
     clearTimeout(S.waveT); S.waveT = setTimeout(function () { root.classList.remove('wave'); }, 2400);
   }
   function talk(ms) {
+    if (S.x3) S.x3.talk(ms);
     root.classList.add('talk'); clearTimeout(S.talkT);
     S.talkT = setTimeout(function () { root.classList.remove('talk'); }, ms);
   }
 
   /* ---- where things are on the screen ---- */
   function view() { var v = W.visualViewport; return { w: D.documentElement.clientWidth, h: v ? v.height : W.innerHeight, y: v ? v.offsetTop : 0 }; }
-  function size() { return btn.offsetWidth || 84; }
+  function big() { return W.innerWidth <= 700; }
+  function sw() { return btn.offsetWidth || (root.classList.contains('x3') ? (big() ? 100 : 136) : 84); }
+  function sh() { return btn.offsetHeight || (root.classList.contains('x3') ? (big() ? 146 : 196) : 84); }
   function setPos(x, y) {
-    var v = view(), s = size();
-    x = clamp(x, M, Math.max(M, v.w - s - M)); y = clamp(y, M, Math.max(M, W.innerHeight - s - M));
+    var v = view();
+    x = clamp(x, M, Math.max(M, v.w - sw() - M)); y = clamp(y, M, Math.max(M, W.innerHeight - sh() - M));
     btn.style.left = x + 'px'; btn.style.top = y + 'px';
     S.pos = { x: x, y: y };
   }
   function save() {
-    var v = view(), s = size(), ax = Math.max(1, v.w - s - 2 * M), ay = Math.max(1, W.innerHeight - s - 2 * M);
+    var v = view(), ax = Math.max(1, v.w - sw() - 2 * M), ay = Math.max(1, W.innerHeight - sh() - 2 * M);
     store(KEY, JSON.stringify({ x: +((S.pos.x - M) / ax).toFixed(4), y: +((S.pos.y - M) / ay).toFixed(4) }));
   }
   function restore() {
-    var v = view(), s = size(), ax = Math.max(1, v.w - s - 2 * M), ay = Math.max(1, W.innerHeight - s - 2 * M), f = null;
+    var v = view(), ax = Math.max(1, v.w - sw() - 2 * M), ay = Math.max(1, W.innerHeight - sh() - 2 * M), f = null;
     try { f = JSON.parse(store(KEY) || 'null'); } catch (x) { }
     if (f && isFinite(f.x) && isFinite(f.y)) setPos(M + clamp(f.x, 0, 1) * ax, M + clamp(f.y, 0, 1) * ay);
-    else { var rtl = (D.documentElement.dir === 'rtl'); setPos(rtl ? 18 : v.w - s - 18, W.innerHeight - s - 22); }
+    else { var rtl = (D.documentElement.dir === 'rtl'); setPos(rtl ? 18 : v.w - sw() - 18, W.innerHeight - sh() - 22); }
   }
   /* a box (the chat or the tip) next to the icon, on whichever side has room, never off the screen */
   function near(box, wMax, hMax, hMin) {
-    var v = view(), s = size(), p = S.pos, bw = Math.min(wMax, v.w - 2 * M), up = p.y > W.innerHeight / 2;
+    var v = view(), p = S.pos, bw = Math.min(wMax, v.w - 2 * M), up = p.y > W.innerHeight / 2, s = sh(), sx = sw();
     box.style.width = bw + 'px';
     var avail = up ? p.y - 2 * M : W.innerHeight - (p.y + s) - 2 * M;
     var bh = hMax > 0 ? Math.min(hMax, avail) : box.offsetHeight;      /* the chat is as tall as the room allows; the tip is as tall as its text */
     var left, top;
     if (hMax > 0 && bh < hMin) { bh = Math.min(hMax, v.h - 2 * M); top = v.y + M; }              /* no room beside the icon: use the screen */
     else top = up ? p.y - M - bh : p.y + s + M;
-    left = (p.x + s / 2 < v.w / 2) ? p.x : p.x + s - bw;
+    left = (p.x + sx / 2 < v.w / 2) ? p.x : p.x + sx - bw;
     left = clamp(left, M, Math.max(M, v.w - bw - M));
     box.style.left = left + 'px'; box.style.top = top + 'px'; if (hMax > 0) box.style.height = bh + 'px';
   }
@@ -220,11 +237,13 @@
     if (S.open) return;
     S.open = true; hideTip(); panel.hidden = false; root.classList.add('on'); btn.setAttribute('aria-expanded', 'true');
     place(); greet(); load();
+    if (S.x3) { S.x3.open(true); S.x3.hop(); }
     if (!(W.matchMedia && W.matchMedia('(pointer: coarse)').matches)) setTimeout(function () { inp.focus({ preventScroll: true }); }, 30);
   }
   function closeP(focus) {
     if (!S.open) return;
     S.open = false; panel.hidden = true; togglePick(false); root.classList.remove('on'); btn.setAttribute('aria-expanded', 'false');
+    if (S.x3) S.x3.open(false);
     if (focus) btn.focus({ preventScroll: true });
   }
   function showTip() {
@@ -236,19 +255,22 @@
   /* ---- dragging: the icon (and the chat's title bar) can be moved anywhere ---- */
   function startDrag(e, handle) {
     if (e.button != null && e.button !== 0) return;
-    S.drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, px: S.pos.x, py: S.pos.y, moved: false, handle: handle };
+    S.drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, px: S.pos.x, py: S.pos.y, moved: false, handle: handle, lx: e.clientX };
     try { handle.setPointerCapture(e.pointerId); } catch (x) { }
   }
   function moveDrag(e) {
     var d = S.drag; if (!d || e.pointerId !== d.id) return;
     var dx = e.clientX - d.sx, dy = e.clientY - d.sy;
     if (!d.moved && Math.hypot(dx, dy) < 6) return;
-    if (!d.moved) { d.moved = true; root.classList.add('mv'); hideTip(); }
+    if (!d.moved) { d.moved = true; root.classList.add('mv'); hideTip(); if (S.x3) S.x3.drag(true); }
+    if (S.x3) S.x3.push(e.clientX - d.lx);
+    d.lx = e.clientX;
     setPos(d.px + dx, d.py + dy); place();
   }
   function endDrag(e) {
     var d = S.drag; if (!d || e.pointerId !== d.id) return;
     S.drag = null; root.classList.remove('mv');
+    if (S.x3) S.x3.drag(false);
     if (d.moved) { save(); S.justDragged = true; setTimeout(function () { S.justDragged = false; }, 60); }
   }
   btn.addEventListener('pointerdown', function (e) { startDrag(e, btn); });
@@ -275,8 +297,51 @@
   chips.addEventListener('click', function (e) { var b = e.target.closest('.xas-c'); if (b) ask(b.textContent); });
   panel.addEventListener('click', function (e) { var a = e.target.closest('a.xas-l'); if (a && a.getAttribute('href').charAt(0) === '#' && W.innerWidth <= 700) closeP(); });
   D.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.open) closeP(true); });
-  W.addEventListener('resize', function () { if (S.pos) { restore(); place(); } });
+  W.addEventListener('resize', function () { if (S.x3) S.x3.resize(sw(), sh()); if (S.pos) { restore(); place(); } });
+  /* the figure's eyes and head follow the pointer (or a finger) */
+  D.addEventListener('pointermove', function (e) {
+    if (!S.x3 || root.hidden || S.drag || !S.pos) return;
+    var v = view(), cx = S.pos.x + sw() / 2, cy = S.pos.y + sh() * .3;
+    S.x3.look((e.clientX - cx) / Math.max(240, v.w * .32), (e.clientY - cy) / Math.max(220, W.innerHeight * .32));
+  }, { passive: true });
+  D.addEventListener('visibilitychange', function () { if (S.x3) S.x3.run(!root.hidden && !D.hidden); });
+  new MutationObserver(function () { X3.cache = {}; if (S.x3) { S.x3.theme(); figs(); } }).observe(D.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   if (W.visualViewport) { W.visualViewport.addEventListener('resize', place); W.visualViewport.addEventListener('scroll', place); }
+
+  /* ---- the 3D figure: loaded once, only when the home page is shown; anything that goes wrong leaves the flat 2D figure ---- */
+  function flush3d() { root.classList.remove('pend'); var c = X3.cbs; X3.cbs = []; c.forEach(function (f) { f(); }); }
+  function fail3d() {
+    X3.st = -1;
+    if (S.x3) { try { S.x3.dispose(); } catch (x) { } S.x3 = null; }
+    root.classList.remove('x3'); X3.cache = {}; figs(); if (S.pos) { restore(); place(); }
+    flush3d();
+  }
+  function start3d() {
+    var X = W.XAS3D, cv, c;
+    if (!X || !X.create) return fail3d();
+    cv = D.createElement('canvas'); cv.className = 'xas-3d'; cv.setAttribute('aria-hidden', 'true');
+    root.classList.add('x3');
+    c = null;
+    try { c = X.create(cv, { kind: S.ch, calm: !!(W.matchMedia && W.matchMedia('(prefers-reduced-motion: reduce)').matches), w: sw(), h: sh(), onLost: fail3d }); } catch (x) { c = null; }
+    if (!c) { root.classList.remove('x3'); return fail3d(); }
+    S.x3 = c; X3.cv = cv; X3.st = 2; X3.cache = {};
+    btn.innerHTML = ''; btn.appendChild(cv);
+    c.resize(sw(), sh()); figs(); if (S.pos) { restore(); place(); }
+    c.run(!root.hidden && !D.hidden);
+    flush3d();
+  }
+  function load3d(cb) {
+    if (X3.st === 2 || X3.st === -1) { cb(); return; }
+    X3.cbs.push(cb);
+    if (X3.st === 1) return;
+    var nav = W.navigator || {}, off = store('xas.3d') === '0' || !W.WebGLRenderingContext || (nav.connection && nav.connection.saveData) || (nav.deviceMemory && nav.deviceMemory <= 1);
+    if (off) { X3.st = -1; flush3d(); return; }
+    X3.st = 1;
+    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=1'; sc.async = true;
+    sc.onload = start3d; sc.onerror = function () { fail3d(); };
+    D.head.appendChild(sc);
+    setTimeout(function () { if (X3.st === 1) flush3d(); }, 6000);       /* a very slow connection: show the flat figure meanwhile */
+  }
 
   /* the first hello waits until the site's own opening animation (the X flying to its place) has finished */
   function greetWhenReady() {
@@ -285,7 +350,7 @@
     (function poll() {
       var busy = (de.classList.contains('intro') && !de.classList.contains('introd')) || de.classList.contains('xw');
       if (busy && n++ < 45) { S.waveT0 = setTimeout(poll, 300); return; }
-      S.waveT0 = setTimeout(wave, 600); S.tipT0 = setTimeout(showTip, 1500);
+      load3d(function () { S.waveT0 = setTimeout(wave, 500); S.tipT0 = setTimeout(showTip, 1500); });
     })();
   }
 
@@ -293,6 +358,7 @@
   function sync() {
     var home = !/(^|\s)r[nwskpcl](\s|$)/.test(D.body.className), was = root.hidden;
     root.hidden = !home;
+    if (S.x3) S.x3.run(home && !D.hidden);
     if (!home) { closeP(); hideTip(); return; }
     if (was) { if (!S.pos) { restore(); } greetWhenReady(); }
   }
@@ -302,7 +368,7 @@
 
   S.ch = store(CHKEY) === 'girl' ? 'girl' : 'boy';
   S.lang = lang(); label(); figs();
-  W.XAS = { sync: sync, open: openP, close: closeP, ask: ask };
+  W.XAS = { sync: sync, open: openP, close: closeP, ask: ask, x3: function () { return S.x3; } };
   /* the icon needs its size to be measured before it is placed */
   root.hidden = false; restore(); root.hidden = true; sync();
 })();
