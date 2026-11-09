@@ -56,25 +56,26 @@
   var GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10 10 20M20 15l-5 5"/></svg>';
   var AGAIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></svg>';
 
-  /* ---- the flat 2D character (used only when the 3D one cannot run): the same figure as the 3D one, sharp-edged: a screen with two eyes and the platform's X; the boy has a hook antenna, the girl has a bob and a bow ---- */
+  /* ---- the flat 2D character (used only when the 3D one cannot run): the same little robot as the 3D one: a rounded pearl head with a dark screen, two gold X eyes and a smile, ear cups, and an egg-shaped body; the boy has an antenna, the girl has a bob and a bow ---- */
   function fig(kind, arm, id) {
     var girl = kind === 'girl', c = 'xcc' + id, h = '';
     h += '<svg class="xc" viewBox="-12 -12 124 124" aria-hidden="true" focusable="false"><defs><clipPath id="' + c + '"><circle cx="50" cy="56" r="46"/></clipPath></defs>';
     h += '<circle class="xc-disc" cx="50" cy="56" r="46"/><g clip-path="url(#' + c + ')"><g class="xc-body">';
-    if (girl) h += '<path class="xc-hair" d="M22 30H78V78L70 90H30L22 78Z"/>';
-    h += '<path class="xc-shirt" d="M12 112L16 88L33 78H67L84 88L88 112Z"/>';
-    h += '<path class="xc-neck" d="M44 64H56V80H44Z"/>';
-    h += '<path class="xc-shirt2" d="M41 79H59L61 85H39Z"/>';
-    if (!girl) h += '<path class="xc-gold" d="M21.5 38H26.5V52H21.5ZM73.5 38H78.5V52H73.5Z"/><path class="xc-hook" d="M50 26V18L57 13L63 18V22"/><path class="xc-gold" d="M63 21.5L65.5 25L63 28.5L60.5 25Z"/>';
-    h += '<path class="xc-scr" d="M33 26H67L73 32V62L67 68H33L27 62V32Z"/>';
-    h += '<g class="xc-x"><path class="xc-xm" d="M32.5 41L39.5 40.5V52L33.5 52.5ZM60.5 40.5L67.5 41L66.5 52.5L60.5 52ZM43 38H57L50 47ZM50 47L57 56H43Z"/></g>';
+    if (girl) h += '<path class="xc-hair" d="M18 48C18 22 32 14 50 14S82 22 82 48L84 74C80 79 74 78 72 72L28 72C26 78 20 79 16 74Z"/>';
+    h += '<ellipse class="xc-pearl" cx="50" cy="106" rx="25" ry="23"/>';
+    h += '<path class="xc-neck" d="M41 74H59V82H41Z"/>';
+    h += '<circle class="xc-neck" cx="50" cy="96" r="6.5"/><path class="xc-xm" d="M46.5 93H53.5L50 96.2ZM50 96.2L53.5 99.4H46.5Z"/>';
+    if (!girl) h += '<path class="xc-ant" d="M50 25V16"/><circle class="xc-gold" cx="50" cy="14" r="3.2"/>';
+    h += '<rect class="xc-cup" x="14.5" y="40" width="7" height="16" rx="3.5"/><rect class="xc-cup" x="78.5" y="40" width="7" height="16" rx="3.5"/>';
+    h += '<rect class="xc-pearl" x="20" y="24" width="60" height="48" rx="17"/>';
+    h += '<rect class="xc-scr" x="25.5" y="29.5" width="49" height="37" rx="12"/>';
+    h += '<g class="xc-x"><path class="xc-xm" d="M34 40H45L39.5 45ZM39.5 45L45 50H34ZM55 40H66L60.5 45ZM60.5 45L66 50H55Z"/><path class="xc-smile" d="M43.5 56.5Q50 62.5 56.5 56.5"/></g>';
     if (girl) {
-      h += '<path class="xc-hair" d="M25 22H75V28L58 31L25 34Z"/>';
-      h += '<path class="xc-hair" d="M22 36H28L27 62L23 64ZM78 36H72L73 62L77 64Z"/>';
-      h += '<path class="xc-gold" d="M28 16L35 20L28 24ZM42 16L35 20L42 24ZM35 18L37 20L35 22L33 20Z"/>';
+      h += '<path class="xc-hair" d="M22 33C28 22 44 20 50 24C56 20 72 22 78 33C70 28 58 28 50 31C42 28 30 28 22 33Z"/>';
+      h += '<path class="xc-gold" d="M27 17L36 21L27 26ZM45 17L36 21L45 26ZM36 19L38.5 21L36 23L33.5 21Z"/>';
     }
     h += '</g></g><circle class="xc-ring" cx="50" cy="56" r="46"/>';
-    if (arm) h += '<g class="xc-arm"><path class="xc-under" d="M80 92L93 62"/><path class="xc-sleeve" d="M80 92L93 62"/><path class="xc-hand" d="M89 47H101V59H89Z"/></g>';
+    if (arm) h += '<g class="xc-arm"><path class="xc-under" d="M74 92L90 66"/><path class="xc-armp" d="M74 92L90 66"/><circle class="xc-hand" cx="91" cy="62" r="7"/></g>';
     return h + '</svg>';
   }
 
@@ -132,13 +133,13 @@
   /* a still picture of the 3D figure (for the chat's avatar and the choose-a-look buttons), cached until the theme changes */
   function snap(k, mode) {
     var key = k + mode; if (X3.cache[key]) return X3.cache[key];
-    try { return (X3.cache[key] = mode === 'head' ? S.x3.snap(k, 112, 112, 'head') : S.x3.snap(k, 112, 160, 'full')); } catch (x) { return ''; }
+    try { return (X3.cache[key] = mode === 'head' ? S.x3.snap(k, 112, 112, 'head') : S.x3.snap(k, 112, 128, 'full')); } catch (x) { return ''; }
   }
   function figs() {
     if (!S.x3) { btn.innerHTML = fig(S.ch, true, 'b'); av.innerHTML = fig(S.ch, false, 'h'); }
     else av.innerHTML = '<img alt="" width="46" height="46" src="' + snap(S.ch, 'head') + '">';
     ['boy', 'girl'].forEach(function (k) {
-      chB[k].innerHTML = (S.x3 ? '<img class="xc3" alt="" width="56" height="80" src="' + snap(k, 'full') + '">' : fig(k, false, 'p' + k)) + '<span>' + t()[k] + '</span>';
+      chB[k].innerHTML = (S.x3 ? '<img class="xc3" alt="" width="56" height="64" src="' + snap(k, 'full') + '">' : fig(k, false, 'p' + k)) + '<span>' + t()[k] + '</span>';
       chB[k].setAttribute('aria-pressed', String(k === S.ch));
     });
   }
@@ -165,7 +166,7 @@
   /* ---- where things are on the screen ---- */
   function view() { var v = W.visualViewport; return { w: D.documentElement.clientWidth, h: v ? v.height : W.innerHeight, y: v ? v.offsetTop : 0 }; }
   function big() { return W.innerWidth <= 700; }
-  function baseSize() { return root.classList.contains('x3') ? (big() ? [112, 170] : [152, 230]) : (big() ? [72, 72] : [84, 84]); }
+  function baseSize() { return root.classList.contains('x3') ? (big() ? [92, 106] : [112, 128]) : (big() ? [72, 72] : [84, 84]); }
   function sw() { return btn.offsetWidth || Math.round(baseSize()[0] * S.sc); }
   function sh() { return btn.offsetHeight || Math.round(baseSize()[1] * S.sc); }
   function setPos(x, y) {
@@ -472,7 +473,7 @@
     var nav = W.navigator || {}, off = store('xas.3d') === '0' || !W.WebGLRenderingContext || (nav.connection && nav.connection.saveData) || (nav.deviceMemory && nav.deviceMemory <= 1);
     if (off) { X3.st = -1; flush3d(); return; }
     X3.st = 1;
-    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=3'; sc.async = true;
+    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=4'; sc.async = true;
     sc.onload = start3d; sc.onerror = function () { fail3d(); };
     D.head.appendChild(sc);
     setTimeout(function () { if (X3.st === 1) flush3d(); }, 6000);       /* a very slow connection: show the flat figure meanwhile */

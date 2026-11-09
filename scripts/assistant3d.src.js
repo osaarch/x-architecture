@@ -1,5 +1,6 @@
-/* X Assistant 3D: the full-body 3D character of the floating helper (a boy or a girl, the visitor chooses).
-   A short, sharp-edged figure. Its head is a glass screen with two eyes and the platform's gold hourglass X: the eyes look and blink, the X talks and flips when it waves; the same X is a badge on its belly. The boy has a hook antenna, the girl has a bob, a bow and lashes.
+/* X Assistant 3D: the 3D character of the floating helper (a boy or a girl robot, the visitor chooses).
+   A small, soft, glossy flying robot: a big rounded head with a dark screen face (two gold hourglass-X eyes that look around and blink, and a smile that opens when it talks), ear cups like headphones, an egg-shaped body with the gold X on its chest,
+   round arms (the right one waves) and no legs: it hovers on a small jet with a soft glow and a shadow below, and leans into the direction when it is carried. The boy has an antenna with a glowing bead; the girl has a bob, a fringe and a gold bow.
    Built from simple shapes in code, so no model file and no outside asset is needed. It uses a small part of three.js (MIT licence).
    This file is the SOURCE. The page loads the built file  assistant3d.js  (made by  scripts/build_assistant3d.sh, which bundles this source with three.js).
    Public API (window.XAS3D):
@@ -7,8 +8,8 @@
      controller: kind(k) setKind(k, true) spins to the new look, theme(), resize(w,h), look(nx,ny), wave(ms), talk(ms), hop(), drag(on), push(vx), open(on, dir) (dir: -1 left, 1 right = where the chat is), run(on), snap(kind,w,h,'head'|'full'), dispose() */
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh,
-  SphereGeometry, CapsuleGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, Shape, ShapeGeometry, ExtrudeGeometry, Vector2, Vector3, BoxGeometry, OctahedronGeometry,
-  MeshStandardMaterial, MeshBasicMaterial, CanvasTexture, SRGBColorSpace, HemisphereLight, DirectionalLight, DoubleSide, AdditiveBlending, Color
+  SphereGeometry, CapsuleGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, Shape, ShapeGeometry, ExtrudeGeometry,
+  MeshStandardMaterial, MeshPhysicalMaterial, MeshBasicMaterial, CanvasTexture, SRGBColorSpace, HemisphereLight, DirectionalLight, DoubleSide, AdditiveBlending, Color
 } from 'three';
 
 const TAU = Math.PI * 2;
@@ -24,37 +25,47 @@ function themeColors() {
   return { gold: g('--gold') || '#AD9154', gold2: g('--gold2') || '#d6bd7e', ong: g('--ong') || '#0a0a0a', light };
 }
 
-/* ---------- shared geometry ---------- */
+
+/* ---------- shapes ---------- */
+function poly(pts) { const s = new Shape(); pts.forEach((p, i) => i ? s.lineTo(p[0], p[1]) : s.moveTo(p[0], p[1])); s.closePath(); return s; }
+/* a polygon with softly rounded corners (radius r) */
+function roundPoly(pts, r) {
+  const s = new Shape(), n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], a = pts[(i + n - 1) % n], b = pts[(i + 1) % n];
+    const da = Math.hypot(a[0] - p[0], a[1] - p[1]), db = Math.hypot(b[0] - p[0], b[1] - p[1]);
+    const ra = Math.min(r, da / 2) / da, rb = Math.min(r, db / 2) / db;
+    const p1 = [p[0] + (a[0] - p[0]) * ra, p[1] + (a[1] - p[1]) * ra], p2 = [p[0] + (b[0] - p[0]) * rb, p[1] + (b[1] - p[1]) * rb];
+    if (i) s.lineTo(p1[0], p1[1]); else s.moveTo(p1[0], p1[1]);
+    s.quadraticCurveTo(p[0], p[1], p2[0], p2[1]);
+  }
+  s.closePath(); return s;
+}
+function roundRect(w, h, r) { const x = w / 2, y = h / 2; return roundPoly([[-x, -y], [x, -y], [x, y], [-x, y]], r); }
+/* a soft block: a rounded rectangle pushed out with a big round bevel, flat in front (the head and the hair) */
+function softBlock(w, h, d, r, bev) {
+  const g = new ExtrudeGeometry(roundRect(w, h, r), { depth: d, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 8, curveSegments: 18 });
+  g.translate(0, 0, -d / 2); return g;
+}
+
 const G = {
-  sph: new SphereGeometry(1, 36, 26),
+  sph: new SphereGeometry(1, 40, 28),
   cap: (r, len) => new CapsuleGeometry(r, len, 8, 20),
   plane: new PlaneGeometry(1, 1),
-  box: new BoxGeometry(1, 1, 1),
-  dia: new OctahedronGeometry(1, 0),
-  slab: prism(chamfer(.56, .5, .06), .22, .035),
-  glass: new ShapeGeometry(chamfer(.5, .44, .04)),
-  panel: prism(chamfer(.27, .27, .06), .02, .01),
-  torso: prism(poly([[-.2, -.12], [.2, -.12], [.275, -.03], [.285, .42], [.215, .6], [.08, .66], [-.08, .66], [-.215, .6], [-.285, .42], [-.275, -.03]]), .34, .025),
-  eyeL: new ShapeGeometry(poly([[-.04, -.065], [.04, -.06], [.04, .06], [-.02, .07], [-.04, .05]])),
-  eyeR: new ShapeGeometry(poly([[-.04, -.06], [.04, -.065], [.04, .05], [.02, .07], [-.04, .06]])),
-  eyeGL: new ShapeGeometry(poly([[-.045, -.07], [.045, -.065], [.045, .065], [-.02, .075], [-.045, .055]])),
-  eyeGR: new ShapeGeometry(poly([[-.045, -.065], [.045, -.07], [.045, .055], [.02, .075], [-.045, .065]])),
-  shoe: (() => { const g = new ExtrudeGeometry(poly([[-.11, 0], [.2, 0], [.2, .04], [.12, .095], [.02, .12], [-.11, .12]]), { depth: .17, bevelEnabled: true, bevelThickness: .012, bevelSize: .012, bevelSegments: 1 }); g.translate(0, 0, -.085); g.rotateY(-Math.PI / 2); return g; })(),
-  band: (() => { const g = new CylinderGeometry(.068, .068, .035, 4, 1); g.rotateY(Math.PI / 4); return g; })(),
-  hexDisc: new CylinderGeometry(.09, .09, .05, 6, 1),
-  bob: prism(poly([[-.375, .36], [.375, .36], [.375, -.18], [.29, -.33], [-.29, -.33], [-.375, -.18]]), .17, .02),
-  fringe: prism(poly([[-.335, .34], [.335, .34], [.335, .262], [.16, .285], [-.335, .245]]), .04, .016),
-  wing: prism(poly([[0, 0], [.13, .08], [.13, -.08]]), .02, .01),
-  triTop: (() => { const s = new Shape(); s.moveTo(-.16, .165); s.lineTo(.16, .165); s.lineTo(0, 0); s.closePath(); return new ShapeGeometry(s); })(),
-  triBot: (() => { const s = new Shape(); s.moveTo(0, 0); s.lineTo(.16, -.165); s.lineTo(-.16, -.165); s.closePath(); return new ShapeGeometry(s); })()
+  head: softBlock(.58, .44, .24, .17, .1),
+  hair: softBlock(.66, .5, .22, .2, .12),
+  screen: new ShapeGeometry(roundRect(.54, .4, .13), 18),
+  rim: new ShapeGeometry(roundRect(.575, .435, .145), 18),
+  cup: (() => { const g = new CylinderGeometry(.115, .115, .075, 36, 1); g.rotateZ(Math.PI / 2); return g; })(),
+  cupRing: (() => { const g = new TorusGeometry(.082, .012, 8, 36); g.rotateY(Math.PI / 2); return g; })(),
+  eyeT: new ShapeGeometry(roundPoly([[-.058, .07], [.058, .07], [0, .0]], .014)),
+  eyeB: new ShapeGeometry(roundPoly([[0, -.0], [.058, -.07], [-.058, -.07]], .014)),
+  smile: (() => { const arc = Math.PI * .72, g = new TorusGeometry(.062, .0085, 8, 28, arc); g.rotateZ(Math.PI + (Math.PI - arc) / 2); g.translate(0, .02, 0); return g; })(),
+  mouth: (() => { const g = new CircleGeometry(.05, 24, Math.PI, Math.PI); g.translate(0, -.085, 0); return g; })(),
+  nozzle: new CylinderGeometry(.1, .068, .07, 28, 1),
+  jetRing: new TorusGeometry(.082, .011, 8, 36),
+  wing: (() => { const g = new SphereGeometry(1, 20, 14); return g; })()
 };
-
-/* a square tapered limb piece, rt at the top and rb at the bottom */
-function limb(rt, rb, len) { const g = new CylinderGeometry(rt * 1.38, rb * 1.38, len, 4, 1); g.rotateY(Math.PI / 4); return g; }
-function poly(pts) { const s = new Shape(); pts.forEach((p, i) => i ? s.lineTo(p[0], p[1]) : s.moveTo(p[0], p[1])); s.closePath(); return s; }
-function chamfer(w, h, c) { const x = w / 2, y = h / 2; return poly([[-x + c, -y], [x - c, -y], [x, -y + c], [x, y - c], [x - c, y], [-x + c, y], [-x, y - c], [-x, -y + c]]); }
-/* a flat shape pushed out into a block with sharp bevelled edges, centred front to back */
-function prism(shape, depth, bev) { const g = new ExtrudeGeometry(shape, { depth, bevelEnabled: bev > 0, bevelThickness: bev, bevelSize: bev, bevelSegments: 1 }); g.translate(0, 0, -depth / 2); return g; }
 function mesh(geo, mat, x, y, z, sx, sy, sz) {
   const m = new Mesh(geo, mat); m.position.set(x || 0, y || 0, z || 0);
   if (sx != null) m.scale.set(sx, sy == null ? sx : sy, sz == null ? sx : sz);
@@ -62,7 +73,7 @@ function mesh(geo, mat, x, y, z, sx, sy, sz) {
 }
 function std(color, rough, metal) { return new MeshStandardMaterial({ color, roughness: rough == null ? .62 : rough, metalness: metal || 0 }); }
 
-function glowTexture() {                              /* a soft round glow behind the X on the screen (white, tinted by the material colour) */
+function glowTexture() {                              /* a soft round glow (white, tinted by the material colour) */
   const c = document.createElement('canvas'); c.width = c.height = 128;
   const x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
   g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(.45, 'rgba(255,255,255,.28)'); g.addColorStop(1, 'rgba(255,255,255,0)');
@@ -78,96 +89,76 @@ function shadowTexture() {
 }
 
 /* ---------- the figure ---------- */
-/* a small, sharp-edged "screen bot": a big chamfered screen for a head (two eyes and the X on it), an angular body with the X badge on its belly, short legs with wedge sneakers.
-   The boy has an angular hook antenna and hexagonal ear discs; the girl has a sharp bob with a swept fringe, side strands, a gold bow and lashes. */
-function bar(a, b, r, mat) {                          /* a square rod between two points (for the hook antenna) */
-  const A = new Vector3(a[0], a[1], a[2]), B = new Vector3(b[0], b[1], b[2]), d = B.clone().sub(A), len = d.length();
-  const g = new CylinderGeometry(r * 1.41, r * 1.41, len, 4, 1); g.rotateY(Math.PI / 4);
-  const m = new Mesh(g, mat); m.position.copy(A.clone().add(B).multiplyScalar(.5)); m.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), d.normalize()); return m;
-}
+/* A small flying helper robot, soft and glossy: a big rounded head with a dark screen face (two gold X eyes and a smile), ear cups like headphones, a little egg-shaped body with the gold X on its chest,
+   rounded arms with mitten hands, and no legs: it hovers on a small jet with a soft glow and a shadow below. The boy has a little antenna with a glowing bead; the girl has a bob of hair, a fringe and a gold bow. */
+const HOVER = .14, PIV = .55, FZ = .22;
 function buildFigure(kind, M) {
   const girl = kind === 'girl', J = {};
-  const root = new Group(), body = new Group(); root.add(body);
-  J.root = root; J.body = body;
-  const FZ = .145;                                                                     /* the front of the screen slab */
+  const root = new Group(), fig = new Group(), body = new Group(), rig = new Group();
+  root.add(fig); fig.add(body); body.position.y = PIV; body.add(rig); rig.position.y = -PIV;
+  J.root = root; J.fig = fig; J.body = body;
 
-  /* legs: short and square-cut, wedge sneakers with gold soles (hips at y = .54) */
-  const hip = new Group(); hip.position.y = .54; body.add(hip); J.hip = hip;
+  /* the jet under the body */
+  rig.add(mesh(G.nozzle, M.shell, 0, .235, 0));
+  const jr = mesh(G.jetRing, M.jet, 0, .198, 0); jr.rotation.x = Math.PI / 2; rig.add(jr);
+  const jg = mesh(G.plane, M.jetGlow, 0, .15, 0, .62, .62, 1); jg.rotation.x = -Math.PI / 2; rig.add(jg); J.jg = jg;
+
+  /* the body: a small egg with a dark collar and the gold X on the chest */
+  const torso = new Group(); torso.position.y = .5; rig.add(torso); J.torso = torso;
+  torso.add(mesh(G.sph, M.pearl, 0, 0, 0, .25, .27, .22));
+  torso.add(mesh(G.sph, M.shell, 0, .2, .03, .17, .07, .15));                               /* the dark collar band */
+  torso.add(mesh(G.sph, M.shell, 0, -.01, .205, .092, .092, .03));                            /* the dark badge */
+  const bx = new Group(); bx.position.set(0, -.01, .238); bx.scale.setScalar(.8); torso.add(bx);
+  bx.add(mesh(G.eyeT, M.xmark, 0, .004, 0), mesh(G.eyeB, M.xmark, 0, -.004, 0)); J.badge = bx;
+
+  /* arms: round, with mitten hands; the right one waves */
   [-1, 1].forEach(s => {
-    const leg = new Group(); leg.position.set(s * .118, 0, 0); hip.add(leg);
-    leg.add(mesh(limb(.092, .074, .24), M.pants, 0, -.12, 0));
-    const shin = new Group(); shin.position.y = -.24; leg.add(shin);
-    shin.add(mesh(G.box, M.pants, 0, 0, 0, .135, .13, .135));
-    shin.add(mesh(limb(.074, .064, .2), M.pants, 0, -.1, 0));
-    shin.add(mesh(G.shoe, M.shoe, 0, -.262, 0));
-    shin.add(mesh(G.box, M.sole, 0, -.275, .04, .19, .03, .31));
-    if (s < 0) { J.legL = leg; J.shinL = shin; } else { J.legR = leg; J.shinR = shin; }
-  });
-  if (girl) {
-    const sk = new Mesh(new CylinderGeometry(.25, .4, .27, 8, 1, true), M.skirt); sk.position.y = .015; sk.rotation.y = Math.PI / 8; sk.material.side = DoubleSide; hip.add(sk);
-    const hem = new Mesh(new TorusGeometry(.4, .014, 4, 8), M.gold); hem.rotation.set(Math.PI / 2, 0, Math.PI / 8); hem.position.y = -.12; hip.add(hem);
-    J.skirt = sk;
-  }
-
-  /* torso (waist y = .62): a cut body, broad shoulders, flat front with a dark badge carrying the X */
-  const torso = new Group(); torso.position.y = .62; body.add(torso); J.torso = torso;
-  torso.add(new Mesh(G.torso, M.shirt));
-  const belt = mesh(G.box, M.shirt2, 0, .02, 0, .59, .05, .4); torso.add(belt);
-  const pn = new Mesh(G.panel, M.shell); pn.position.set(0, .25, .197); torso.add(pn);
-  const bx = new Group(); bx.position.set(0, .25, .2205); bx.scale.setScalar(.56); torso.add(bx);
-  bx.add(mesh(G.triTop, M.xmark, 0, .014, 0), mesh(G.triBot, M.xmark, 0, -.014, 0)); J.badge = bx;
-
-  /* arms: square sleeves with a gold wrist band and a blocky light hand */
-  [-1, 1].forEach(s => {
-    const arm = new Group(); arm.position.set(s * .335, .49, 0); torso.add(arm);
-    arm.add(mesh(G.box, M.shirt, 0, 0, 0, .13, .13, .13));
-    arm.add(mesh(limb(.07, .058, .2), M.shirt, 0, -.1, 0));
-    const fore = new Group(); fore.position.y = -.2; arm.add(fore);
-    fore.add(mesh(G.box, M.shirt, 0, 0, 0, .108, .108, .108));
-    fore.add(mesh(limb(.058, .05, .15), M.shirt, 0, -.075, 0));
-    fore.add(mesh(G.band, M.shirt2, 0, -.15, 0));
-    fore.add(mesh(G.box, M.hand, 0, -.2, 0, .118, .12, .1));
+    const arm = new Group(); arm.position.set(s * .232, .62, 0); rig.add(arm);
+    arm.add(mesh(G.sph, M.pearl, 0, 0, 0, .06));
+    arm.add(mesh(G.cap(.05, .09), M.pearl, 0, -.085, 0));
+    const fore = new Group(); fore.position.y = -.165; arm.add(fore);
+    fore.add(mesh(G.sph, M.pearl, 0, 0, 0, .05));
+    fore.add(mesh(G.cap(.043, .08), M.pearl, 0, -.07, 0));
+    fore.add(mesh(G.sph, M.pearl, 0, -.165, 0, .068, .078, .06));                             /* the hand */
     if (s < 0) { J.armL = arm; J.foreL = fore; } else { J.armR = arm; J.foreR = fore; }
   });
 
-  /* neck and head (neck base at y = 1.27) */
-  const neck = new Group(); neck.position.y = 1.27; body.add(neck); J.neck = neck;
-  neck.add(mesh(limb(.062, .07, .14), M.pants, 0, .02, 0));
-  const head = new Group(); head.position.y = .42; head.scale.setScalar(1.55); neck.add(head); J.head = head;
-
-  /* the head is a screen: a chamfered slab of graphite with a black glass front. Two eyes and the gold hourglass X light up on it */
-  head.add(new Mesh(G.slab, M.shell));
-  const glass = new Mesh(G.glass, M.glass); glass.position.z = FZ + .0015; head.add(glass);
-  const glow = new Mesh(G.plane, M.glow); glow.position.set(0, 0, FZ + .0045); glow.scale.set(.58, .52, 1); head.add(glow); J.glow = glow;
-  [-1, 1].forEach(s => {
-    const eye = new Group(); eye.position.set(s * .195, .03, FZ + .007); head.add(eye);
-    eye.add(new Mesh(s < 0 ? (girl ? G.eyeGL : G.eyeL) : (girl ? G.eyeGR : G.eyeR), M.xmark));
-    if (girl) [0, 1].forEach(i => {                                                  /* two sharp lashes on the outer corner */
-      const l = mesh(G.plane, M.xmark, s * (.05 + i * .01), .07 + i * .016, 0, .06, .012, 1); l.rotation.z = s * (.6 + i * .35); eye.add(l);
-    });
-    if (s < 0) J.eyeL = eye; else J.eyeR = eye;
+  /* neck and head (the neck pivot is at the base of the head) */
+  const neck = new Group(); neck.position.y = .78; rig.add(neck); J.neck = neck;
+  neck.add(mesh(G.sph, M.shell, 0, -.015, 0, .09, .07, .09));
+  const head = new Group(); head.position.y = .32; neck.add(head); J.head = head;
+  head.add(new Mesh(G.head, M.pearl));
+  head.add(mesh(G.rim, M.gold, 0, 0, FZ + .001));
+  head.add(mesh(G.screen, M.glass, 0, 0, FZ + .0025));
+  const glow = mesh(G.plane, M.glow, 0, .02, FZ + .0045, .52, .3, 1); head.add(glow); J.glow = glow;
+  [-1, 1].forEach(s => {                                                                  /* two X eyes: the platform's hourglass X, one on each side */
+    const eye = new Group(); eye.position.set(s * .135, .045, FZ + .007); head.add(eye);
+    const t = mesh(G.eyeT, M.xmark, 0, .004, 0), b = mesh(G.eyeB, M.xmark, 0, -.004, 0); eye.add(t, b);
+    if (s < 0) { J.eyeL = eye; J.eyeLt = t; J.eyeLb = b; } else { J.eyeR = eye; J.eyeRt = t; J.eyeRb = b; }
   });
-  const xe = new Group(); xe.position.set(0, 0, FZ + .007); head.add(xe); J.xe = xe;
-  const xt = new Group(), xb = new Group(); xe.add(xt, xb); J.xt = xt; J.xb = xb;
-  xt.add(new Mesh(G.triTop, M.xmark)); xb.add(new Mesh(G.triBot, M.xmark));
+  const sm = mesh(G.smile, M.xmark, 0, -.09, FZ + .007); head.add(sm); J.smile = sm;
+  const mo = mesh(G.mouth, M.xmark, 0, 0, FZ + .0072); mo.scale.y = 0; head.add(mo); J.mouth = mo;
+  [-1, 1].forEach(s => {                                                                  /* ear cups, like headphones */
+    const cup = new Group(); cup.position.set(s * .405, -.01, 0); head.add(cup);
+    cup.add(new Mesh(G.cup, M.shell));
+    cup.add(mesh(G.cupRing, M.gold, s * .04, 0, 0));
+  });
 
   if (girl) {
-    /* hair: a sharp bob behind the screen, a swept fringe above it, tapered side strands, and a gold bow */
-    head.add(mesh(G.bob, M.hair, 0, 0, -.115));
-    head.add(mesh(G.fringe, M.hair, 0, 0, .12));
-    [-1, 1].forEach(s => { const st = mesh(limb(.05, .02, .3), M.hair, s * .345, -.03, .1); st.rotation.z = s * .05; head.add(st); });
-    const bow = new Group(); bow.position.set(-.2, .45, -.03); bow.rotation.z = .2; head.add(bow); J.tailL = bow;
-    [-1, 1].forEach(s => { const wg = new Mesh(G.wing, M.gold); wg.scale.x = s; bow.add(wg); });
-    bow.add(mesh(G.dia, M.gold, 0, 0, 0, .05, .05, .05));
+    /* hair: a rounded bob behind the face, a parted fringe, two side locks and a gold bow */
+    head.add(mesh(G.hair, M.hair, 0, .075, -.075));
+    [-1, 1].forEach(s => {
+      const fr = mesh(G.sph, M.hair, s * .125, .285, .15, .2, .075, .1); fr.rotation.z = s * -.2; head.add(fr);
+      const lock = mesh(G.cap(.07, .2), M.hair, s * .405, -.2, -.05); lock.rotation.z = s * .08; head.add(lock);
+    });
+    const bow = new Group(); bow.position.set(-.27, .385, .1); bow.rotation.z = .25; head.add(bow); J.bow = bow;
+    [-1, 1].forEach(s => { const wg = mesh(G.sph, M.gold, s * .062, 0, 0, .07, .046, .03); wg.rotation.z = s * .4; bow.add(wg); });
+    bow.add(mesh(G.sph, M.gold, 0, 0, .01, .03));
   } else {
-    /* the boy: an angular gold hook antenna with a bright diamond tip, and hexagonal gold ear discs */
-    const hk = new Group(); hk.position.set(0, .3, -.02); head.add(hk); J.hook = hk;
-    hk.add(mesh(G.box, M.gold, 0, 0, 0, .08, .05, .08));
-    const P = [[0, .02, 0], [0, .21, 0], [.095, .285, 0], [.175, .21, 0], [.175, .13, 0]];
-    for (let i = 0; i < P.length - 1; i++) hk.add(bar(P[i], P[i + 1], .017, M.gold));
-    for (let i = 1; i < P.length - 1; i++) hk.add(mesh(G.box, M.gold, P[i][0], P[i][1], 0, .036, .036, .036));
-    hk.add(mesh(G.dia, M.xmark, P[4][0], P[4][1] - .03, 0, .042, .055, .042));
-    [-1, 1].forEach(s => { const ed = mesh(G.hexDisc, M.gold, s * .35, -.01, -.01); ed.rotation.z = Math.PI / 2; head.add(ed); });
+    /* the boy: a little antenna with a glowing bead */
+    const an = new Group(); an.position.set(0, .31, -.02); head.add(an); J.antenna = an;
+    an.add(mesh(G.cap(.011, .09), M.shell, 0, .06, 0));
+    const bead = mesh(G.sph, M.bead, 0, .13, 0, .033); an.add(bead); J.bead = bead;
   }
   return J;
 }
@@ -181,29 +172,32 @@ function create(canvas, o) {
   renderer.setClearColor(0x000000, 0);
 
   const scene = new Scene(), cam = new PerspectiveCamera(26, .7, .1, 40);
-  scene.add(new HemisphereLight(0xffffff, 0x8a7a62, 1.5));
-  const key = new DirectionalLight(0xfff0dc, 2.6); key.position.set(2.6, 4, 5); scene.add(key);
+  scene.add(new HemisphereLight(0xffffff, 0x8a7a62, 1.05));
+  const key = new DirectionalLight(0xfff0dc, 1.9); key.position.set(2.6, 4, 5); scene.add(key);
   const fill = new DirectionalLight(0xc9d8ff, .55); fill.position.set(-4, 1.5, 3); scene.add(fill);
   const rimA = new DirectionalLight(0xe6cd8a, 1.5); rimA.position.set(-3, 3, -4); scene.add(rimA);
   const rimB = new DirectionalLight(0xe6cd8a, 1.0); rimB.position.set(3.5, 2, -3); scene.add(rimB);
 
   /* materials (shared by the two figures); colours are filled by theme() */
   const M = {
-    hair: std('#4a3322', .48), hand: std('#e3d6bb', .62),
-    shirt: std('#AD9154', .55, .08), shirt2: std('#d6bd7e', .5, .1), pants: std('#2a2620', .7), skirt: std('#2a2620', .7), shoe: std('#e8dfcb', .55), sole: std('#d6bd7e', .6),
-    gold: std('#d6bd7e', .4, .25),
-    shell: std('#1d1b19', .32, .45), glass: std('#050505', .1, .65),
+    pearl: new MeshPhysicalMaterial({ color: '#f1ece2', roughness: .34, metalness: 0, clearcoat: .7, clearcoatRoughness: .25 }),
+    hair: std('#6b4529', .42, .05),
+    gold: std('#d6bd7e', .38, .3),
+    shell: std('#2a2724', .35, .4), glass: std('#050505', .12, .6),
     xmark: new MeshBasicMaterial({ color: 0xe6cd8a, side: DoubleSide }),
-    glow: new MeshBasicMaterial({ map: glowTexture(), color: 0xd6bd7e, transparent: true, opacity: .5, blending: AdditiveBlending, depthWrite: false })
+    glow: new MeshBasicMaterial({ map: glowTexture(), color: 0xd6bd7e, transparent: true, opacity: .4, blending: AdditiveBlending, depthWrite: false }),
+    jet: new MeshBasicMaterial({ color: 0xe6cd8a }),
+    jetGlow: new MeshBasicMaterial({ map: glowTexture(), color: 0xd6bd7e, transparent: true, opacity: .5, blending: AdditiveBlending, depthWrite: false, side: DoubleSide }),
+    bead: new MeshBasicMaterial({ color: 0xf0d896 })
   };
   let light = false;
   function theme() {
-    const c = themeColors(), X = new Color(c.gold), hsl = {}; X.getHSL(hsl, SRGBColorSpace); X.setHSL(hsl.h, Math.min(.72, hsl.s + .22), .64, SRGBColorSpace);   /* a brighter tone of the theme gold: the glass is black in both themes */
-    M.shirt.color.set(c.gold); M.shirt2.color.set(c.gold2); M.sole.color.set(c.gold2); M.gold.color.set(c.gold2);
-    M.xmark.color.copy(X); M.glow.color.set(c.gold); light = c.light;        /* the X is always bright on the dark glass */
+    const c = themeColors(), X = new Color(c.gold), hsl = {}; X.getHSL(hsl, SRGBColorSpace); X.setHSL(hsl.h, Math.min(.72, hsl.s + .22), .64, SRGBColorSpace);   /* a brighter tone of the theme gold: the screen is black in both themes */
+    M.gold.color.set(c.gold2);
+    M.xmark.color.copy(X); M.jet.color.copy(X); M.bead.color.copy(X); M.glow.color.set(c.gold); M.jetGlow.color.set(c.gold2); light = c.light;
   }
   const shadowMat = new MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false });
-  const shadow = new Mesh(new CircleGeometry(.56, 32), shadowMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .004; scene.add(shadow);
+  const shadow = new Mesh(new CircleGeometry(.5, 32), shadowMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .004; scene.add(shadow);
 
   const figs = { boy: buildFigure('boy', M), girl: buildFigure('girl', M) };
   scene.add(figs.boy.root, figs.girl.root);
@@ -217,7 +211,7 @@ function create(canvas, o) {
   };
   const L = { px: 0, py: 0, seen: -99, gx: 0, gy: 0, gUntil: 0, gNext: 4 };
   const Wv = { t: -1, dur: 2.4 }, Tk = { until: 0 }, Sp = { t: -1, swapped: false, to: kind }, Dg = { on: false, vx: 0 }, Bk = { next: 2.5, t: -1 };
-  let T = 0, last = 0, raf = 0, running = false, openT = 0, openDir = 0, w = 120, h = 172, dead = false;
+  let T = 0, last = 0, raf = 0, running = false, openT = 0, openDir = 0, w = 112, h = 128, dead = false;
   const calm = !!o.calm;
 
   function fit(aspect, vh, vw, cy) {
@@ -227,50 +221,44 @@ function create(canvas, o) {
   function resize(cw, ch) {
     w = Math.max(40, Math.round(cw || w)); h = Math.max(60, Math.round(ch || h));
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(w, h, false);
-    fit(w / h, 2.96, 1.84, 1.37);
+    fit(w / h, 2.0, 1.45, .88);
   }
-  resize(o.w || 120, o.h || 172);
+  resize(o.w || 112, o.h || 128);
 
   /* ---- the pose: every joint is computed from the state, so it is always consistent ---- */
   function pose(s, tt, JJ) {
-    const A = s.idle, br = Math.sin(tt * 2.2) * A, wv = s.wv, dg = s.dg, tk = s.tk;
-    const ry = -.2 + s.spinY, jy = s.hopY + dg * .1;
-    JJ.root.position.y = jy; JJ.root.rotation.y = ry;
-    JJ.root.scale.set(1 - s.sq * .45, 1 + s.sq, 1 - s.sq * .45);
-    JJ.body.rotation.z = -s.dvx * .2 * dg + Math.sin(tt * .8) * .018 * A;
-    JJ.body.rotation.y = s.lx * .22 * (1 - dg * .6);
-    JJ.body.rotation.x = wv * .04 + dg * .05;
-    JJ.torso.scale.set(1 + .008 * br, 1 + .015 * br, 1 + .008 * br);
-    JJ.torso.rotation.y = -wv * .1;
+    const A = s.idle, wv = s.wv, dg = s.dg, tk = s.tk, jy = s.hopY;
+    const bob = Math.sin(tt * 2.0) * .03 * A, lift = jy * .6 + dg * .05;
+    JJ.root.position.y = jy * .6; JJ.root.rotation.y = -.2 + s.spinY;
+    JJ.fig.position.y = HOVER + bob + dg * .05;
+    JJ.fig.scale.set(1 - s.sq * .3, 1 + s.sq * .55, 1 - s.sq * .3);
+    JJ.body.rotation.z = -s.dvx * .35 * dg + Math.sin(tt * .8) * .03 * A;
+    JJ.body.rotation.x = wv * .05 + dg * .14 + Math.sin(tt * 1.1) * .015 * A;
+    JJ.body.rotation.y = s.lx * .2 * (1 - dg * .6);
+    const br = Math.sin(tt * 2.2) * A;
+    JJ.torso.scale.set(1 + .01 * br, 1 + .015 * br, 1 + .01 * br);
     const yaw = s.lx * .8 + .2 * (1 - Math.abs(s.lx)), pitch = s.ly * .3;
-    JJ.neck.rotation.set(pitch * .35, yaw * .4, 0);
-    JJ.head.rotation.set(pitch * .7 + tk * .035 * Math.sin(tt * 7) + wv * .03, yaw * .6, -wv * .09 - s.dvx * .1 * dg);
-    /* the face: two eyes that look around and blink, and the X below them that opens like a mouth while it talks and flips like a coin when it waves */
-    const m = tk * (.25 + .75 * Math.abs(Math.sin(tt * 12.5) * Math.sin(tt * 5.3 + 1)));
-    const xs = (1 + .08 * m + .1 * dg + .05 * wv) * .76;
-    JJ.xe.position.x = s.ex * .05; JJ.xe.position.y = -s.ey * .03 + .003 * Math.sin(tt * 1.3) * A;
-    JJ.xe.scale.set(xs, xs, 1);
-    JJ.xe.rotation.set(0, s.fl, -s.dvx * .3 * dg + Math.sin(tt * 9) * .05 * dg);
-    JJ.xt.position.y = .014 + .05 * m + .02 * wv; JJ.xb.position.y = -JJ.xt.position.y;
-    const ez = (1 - .92 * s.bl) * (1 - .22 * m) * (1 - .32 * wv) * (1 + .12 * dg);
-    [JJ.eyeL, JJ.eyeR].forEach((e, i) => { e.position.x = (i ? 1 : -1) * .195 + s.ex * .04; e.position.y = .03 - s.ey * .035; e.scale.set(1 + .08 * dg, ez, 1); });
-    if (JJ.hook) JJ.hook.rotation.z = Math.sin(tt * 1.3) * .035 * A - s.dvx * .3 * dg + tk * .05 * Math.sin(tt * 9);
-    if (JJ.tailL) JJ.tailL.rotation.z = .2 + s.dvx * .2 * dg;
-    const gl = .42 + .1 * Math.sin(tt * 1.6) * A + .26 * m + .2 * wv + .22 * dg;
-    JJ.glow.material.opacity = gl;
-    /* arms: rest with a small swing, lifted when carried, the right one waves */
-    const sw = Math.sin(tt * 1.7) * .02 * A, fl = Math.sin(tt * 9) * dg * .25;
-    JJ.armL.rotation.set(-.05 * dg, 0, -(.15 + sw + dg * .62 + fl));
-    JJ.armR.rotation.set(-.35 * wv - .05 * dg, 0, .15 - sw + dg * .62 - fl + wv * 2.2);
-    JJ.foreL.rotation.set(-.3 + dg * .25, 0, -dg * .2);
-    JJ.foreR.rotation.set(-.3 + wv * .25 + dg * .25, 0, wv * (.7 + .5 * Math.sin(s.wt * 9.5)) + dg * .2);
-    /* legs: they hang and swing while the figure is carried */
-    const sl = Math.sin(tt * 7) * .32 * dg;
-    JJ.legL.rotation.x = sl; JJ.legR.rotation.x = -sl;
-    JJ.shinL.rotation.x = Math.max(0, -sl) * 1.3 + dg * .25; JJ.shinR.rotation.x = Math.max(0, sl) * 1.3 + dg * .25;
-    const ai = clamp(jy / .25, 0, 1); JJ.legL.rotation.x -= ai * .35; JJ.legR.rotation.x -= ai * .35; JJ.shinL.rotation.x += ai * .7; JJ.shinR.rotation.x += ai * .7;
-    if (JJ.skirt) JJ.skirt.scale.set(1 + Math.abs(sl) * .5, 1, 1 + Math.abs(sl) * .5);
-    shadow.position.y = .004; const sc = 1 - clamp(jy, 0, .4) * 1.2; shadow.scale.set(sc, sc, sc); shadowMat.opacity = (light ? .55 : .9) * (.5 + .5 * sc);
+    JJ.neck.rotation.set(pitch * .4, yaw * .35, 0);
+    JJ.head.rotation.set(pitch * .6 + tk * .03 * Math.sin(tt * 7) + wv * .03, yaw * .55, -wv * .1 - s.dvx * .12 * dg + Math.sin(tt * 1.3) * .02 * A);
+    /* the face: two X eyes that look around, blink and flip like a coin when it waves; a smile that opens like a mouth while it talks */
+    const m = Math.max(tk * (.25 + .75 * Math.abs(Math.sin(tt * 12.5) * Math.sin(tt * 5.3 + 1))), wv * .35);
+    const ez = (1 - .95 * s.bl) * (1 - .15 * m) * (1 + .1 * dg);
+    [JJ.eyeL, JJ.eyeR].forEach((e, i) => { e.position.x = (i ? 1 : -1) * .135 + s.ex * .03; e.position.y = .045 - s.ey * .03; e.scale.set(1 + .06 * dg, ez, 1); e.rotation.y = s.fl; });
+    JJ.smile.position.x = s.ex * .03; JJ.smile.position.y = -.09 - s.ey * .02; JJ.smile.scale.set(1 + .12 * wv + .1 * dg, 1 + .3 * wv, 1); JJ.smile.visible = m < .16;
+    JJ.mouth.position.x = s.ex * .03; JJ.mouth.position.y = -s.ey * .02; JJ.mouth.scale.y = Math.max(.001, m * 1.15); JJ.mouth.visible = m >= .16;
+    JJ.glow.material.opacity = .3 + .08 * Math.sin(tt * 1.6) * A + .2 * m + .12 * wv + .1 * dg;
+    if (JJ.antenna) { JJ.antenna.rotation.z = Math.sin(tt * 1.3) * .08 * A - s.dvx * .4 * dg + tk * .08 * Math.sin(tt * 9); JJ.bead.scale.setScalar(.033 * (1 + .22 * Math.sin(tt * 3) * A + .5 * m)); }
+    if (JJ.bow) JJ.bow.rotation.z = .25 + s.dvx * .2 * dg + Math.sin(tt * 1.5) * .03 * A;
+    /* arms: a small swing at rest, out to the sides when it is carried, the right one waves */
+    const sw = Math.sin(tt * 1.7) * .03 * A, fl = Math.sin(tt * 9) * dg * .3;
+    JJ.armL.rotation.set(-.05 * dg, 0, -(.3 + sw + dg * .55 + fl));
+    JJ.armR.rotation.set(-.3 * wv - .05 * dg, 0, .3 - sw + dg * .55 - fl + wv * 2.1);
+    JJ.foreL.rotation.set(-.25 + dg * .2, 0, -dg * .2);
+    JJ.foreR.rotation.set(-.25 + wv * .2 + dg * .2, 0, wv * (.55 + .45 * Math.sin(s.wt * 9.5)) + dg * .2);
+    /* the jet glows a little brighter when it climbs or is carried; the shadow on the ground shrinks as it rises */
+    M.jetGlow.opacity = .42 + .12 * Math.sin(tt * 3.1) * A + .3 * dg + .25 * clamp(jy * 3, 0, 1);
+    JJ.jg.scale.setScalar(.62 * (1 + .08 * Math.sin(tt * 3.1 + 1) * A + .25 * dg));
+    shadow.position.y = .004; const sc = 1 - clamp(lift, 0, .5) * 1.1 - bob * 1.2; shadow.scale.set(sc, sc, sc); shadowMat.opacity = (light ? .5 : .85) * (.55 + .45 * sc);
   }
 
   /* ---- time step ---- */
@@ -342,11 +330,11 @@ function create(canvas, o) {
     const fi = figs[k]; figs.boy.root.visible = k === 'boy'; figs.girl.root.visible = k === 'girl';
     const ns = { lx: 0, ly: 0, ex: 0, ey: 0, bl: 0, wv: 0, wt: 0, tk: 0, dg: 0, dvx: 0, hopY: 0, hvy: 0, sq: 0, sqv: 0, spinY: 0, fl: 0, open: 0, idle: 0 };
     pose(ns, 0, fi); renderer.setPixelRatio(1); renderer.setSize(sw, sh, false);
-    if (mode === 'head') fit(sw / sh, 1.5, 1.35, 1.82); else fit(sw / sh, 2.66, 1.72, 1.24);
+    if (mode === 'head') fit(sw / sh, 1.02, 1.0, 1.27); else fit(sw / sh, 1.95, 1.45, .86);
     renderer.render(scene, cam);
     const url = canvas.toDataURL('image/png');
     figs.boy.root.visible = keep.k === 'boy'; figs.girl.root.visible = keep.k === 'girl';
-    renderer.setPixelRatio(keep.pr); renderer.setSize(keep.cw, keep.ch, false); fit(keep.cw / keep.ch, 2.96, 1.84, 1.37);
+    renderer.setPixelRatio(keep.pr); renderer.setSize(keep.cw, keep.ch, false); fit(keep.cw / keep.ch, 2.0, 1.45, .88);
     pose(st, T, J); renderer.render(scene, cam);
     return url;
   }
