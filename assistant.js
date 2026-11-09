@@ -294,7 +294,7 @@
   function load() {
     if (S.kb) return Promise.resolve(S.kb);
     if (S.loading) return S.loading;
-    S.loading = W.fetch('assistant-kb.json?v=1').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { S.kb = Q.prepare(j); return S.kb; }).catch(function () { S.loading = null; return null; });
+    S.loading = W.fetch('assistant-kb.json?v=2').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) { S.kb = Q.prepare(j); return S.kb; }).catch(function () { S.loading = null; return null; });
     return S.loading;
   }
   function greet() {
