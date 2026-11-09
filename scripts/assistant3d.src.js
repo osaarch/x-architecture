@@ -1,6 +1,6 @@
 /* X Assistant 3D: the 3D character of the floating helper (a boy or a girl robot, the visitor chooses).
-   A small, soft, glossy flying robot: a big rounded head with a dark screen face (two gold hourglass-X eyes that look around and blink, and a smile that opens when it talks), ear cups like headphones, an egg-shaped body with the gold X on its chest,
-   round arms (the right one waves) and no legs: it hovers on a small jet with a soft glow and a shadow below, and leans into the direction when it is carried. The boy has an antenna with a glowing bead; the girl has a bob, a fringe and a gold bow.
+   A small, soft, glossy flying robot: a big rounded head with a dark screen face (two gold hourglass-X eyes that look around and blink, and a smile that opens when it talks), ear cups like headphones, a small cup-shaped body with a dark collar,
+   smooth flipper arms (the left one waves) and no legs: it hovers with a shadow below and leans into the direction when it is carried. The boy has nothing on his head; the girl has a bob and a fringe.
    Built from simple shapes in code, so no model file and no outside asset is needed. It uses a small part of three.js (MIT licence).
    This file is the SOURCE. The page loads the built file  assistant3d.js  (made by  scripts/build_assistant3d.sh, which bundles this source with three.js).
    Public API (window.XAS3D):
@@ -8,7 +8,7 @@
      controller: kind(k) setKind(k, true) spins to the new look, theme(), resize(w,h), look(nx,ny), wave(ms), talk(ms), hop(), drag(on), push(vx), open(on, dir) (dir: -1 left, 1 right = where the chat is), run(on), snap(kind,w,h,'head'|'full'), dispose() */
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh,
-  SphereGeometry, CapsuleGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, Shape, ShapeGeometry, ExtrudeGeometry,
+  SphereGeometry, CapsuleGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, Shape, ShapeGeometry, ExtrudeGeometry, LatheGeometry, SplineCurve, Vector2,
   MeshStandardMaterial, MeshPhysicalMaterial, MeshBasicMaterial, CanvasTexture, SRGBColorSpace, HemisphereLight, DirectionalLight, DoubleSide, AdditiveBlending, Color
 } from 'three';
 
@@ -48,6 +48,12 @@ function softBlock(w, h, d, r, bev) {
   g.translate(0, 0, -d / 2); return g;
 }
 
+/* a smooth solid of revolution from a rough profile: points are [radius, y], from the lowest to the highest */
+function lathe(pts, seg) {
+  const c = new SplineCurve(pts.map(p => new Vector2(p[0], p[1]))), v = c.getPoints(44);
+  v.forEach(p => { p.x = Math.max(0, p.x); });
+  return new LatheGeometry(v, seg || 40);
+}
 const G = {
   sph: new SphereGeometry(1, 40, 28),
   cap: (r, len) => new CapsuleGeometry(r, len, 8, 20),
@@ -62,8 +68,12 @@ const G = {
   eyeB: new ShapeGeometry(roundPoly([[0, -.0], [.058, -.07], [-.058, -.07]], .014)),
   smile: (() => { const arc = Math.PI * .72, g = new TorusGeometry(.062, .0085, 8, 28, arc); g.rotateZ(Math.PI + (Math.PI - arc) / 2); g.translate(0, .02, 0); return g; })(),
   mouth: (() => { const g = new CircleGeometry(.05, 24, Math.PI, Math.PI); g.translate(0, -.085, 0); return g; })(),
-  nozzle: new CylinderGeometry(.1, .068, .07, 28, 1),
-  jetRing: new TorusGeometry(.082, .011, 8, 36),
+  /* the body: a small cup that is widest at the shoulders and narrows to a round bottom, with a dark collar band around the top */
+  torso: lathe([[0, -.27], [.07, -.262], [.14, -.225], [.2, -.14], [.235, -.03], [.25, .07], [.245, .16], [.215, .235], [.15, .28], [.1, .292]], 44),
+  collar: lathe([[.215, .205], [.234, .222], [.228, .245], [.19, .272], [.13, .289], [.09, .293]], 44),
+  /* the arms: smooth and tapered like a flipper, thin at the shoulder and wide and rounded at the hand */
+  armUp: lathe([[0, -.16], [.045, -.15], [.058, -.1], [.06, -.02], [.055, .03], [.04, .06], [0, .075]], 24),
+  armFore: lathe([[0, -.24], [.045, -.228], [.07, -.185], [.082, -.12], [.076, -.055], [.062, -.01], [.05, .03], [.03, .05], [0, .056]], 24),
   wing: (() => { const g = new SphereGeometry(1, 20, 14); return g; })()
 };
 function mesh(geo, mat, x, y, z, sx, sy, sz) {
@@ -89,8 +99,8 @@ function shadowTexture() {
 }
 
 /* ---------- the figure ---------- */
-/* A small flying helper robot, soft and glossy: a big rounded head with a dark screen face (two gold X eyes and a smile), ear cups like headphones, a little egg-shaped body with the gold X on its chest,
-   rounded arms with mitten hands, and no legs: it hovers on a small jet with a soft glow and a shadow below. The boy has a little antenna with a glowing bead; the girl has a bob of hair, a fringe and a gold bow. */
+/* A small flying helper robot, soft and glossy: a big rounded head with a dark screen face (two gold X eyes and a smile), ear cups like headphones, a small cup-shaped body with a dark collar,
+   smooth flipper arms, and no legs: it hovers with a shadow below. The boy has nothing on his head; the girl has a bob of hair and a fringe. */
 const HOVER = .14, PIV = .55, FZ = .22;
 function buildFigure(kind, M) {
   const girl = kind === 'girl', J = {};
@@ -98,34 +108,23 @@ function buildFigure(kind, M) {
   root.add(fig); fig.add(body); body.position.y = PIV; body.add(rig); rig.position.y = -PIV;
   J.root = root; J.fig = fig; J.body = body;
 
-  /* the jet under the body */
-  rig.add(mesh(G.nozzle, M.shell, 0, .235, 0));
-  const jr = mesh(G.jetRing, M.jet, 0, .198, 0); jr.rotation.x = Math.PI / 2; rig.add(jr);
-  const jg = mesh(G.plane, M.jetGlow, 0, .15, 0, .62, .62, 1); jg.rotation.x = -Math.PI / 2; rig.add(jg); J.jg = jg;
-
-  /* the body: a small egg with a dark collar and the gold X on the chest */
+  /* the body, a cup with a dark collar */
   const torso = new Group(); torso.position.y = .5; rig.add(torso); J.torso = torso;
-  torso.add(mesh(G.sph, M.pearl, 0, 0, 0, .25, .27, .22));
-  torso.add(mesh(G.sph, M.shell, 0, .2, .03, .17, .07, .15));                               /* the dark collar band */
-  torso.add(mesh(G.sph, M.shell, 0, -.01, .205, .092, .092, .03));                            /* the dark badge */
-  const bx = new Group(); bx.position.set(0, -.01, .238); bx.scale.setScalar(.8); torso.add(bx);
-  bx.add(mesh(G.eyeT, M.xmark, 0, .004, 0), mesh(G.eyeB, M.xmark, 0, -.004, 0)); J.badge = bx;
+  const tb = new Mesh(G.torso, M.pearl); tb.scale.z = .88; torso.add(tb);
+  const tc = new Mesh(G.collar, M.shell); tc.scale.z = .88; torso.add(tc);
 
-  /* arms: round, with mitten hands; the right one waves */
+  /* arms: smooth flippers with no joints showing; the left one (on the viewer's left) waves */
   [-1, 1].forEach(s => {
-    const arm = new Group(); arm.position.set(s * .232, .62, 0); rig.add(arm);
-    arm.add(mesh(G.sph, M.pearl, 0, 0, 0, .06));
-    arm.add(mesh(G.cap(.05, .09), M.pearl, 0, -.085, 0));
-    const fore = new Group(); fore.position.y = -.165; arm.add(fore);
-    fore.add(mesh(G.sph, M.pearl, 0, 0, 0, .05));
-    fore.add(mesh(G.cap(.043, .08), M.pearl, 0, -.07, 0));
-    fore.add(mesh(G.sph, M.pearl, 0, -.165, 0, .068, .078, .06));                             /* the hand */
+    const arm = new Group(); arm.position.set(s * .225, .66, 0); rig.add(arm);
+    arm.add(new Mesh(G.armUp, M.pearl));
+    const fore = new Group(); fore.position.y = -.15; arm.add(fore);
+    fore.add(new Mesh(G.armFore, M.pearl));
     if (s < 0) { J.armL = arm; J.foreL = fore; } else { J.armR = arm; J.foreR = fore; }
   });
 
   /* neck and head (the neck pivot is at the base of the head) */
-  const neck = new Group(); neck.position.y = .78; rig.add(neck); J.neck = neck;
-  neck.add(mesh(G.sph, M.shell, 0, -.015, 0, .09, .07, .09));
+  const neck = new Group(); neck.position.y = .85; rig.add(neck); J.neck = neck;
+  neck.add(mesh(G.sph, M.shell, 0, -.05, 0, .085, .09, .085));
   const head = new Group(); head.position.y = .32; neck.add(head); J.head = head;
   head.add(new Mesh(G.head, M.pearl));
   head.add(mesh(G.rim, M.gold, 0, 0, FZ + .001));
@@ -145,20 +144,12 @@ function buildFigure(kind, M) {
   });
 
   if (girl) {
-    /* hair: a rounded bob behind the face, a parted fringe, two side locks and a gold bow */
+    /* hair: a rounded bob behind the face, a parted fringe and two side locks */
     head.add(mesh(G.hair, M.hair, 0, .075, -.075));
     [-1, 1].forEach(s => {
       const fr = mesh(G.sph, M.hair, s * .125, .285, .15, .2, .075, .1); fr.rotation.z = s * -.2; head.add(fr);
       const lock = mesh(G.cap(.07, .2), M.hair, s * .405, -.2, -.05); lock.rotation.z = s * .08; head.add(lock);
     });
-    const bow = new Group(); bow.position.set(-.27, .385, .1); bow.rotation.z = .25; head.add(bow); J.bow = bow;
-    [-1, 1].forEach(s => { const wg = mesh(G.sph, M.gold, s * .062, 0, 0, .07, .046, .03); wg.rotation.z = s * .4; bow.add(wg); });
-    bow.add(mesh(G.sph, M.gold, 0, 0, .01, .03));
-  } else {
-    /* the boy: a little antenna with a glowing bead */
-    const an = new Group(); an.position.set(0, .31, -.02); head.add(an); J.antenna = an;
-    an.add(mesh(G.cap(.011, .09), M.shell, 0, .06, 0));
-    const bead = mesh(G.sph, M.bead, 0, .13, 0, .033); an.add(bead); J.bead = bead;
   }
   return J;
 }
@@ -180,21 +171,18 @@ function create(canvas, o) {
 
   /* materials (shared by the two figures); colours are filled by theme() */
   const M = {
-    pearl: new MeshPhysicalMaterial({ color: '#f1ece2', roughness: .34, metalness: 0, clearcoat: .7, clearcoatRoughness: .25 }),
+    pearl: new MeshPhysicalMaterial({ color: '#f8f6f1', roughness: .34, metalness: 0, clearcoat: .7, clearcoatRoughness: .25 }),
     hair: std('#6b4529', .42, .05),
     gold: std('#d6bd7e', .38, .3),
     shell: std('#2a2724', .35, .4), glass: std('#050505', .12, .6),
     xmark: new MeshBasicMaterial({ color: 0xe6cd8a, side: DoubleSide }),
-    glow: new MeshBasicMaterial({ map: glowTexture(), color: 0xd6bd7e, transparent: true, opacity: .4, blending: AdditiveBlending, depthWrite: false }),
-    jet: new MeshBasicMaterial({ color: 0xe6cd8a }),
-    jetGlow: new MeshBasicMaterial({ map: glowTexture(), color: 0xd6bd7e, transparent: true, opacity: .5, blending: AdditiveBlending, depthWrite: false, side: DoubleSide }),
-    bead: new MeshBasicMaterial({ color: 0xf0d896 })
+    glow: new MeshBasicMaterial({ map: glowTexture(), color: 0xd6bd7e, transparent: true, opacity: .4, blending: AdditiveBlending, depthWrite: false })
   };
   let light = false;
   function theme() {
     const c = themeColors(), X = new Color(c.gold), hsl = {}; X.getHSL(hsl, SRGBColorSpace); X.setHSL(hsl.h, Math.min(.72, hsl.s + .22), .64, SRGBColorSpace);   /* a brighter tone of the theme gold: the screen is black in both themes */
     M.gold.color.set(c.gold2);
-    M.xmark.color.copy(X); M.jet.color.copy(X); M.bead.color.copy(X); M.glow.color.set(c.gold); M.jetGlow.color.set(c.gold2); light = c.light;
+    M.xmark.color.copy(X); M.glow.color.set(c.gold); light = c.light;
   }
   const shadowMat = new MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false });
   const shadow = new Mesh(new CircleGeometry(.5, 32), shadowMat); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .004; scene.add(shadow);
@@ -221,7 +209,7 @@ function create(canvas, o) {
   function resize(cw, ch) {
     w = Math.max(40, Math.round(cw || w)); h = Math.max(60, Math.round(ch || h));
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); renderer.setSize(w, h, false);
-    fit(w / h, 2.0, 1.45, .88);
+    fit(w / h, 2.08, 1.45, .92);
   }
   resize(o.w || 112, o.h || 128);
 
@@ -247,17 +235,13 @@ function create(canvas, o) {
     JJ.smile.position.x = s.ex * .03; JJ.smile.position.y = -.09 - s.ey * .02; JJ.smile.scale.set(1 + .12 * wv + .1 * dg, 1 + .3 * wv, 1); JJ.smile.visible = m < .16;
     JJ.mouth.position.x = s.ex * .03; JJ.mouth.position.y = -s.ey * .02; JJ.mouth.scale.y = Math.max(.001, m * 1.15); JJ.mouth.visible = m >= .16;
     JJ.glow.material.opacity = .3 + .08 * Math.sin(tt * 1.6) * A + .2 * m + .12 * wv + .1 * dg;
-    if (JJ.antenna) { JJ.antenna.rotation.z = Math.sin(tt * 1.3) * .08 * A - s.dvx * .4 * dg + tk * .08 * Math.sin(tt * 9); JJ.bead.scale.setScalar(.033 * (1 + .22 * Math.sin(tt * 3) * A + .5 * m)); }
-    if (JJ.bow) JJ.bow.rotation.z = .25 + s.dvx * .2 * dg + Math.sin(tt * 1.5) * .03 * A;
-    /* arms: a small swing at rest, out to the sides when it is carried, the right one waves */
+    /* arms: a small swing at rest, out to the sides when it is carried; the left one (on the viewer's left) waves */
     const sw = Math.sin(tt * 1.7) * .03 * A, fl = Math.sin(tt * 9) * dg * .3;
-    JJ.armL.rotation.set(-.05 * dg, 0, -(.3 + sw + dg * .55 + fl));
-    JJ.armR.rotation.set(-.3 * wv - .05 * dg, 0, .3 - sw + dg * .55 - fl + wv * 2.1);
-    JJ.foreL.rotation.set(-.25 + dg * .2, 0, -dg * .2);
-    JJ.foreR.rotation.set(-.25 + wv * .2 + dg * .2, 0, wv * (.55 + .45 * Math.sin(s.wt * 9.5)) + dg * .2);
-    /* the jet glows a little brighter when it climbs or is carried; the shadow on the ground shrinks as it rises */
-    M.jetGlow.opacity = .42 + .12 * Math.sin(tt * 3.1) * A + .3 * dg + .25 * clamp(jy * 3, 0, 1);
-    JJ.jg.scale.setScalar(.62 * (1 + .08 * Math.sin(tt * 3.1 + 1) * A + .25 * dg));
+    JJ.armR.rotation.set(-.05 * dg, 0, .2 + sw + dg * .55 - fl);
+    JJ.armL.rotation.set(-.3 * wv - .05 * dg, 0, -(.2 - sw + dg * .55 + fl + wv * 2.1));
+    JJ.foreR.rotation.set(-.1 + dg * .2, 0, .05 + dg * .2);
+    JJ.foreL.rotation.set(-.1 + wv * .15 + dg * .2, 0, -(dg * .2 + wv * (.3 + .45 * Math.sin(s.wt * 9.5))));
+    /* the shadow on the ground shrinks as it rises */
     shadow.position.y = .004; const sc = 1 - clamp(lift, 0, .5) * 1.1 - bob * 1.2; shadow.scale.set(sc, sc, sc); shadowMat.opacity = (light ? .5 : .85) * (.55 + .45 * sc);
   }
 
@@ -330,11 +314,11 @@ function create(canvas, o) {
     const fi = figs[k]; figs.boy.root.visible = k === 'boy'; figs.girl.root.visible = k === 'girl';
     const ns = { lx: 0, ly: 0, ex: 0, ey: 0, bl: 0, wv: 0, wt: 0, tk: 0, dg: 0, dvx: 0, hopY: 0, hvy: 0, sq: 0, sqv: 0, spinY: 0, fl: 0, open: 0, idle: 0 };
     pose(ns, 0, fi); renderer.setPixelRatio(1); renderer.setSize(sw, sh, false);
-    if (mode === 'head') fit(sw / sh, 1.02, 1.0, 1.27); else fit(sw / sh, 1.95, 1.45, .86);
+    if (mode === 'head') fit(sw / sh, 1.05, 1.0, 1.3); else fit(sw / sh, 2.0, 1.45, .88);
     renderer.render(scene, cam);
     const url = canvas.toDataURL('image/png');
     figs.boy.root.visible = keep.k === 'boy'; figs.girl.root.visible = keep.k === 'girl';
-    renderer.setPixelRatio(keep.pr); renderer.setSize(keep.cw, keep.ch, false); fit(keep.cw / keep.ch, 2.0, 1.45, .88);
+    renderer.setPixelRatio(keep.pr); renderer.setSize(keep.cw, keep.ch, false); fit(keep.cw / keep.ch, 2.08, 1.45, .92);
     pose(st, T, J); renderer.render(scene, cam);
     return url;
   }

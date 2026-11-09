@@ -56,26 +56,21 @@
   var GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10 10 20M20 15l-5 5"/></svg>';
   var AGAIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4.5h4.5"/></svg>';
 
-  /* ---- the flat 2D character (used only when the 3D one cannot run): the same little robot as the 3D one: a rounded pearl head with a dark screen, two gold X eyes and a smile, ear cups, and an egg-shaped body; the boy has an antenna, the girl has a bob and a bow ---- */
+  /* ---- the flat 2D character (used only when the 3D one cannot run): the same little robot as the 3D one: a rounded pearl head with a dark screen, two gold X eyes and a smile, ear cups, a cup-shaped body with a dark collar; the girl has a bob ---- */
   function fig(kind, arm, id) {
     var girl = kind === 'girl', c = 'xcc' + id, h = '';
     h += '<svg class="xc" viewBox="-12 -12 124 124" aria-hidden="true" focusable="false"><defs><clipPath id="' + c + '"><circle cx="50" cy="56" r="46"/></clipPath></defs>';
     h += '<circle class="xc-disc" cx="50" cy="56" r="46"/><g clip-path="url(#' + c + ')"><g class="xc-body">';
     if (girl) h += '<path class="xc-hair" d="M18 48C18 22 32 14 50 14S82 22 82 48L84 74C80 79 74 78 72 72L28 72C26 78 20 79 16 74Z"/>';
-    h += '<ellipse class="xc-pearl" cx="50" cy="106" rx="25" ry="23"/>';
-    h += '<path class="xc-neck" d="M41 74H59V82H41Z"/>';
-    h += '<circle class="xc-neck" cx="50" cy="96" r="6.5"/><path class="xc-xm" d="M46.5 93H53.5L50 96.2ZM50 96.2L53.5 99.4H46.5Z"/>';
-    if (!girl) h += '<path class="xc-ant" d="M50 25V16"/><circle class="xc-gold" cx="50" cy="14" r="3.2"/>';
+    h += '<path class="xc-pearl" d="M26 92Q26 80 38 79H62Q74 80 74 92Q74 124 50 124Q26 124 26 92Z"/>';
+    h += '<rect class="xc-neck" x="44" y="70" width="12" height="10" rx="3"/><path class="xc-neck" d="M33 82Q50 74 67 82L66 89Q50 82 34 89Z"/>';
     h += '<rect class="xc-cup" x="14.5" y="40" width="7" height="16" rx="3.5"/><rect class="xc-cup" x="78.5" y="40" width="7" height="16" rx="3.5"/>';
     h += '<rect class="xc-pearl" x="20" y="24" width="60" height="48" rx="17"/>';
     h += '<rect class="xc-scr" x="25.5" y="29.5" width="49" height="37" rx="12"/>';
     h += '<g class="xc-x"><path class="xc-xm" d="M34 40H45L39.5 45ZM39.5 45L45 50H34ZM55 40H66L60.5 45ZM60.5 45L66 50H55Z"/><path class="xc-smile" d="M43.5 56.5Q50 62.5 56.5 56.5"/></g>';
-    if (girl) {
-      h += '<path class="xc-hair" d="M22 33C28 22 44 20 50 24C56 20 72 22 78 33C70 28 58 28 50 31C42 28 30 28 22 33Z"/>';
-      h += '<path class="xc-gold" d="M27 17L36 21L27 26ZM45 17L36 21L45 26ZM36 19L38.5 21L36 23L33.5 21Z"/>';
-    }
+    if (girl) h += '<path class="xc-hair" d="M22 33C28 22 44 20 50 24C56 20 72 22 78 33C70 28 58 28 50 31C42 28 30 28 22 33Z"/>';
     h += '</g></g><circle class="xc-ring" cx="50" cy="56" r="46"/>';
-    if (arm) h += '<g class="xc-arm"><path class="xc-under" d="M74 92L90 66"/><path class="xc-armp" d="M74 92L90 66"/><circle class="xc-hand" cx="91" cy="62" r="7"/></g>';
+    if (arm) h += '<g class="xc-arm"><path class="xc-under" d="M74 94L90 68"/><path class="xc-armp" d="M74 94L90 68"/><ellipse class="xc-hand" cx="91" cy="63" rx="7" ry="9"/></g>';
     return h + '</svg>';
   }
 
@@ -473,7 +468,7 @@
     var nav = W.navigator || {}, off = store('xas.3d') === '0' || !W.WebGLRenderingContext || (nav.connection && nav.connection.saveData) || (nav.deviceMemory && nav.deviceMemory <= 1);
     if (off) { X3.st = -1; flush3d(); return; }
     X3.st = 1;
-    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=4'; sc.async = true;
+    var sc = D.createElement('script'); sc.src = 'assistant3d.js?v=5'; sc.async = true;
     sc.onload = start3d; sc.onerror = function () { fail3d(); };
     D.head.appendChild(sc);
     setTimeout(function () { if (X3.st === 1) flush3d(); }, 6000);       /* a very slow connection: show the flat figure meanwhile */
