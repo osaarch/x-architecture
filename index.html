@@ -394,7 +394,9 @@ html.intro #bt{animation:bB 6.5s ease-in-out infinite}
 .cpt .rl,.cpt .pc{background:var(--bg2)}
 .cpt .rl{font-weight:500;font-size:.98rem;display:flex;align-items:center}
 .cpt .pc small{display:none;color:var(--soft);font-size:.74rem;margin-bottom:4px}
-.pv{display:inline-flex;align-items:baseline;gap:8px}
+.pv{display:inline-flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.pv .usd{flex-basis:100%;font-size:.8rem;color:var(--soft);direction:ltr;unicode-bidi:isolate;text-align:left;letter-spacing:.02em}
+html[dir=rtl] .pv .usd{text-align:right}
 .pv i{font-style:normal;font-size:clamp(1.7rem,3vw,2.3rem);color:var(--gold);direction:ltr;font-weight:500;line-height:1}
 .pv u{text-decoration:none;font-size:.78rem;color:var(--soft)}
 .cof{display:grid;grid-template-columns:150px 1fr auto;gap:18px;align-items:center;background:var(--bg2);padding:20px 24px;margin-bottom:10px}
@@ -469,6 +471,7 @@ html[dir=rtl] .rrc::before{transform-origin:right}
 .rrq small{font-size:.76rem;color:var(--soft)}
 .rrq .pv i{font-size:1.4rem}
 .rrq .pv u{font-size:.7rem}
+.rrq .pv .usd{font-size:.7rem}
 .rrq p{margin:0;font-size:.8rem;line-height:1.6;color:var(--soft)}
 .rrb{display:flex;align-items:center;justify-content:space-between;font-size:.8rem;color:var(--gold2);padding-top:14px;border-top:1px solid var(--line)}
 .rrb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:translate .3s}
@@ -1175,13 +1178,13 @@ T.push(setTimeout(fly,2150));o.addEventListener("click",fin);o.addEventListener(
 <h3 class="ch">الأسعار</h3>
 <div class="cpt">
 <span class="hh"></span><span class="hh">برامج ثلاثية الأبعاد</span><span class="hh">برامج الإظهار المعماري</span>
-<b class="rl">الدورات التفاعلية</b><div class="pc"><small>برامج ثلاثية الأبعاد</small><span class="pv"><i>250</i><u>ألف د.ع</u></span></div><div class="pc"><small>برامج الإظهار المعماري</small><span class="pv"><i>125</i><u>ألف د.ع</u></span></div>
-<b class="rl">الدورات المسجّلة</b><div class="pc"><small>برامج ثلاثية الأبعاد</small><span class="pv"><i>175</i><u>ألف د.ع</u></span></div><div class="pc"><small>برامج الإظهار المعماري</small><span class="pv"><i>85</i><u>ألف د.ع</u></span></div>
+<b class="rl">الدورات التفاعلية</b><div class="pc"><small>برامج ثلاثية الأبعاد</small><span class="pv"><i>250</i><u>ألف د.ع</u><data class="usd" value="150">≈ $150</data></span></div><div class="pc"><small>برامج الإظهار المعماري</small><span class="pv"><i>125</i><u>ألف د.ع</u><data class="usd" value="75">≈ $75</data></span></div>
+<b class="rl">الدورات المسجّلة</b><div class="pc"><small>برامج ثلاثية الأبعاد</small><span class="pv"><i>175</i><u>ألف د.ع</u><data class="usd" value="105">≈ $105</data></span></div><div class="pc"><small>برامج الإظهار المعماري</small><span class="pv"><i>85</i><u>ألف د.ع</u><data class="usd" value="50">≈ $50</data></span></div>
 </div>
 <h3 class="ch">العروض</h3>
-<div class="cof"><b>العرض الأول</b><span>برنامج ثلاثي الأبعاد + برنامج إظهار + دورة حاسوب</span><span class="pv"><i>220</i><u>ألف د.ع</u></span></div>
-<div class="cof"><b>العرض الثاني</b><span>برنامجان ثلاثيا الأبعاد + برنامجا إظهار + دورة حاسوب</span><span class="pv"><i>450</i><u>ألف د.ع</u></span></div>
-<div class="cof"><b>العرض الثالث</b><span>4 برامج ثلاثية الأبعاد + 5 برامج إظهار + دورة حاسوب</span><span class="pv"><i>750</i><u>ألف د.ع</u></span></div>
+<div class="cof"><b>العرض الأول</b><span>برنامج ثلاثي الأبعاد + برنامج إظهار + دورة حاسوب</span><span class="pv"><i>220</i><u>ألف د.ع</u><data class="usd" value="135">≈ $135</data></span></div>
+<div class="cof"><b>العرض الثاني</b><span>برنامجان ثلاثيا الأبعاد + برنامجا إظهار + دورة حاسوب</span><span class="pv"><i>450</i><u>ألف د.ع</u><data class="usd" value="275">≈ $275</data></span></div>
+<div class="cof"><b>العرض الثالث</b><span>4 برامج ثلاثية الأبعاد + 5 برامج إظهار + دورة حاسوب</span><span class="pv"><i>750</i><u>ألف د.ع</u><data class="usd" value="455">≈ $455</data></span></div>
 <p class="note cin">يشمل الاشتراك: تثبيت وتفعيل البرامج، إضافات ومكتبات جاهزة، دعم ومتابعة حتى 100 يوم بعد انتهاء الدورة، وشهادة إتمام.</p>
 </div></section>
 </div>
@@ -1866,7 +1869,7 @@ var PCOL={autocad:'#c31a4d',revit:'#2369e0','3dsmax':'#4397b7',sketchup:'#0a64ae
 var PIMG={};Object.keys(PXI).forEach(function(k){PIMG[k]=PXI[k].map(function(i){return['https://images.pexels.com/photos/'+i+'/pexels-photo-'+i+'.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=640&h=480','']})});PIMG.revit.unshift(['pimg/revit-1.jpg','','g']);
 var pm=document.getElementById('pm'),pms=pm.querySelector('.pms'),pmc=document.getElementById('pmc'),PI=0,PF=null,LX={ar:0,en:1,tr:2,fr:3,ku:4},
 PCAT={'23':['ثنائي وثلاثي الأبعاد','2D & 3D'],'3':['ثلاثي الأبعاد','3D'],'v':['إظهار معماري','Architectural visualization'],'c':['تعليم حاسوب','Computer basics']},
-PPR={'23':[250,175],'3':[250,175],'v':[125,85]},PLT={unreal:1,twinmotion:1},
+PPR={'23':[250,175],'3':[250,175],'v':[125,85]},USDR=1650,usd=function(k){return '≈ $'+Math.round(k*1000/USDR/5)*5},PLT={unreal:1,twinmotion:1},
 CSVG='<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="15" rx="1"/><path d="M12 26h8M16 21v5"/></svg>';
 function pmN(n){return L==='ar'?n+' محوراً':L==='en'?n+' topics':L==='tr'?n+' konu':L==='fr'?n+' thèmes':n+' بابەت'}
 function pmr(){
@@ -1877,7 +1880,7 @@ function pmr(){
   if(im.length)h+='<div class="pmf">'+im.map(function(a){return '<figure class="pmg'+(a[2]?' g':PCOL[s]?'':' pn')+'"'+(PCOL[s]&&!a[2]?' style="--pc:'+PCOL[s]+'"':'')+'><img src="'+esc(a[0])+'" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" draggable="false"></figure>'}).join('')+'</div>';
   h+='</div>';
   if(cap)h+='<div class="pmv"><small>'+T('المستوى الذي ستصل إليه','The level you will reach')+'</small><p>'+esc(last)+'</p></div>';
-  h+='<div class="pmq">'+(pr?'<div><small>'+T('الدورات التفاعلية','Live courses')+'</small><span class="pv"><i>'+pr[0]+'</i><u>'+T('ألف د.ع','K IQD')+'</u></span></div><div><small>'+T('الدورات المسجّلة','Recorded courses')+'</small><span class="pv"><i>'+pr[1]+'</i><u>'+T('ألف د.ع','K IQD')+'</u></span></div>':'<p class="pmn2">'+T('تُقدَّم ضمن العروض','Included in the bundle offers')+'</p>')+'<div class="pmct"><small>'+T('تواصل للاشتراك','Contact us to enroll')+'</small><span>'+'<a class="b s" href="https://instagram.com/xstudio4arch" target="_blank" rel="noopener">'+T('إنستغرام','Instagram')+'</a>'+'<a class="b s" href="https://t.me/xstudio4arch" target="_blank" rel="noopener">'+T('تيليجرام','Telegram')+'</a>'+'<a class="b s" href="https://wa.me/xstudio4arch" target="_blank" rel="noopener">'+T('واتساب','WhatsApp')+'</a>'+'</span></div></div>';
+  h+='<div class="pmq">'+(pr?'<div><small>'+T('الدورات التفاعلية','Live courses')+'</small><span class="pv"><i>'+pr[0]+'</i><u>'+T('ألف د.ع','K IQD')+'</u><data class="usd">'+usd(pr[0])+'</data></span></div><div><small>'+T('الدورات المسجّلة','Recorded courses')+'</small><span class="pv"><i>'+pr[1]+'</i><u>'+T('ألف د.ع','K IQD')+'</u><data class="usd">'+usd(pr[1])+'</data></span></div>':'<p class="pmn2">'+T('تُقدَّم ضمن العروض','Included in the bundle offers')+'</p>')+'<div class="pmct"><small>'+T('تواصل للاشتراك','Contact us to enroll')+'</small><span>'+'<a class="b s" href="https://instagram.com/xstudio4arch" target="_blank" rel="noopener">'+T('إنستغرام','Instagram')+'</a>'+'<a class="b s" href="https://t.me/xstudio4arch" target="_blank" rel="noopener">'+T('تيليجرام','Telegram')+'</a>'+'<a class="b s" href="https://wa.me/xstudio4arch" target="_blank" rel="noopener">'+T('واتساب','WhatsApp')+'</a>'+'</span></div></div>';
   pmc.innerHTML=h;pgHv(s);
   document.getElementById('pmz').textContent=(PI+1)+' / '+PGO.length;
   Array.prototype.forEach.call(pmc.querySelectorAll('.pmg img'),function(i){i.addEventListener('error',function(){var f=i.parentNode,p=f.parentNode;p.removeChild(f);if(!p.querySelector('figure')){var b=p.parentNode;b.removeChild(p);b.classList.add('nf')}},{once:true})})
@@ -2495,7 +2498,7 @@ function rrc(s){
   ic=cm?'<svg class="p0" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="15" rx="1"/><path d="M12 26h8M16 21v5"/></svg><svg class="p1" viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="15" rx="1"/><path d="M12 26h8M16 21v5"/></svg>':'<img class="p0" src="icons/'+s+'-g.webp" alt="" width="32" height="32" loading="lazy" decoding="async"><img class="p1" src="icons/'+s+'.webp" alt="" width="32" height="32" loading="lazy" decoding="async">';
   return '<li class="rrc'+(PLT[s]?' lt':'')+'" data-g="'+rrg(m)+'"><button type="button" class="pb" data-p="'+s+'" aria-label="'+esc(T('تفاصيل البرنامج: ','Program details: ')+nm)+'"><span class="pt">'+ic+'</span><span class="rrn"><b class="pn"><bdi>'+esc(nm)+'</bdi></b><small>'+T(ct[0],ct[1])+'</small></span></button>'+
     '<div class="rrm"><span>'+RRI.t+T('مدة الدورة '+(m.d==='7–10'?'7–10 أيام':'15–20 يوماً'),'Course length: '+m.d+' days')+'</span><span>'+RRI.l+pmN(m.i.length)+'</span></div>'+
-    '<div class="rrq">'+(pr?'<div><small>'+T('الدورات التفاعلية','Live courses')+'</small><span class="pv"><i>'+pr[0]+'</i><u>'+T('ألف د.ع','K IQD')+'</u></span></div><div><small>'+T('الدورات المسجّلة','Recorded courses')+'</small><span class="pv"><i>'+pr[1]+'</i><u>'+T('ألف د.ع','K IQD')+'</u></span></div>':'<p>'+T('تُقدَّم ضمن العروض','Included in the bundle offers')+'</p>')+'</div>'+
+    '<div class="rrq">'+(pr?'<div><small>'+T('الدورات التفاعلية','Live courses')+'</small><span class="pv"><i>'+pr[0]+'</i><u>'+T('ألف د.ع','K IQD')+'</u><data class="usd">'+usd(pr[0])+'</data></span></div><div><small>'+T('الدورات المسجّلة','Recorded courses')+'</small><span class="pv"><i>'+pr[1]+'</i><u>'+T('ألف د.ع','K IQD')+'</u><data class="usd">'+usd(pr[1])+'</data></span></div>':'<p>'+T('تُقدَّم ضمن العروض','Included in the bundle offers')+'</p>')+'</div>'+
     '<span class="rrb" aria-hidden="true"><span>'+T('عرض التفاصيل','View details')+'</span>'+RRI.a+'</span></li>';
 }
 function rrUp(){
