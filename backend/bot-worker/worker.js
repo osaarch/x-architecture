@@ -184,6 +184,10 @@ const WELCOME = {"ar":{"subj":"أهلاً بك في X Architecture","hi":"أهل
      WA_TOKEN       WhatsApp: access token used to send the replies
      WA_PHONE_ID    WhatsApp: the Phone number ID shown in WhatsApp -> API setup
      WA_API         optional, the Graph API version, default v23.0
+   Telegram news (optional; without them the bot still answers, and nothing is stored):
+     SUBS           a KV namespace bound under this name (Settings -> Bindings): chat id + language + date of the people who agreed to get the news
+     TG_TOKEN       Telegram: the bot token, used only to send announcements
+     BROADCAST_KEY  any long random text you invent; the admin page sends it to open POST /broadcast
    Messages are never stored or logged: a message is read, answered and forgotten. */
 
 const MAX_IN = 300;                        /* longest question that is read */
@@ -240,12 +244,38 @@ function keyboard(lang) {
   return { keyboard: rows, resize_keyboard: true };
 }
 
+/* ---------------- Telegram news: who agreed to get it, and how it is sent ----------------
+   Whoever taps "Get your welcome on Telegram" on the site (Start with the welcome link) agrees to get the platform's news here; /stop turns it off, /subscribe turns it back on.
+   Only a chat id, the language and the date are kept (never names or messages). Without the SUBS binding nothing is kept and the bot behaves as before. */
+const SUBTXT = {
+  ar: { on: 'ستصلك أخبار المنصة وعروضها هنا من وقت لآخر. لإيقافها أرسل /stop', off: 'تم إيقاف الأخبار ولن نرسل لك إعلانات. إذا غيّرت رأيك أرسل /subscribe', again: 'تم تفعيل الأخبار. لإيقافها أرسل /stop', foot: 'لإيقاف الأخبار أرسل /stop' },
+  en: { on: 'You will get the platform’s news and offers here from time to time. Send /stop to turn them off.', off: 'News turned off. We will not send you announcements. Send /subscribe if you change your mind.', again: 'News turned on. Send /stop to turn them off.', foot: 'To stop the news send /stop' },
+  tr: { on: 'Platformun haberleri ve fırsatları zaman zaman buraya gelecek. Kapatmak için /stop yaz.', off: 'Haberler kapatıldı, duyuru göndermeyeceğiz. Fikrini değiştirirsen /subscribe yaz.', again: 'Haberler açıldı. Kapatmak için /stop yaz.', foot: 'Haberleri durdurmak için /stop yaz' },
+  fr: { on: 'Vous recevrez ici de temps en temps les actualités et offres de la plateforme. Envoyez /stop pour les arrêter.', off: 'Actualités désactivées, nous ne vous enverrons plus d’annonces. Envoyez /subscribe si vous changez d’avis.', again: 'Actualités activées. Envoyez /stop pour les arrêter.', foot: 'Pour arrêter les actualités, envoyez /stop' },
+  ku: { on: 'هەواڵ و پێشکەشکراوەکانی پلاتفۆرم جار جار لێرە دێن. بۆ وەستاندنیان /stop بنێرە.', off: 'هەواڵەکان وەستێنران و ئیتر ړاگەیاندن نانێرین. ئەگەر بیرت گۆړی /subscribe بنێرە.', again: 'هەواڵەکان چالاک کران. بۆ وەستاندنیان /stop بنێرە.', foot: 'بۆ وەستاندنی هەواڵەکان /stop بنێرە' }
+};
+function subText(lang, k) {
+  const g = SUBTXT[lang] ? lang : 'ar', s = SUBTXT[g][k];
+  return (g === 'ar' || g === 'ku') ? s.replace(/\/(stop|subscribe)/g, '⁦/$1⁩') : s;      /* keep the command reading left to right inside Arabic and Kurdish */
+}
+async function subPut(env, id, lang) {
+  if (!env.SUBS) return false;
+  await env.SUBS.put('t:' + id, '1', { metadata: { l: lang, t: Date.now() } });
+  return true;
+}
+async function subDel(env, id) { if (env.SUBS) await env.SUBS.delete('t:' + id); }
+
 /* ---------------- Telegram: the webhook answers in its own response, so the bot token is not needed here ---------------- */
 async function telegram(req, env) {
   if (!env.TG_SECRET) return new Response('not configured', { status: 503 });
   if (!safeEq(req.headers.get('X-Telegram-Bot-Api-Secret-Token') || '', env.TG_SECRET)) return new Response('forbidden', { status: 403 });
   if (+req.headers.get('content-length') > 65536) return ok();
   let u; try { u = await req.json(); } catch (e) { return ok(); }
+  const mc = u && u.my_chat_member;                                                         /* someone blocked the bot: stop sending to them */
+  if (mc && mc.chat && mc.chat.type === 'private') {
+    if (mc.new_chat_member && mc.new_chat_member.status === 'kicked') await subDel(env, mc.chat.id);
+    return ok();
+  }
   const m = u && u.message;
   if (!m || !m.chat || m.chat.type !== 'private' || !m.from || m.from.is_bot) return ok();   /* private chats only, edits ignored */
   if (limited('t' + m.chat.id)) return ok();
@@ -257,7 +287,10 @@ async function telegram(req, env) {
     const pl = /welcome_(ar|en|tr|fr|ku)/i.exec(text);
     if (pl) lang = pl[1].toLowerCase();
     out = welcomeFull(lang, m.from.first_name); kb = keyboard(lang);
+    if (await subPut(env, m.chat.id, lang)) out += '\n\n' + subText(lang, 'on');
   }
+  else if (/^\/(stop|unsubscribe)(@\w+)?\s*$/i.test(text)) { await subDel(env, m.chat.id); out = subText(lang, 'off'); }
+  else if (env.SUBS && /^\/subscribe(@\w+)?\s*$/i.test(text)) { await subPut(env, m.chat.id, lang); out = subText(lang, 'again'); }
   else if (/^\/(start|help)(@\w+)?(\s|$)/i.test(text)) { out = welcome(lang); kb = keyboard(lang); }
   else {
     lang = XASCORE.detect(KB, text);
@@ -315,13 +348,81 @@ async function whatsapp(req, env, ctx) {
   return ok();
 }
 
+/* ---------------- Announcements: POST /broadcast (used by the admin page) ----------------
+   Body: { text, texts: {ar,en,tr,fr,ku}, cursor, dry }.  Header: Authorization: Bearer <BROADCAST_KEY>.
+   Each call sends to one page of subscribers and returns the cursor for the next call (done: true at the end), because the free plan
+   allows only 50 outgoing calls per request. { dry: true } only counts the subscribers. */
+const BC_ORIGIN = 'https://xarch.site';                    /* the admin page lives here; other sites cannot call this from a browser */
+const CORS = { 'Access-Control-Allow-Origin': BC_ORIGIN, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Max-Age': '600', 'Vary': 'Origin' };
+const bj = (o, s) => new Response(JSON.stringify(o), { status: s || 200, headers: Object.assign({ 'content-type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, CORS) });
+const bcFails = [];                                          /* times of wrong keys (kept only in memory) */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const PAGE = 20;                                             /* people per call: 1 list + 20 sends + up to 20 clean-ups stays under 50 */
+const BC_LANGS = ['ar', 'en', 'tr', 'fr', 'ku'];
+function tgSend(env, chat, text) {
+  return fetch('https://api.telegram.org/bot' + env.TG_TOKEN + '/sendMessage', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ chat_id: chat, text: text, link_preview_options: { is_disabled: true } })
+  });
+}
+async function broadcast(req, env) {
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
+  if (req.method !== 'POST') return bj({ ok: false, err: 'method not allowed' }, 405);
+  if (!env.BROADCAST_KEY || !env.SUBS) return bj({ ok: false, err: 'not configured' }, 503);
+  const now = Date.now(); while (bcFails.length && now - bcFails[0] > 60000) bcFails.shift();
+  if (bcFails.length >= 8) return bj({ ok: false, err: 'too many wrong keys, wait a minute' }, 429);
+  const given = /^Bearer (.+)$/.exec(req.headers.get('Authorization') || '');
+  if (!given || !safeEq(given[1], env.BROADCAST_KEY)) { bcFails.push(now); return bj({ ok: false, err: 'wrong key' }, 401); }
+  if (+req.headers.get('content-length') > 32768) return bj({ ok: false, err: 'too big' }, 413);
+  let b; try { b = await req.json(); } catch (e) { return bj({ ok: false, err: 'bad json' }, 400); }
+  b = b || {};
+  if (b.dry) {                                               /* only count */
+    let n = 0, by = {}, cur;
+    for (let i = 0; i < 40; i++) {
+      const l = await env.SUBS.list({ prefix: 't:', cursor: cur, limit: 1000 });
+      l.keys.forEach(k => { n++; const g = (k.metadata && k.metadata.l) || 'ar'; by[g] = (by[g] || 0) + 1; });
+      if (l.list_complete) return bj({ ok: true, subscribers: n, byLang: by });
+      cur = l.cursor;
+    }
+    return bj({ ok: true, subscribers: n, byLang: by, partial: true });
+  }
+  const texts = {}; let any = '';
+  const put = (k, v) => { if (typeof v === 'string' && v.trim()) { texts[k] = v.trim().slice(0, 3500); any = any || texts[k]; } };
+  put('_', b.text);
+  if (b.texts && typeof b.texts === 'object') BC_LANGS.forEach(k => put(k, b.texts[k]));
+  if (!any) return bj({ ok: false, err: 'empty message' }, 400);
+  if (!env.TG_TOKEN) return bj({ ok: false, err: 'no bot token' }, 503);
+  const cursor = typeof b.cursor === 'string' && b.cursor.length < 400 ? b.cursor : undefined;
+  const l = await env.SUBS.list({ prefix: 't:', cursor: cursor, limit: PAGE });
+  let sent = 0, gone = 0, failed = 0;
+  for (const k of l.keys) {
+    const id = k.name.slice(2), g = (k.metadata && k.metadata.l) || 'ar';
+    const body = (texts[g] || texts._ || texts.ar || any) + '\n\n' + subText(g, 'foot');
+    let r = await tgSend(env, id, body);
+    if (r.status === 429) {                                  /* Telegram asks to slow down: wait as long as it says (at most 10 s), try once more */
+      const d = await r.json().catch(() => ({}));
+      await sleep(Math.min(((d && d.parameters && d.parameters.retry_after) || 3), 10) * 1000);
+      r = await tgSend(env, id, body);
+    }
+    if (r.ok) sent++;
+    else {
+      const d = await r.json().catch(() => ({})), why = String((d && d.description) || '').toLowerCase();
+      if (r.status === 403 || /chat not found|deactivated|blocked/.test(why)) { gone++; await env.SUBS.delete(k.name); }   /* they blocked the bot or left Telegram */
+      else failed++;
+    }
+    await sleep(40);                                         /* about 25 a second, under Telegram's 30 */
+  }
+  return bj({ ok: true, sent: sent, gone: gone, failed: failed, cursor: l.list_complete ? null : l.cursor, done: !!l.list_complete });
+}
+
 export default {
   async fetch(req, env, ctx) {
     const path = new URL(req.url).pathname.replace(/\/+$/, '') || '/';
     try {
-      if (path === '/') return json({ ok: true, bot: 'x-assistant', kb: KB.updated, telegram: !!env.TG_SECRET, whatsapp: !!(env.WA_VERIFY && env.WA_APP_SECRET && env.WA_TOKEN && env.WA_PHONE_ID) });
+      if (path === '/') return json({ ok: true, bot: 'x-assistant', kb: KB.updated, telegram: !!env.TG_SECRET, whatsapp: !!(env.WA_VERIFY && env.WA_APP_SECRET && env.WA_TOKEN && env.WA_PHONE_ID), news: !!env.SUBS, announcements: !!(env.SUBS && env.TG_TOKEN && env.BROADCAST_KEY) });
       if (path === '/telegram') return req.method === 'POST' ? await telegram(req, env) : new Response('method not allowed', { status: 405 });
       if (path === '/whatsapp') return await whatsapp(req, env, ctx);
+      if (path === '/broadcast') { try { return await broadcast(req, env); } catch (e) { return bj({ ok: false, err: 'error' }, 500); } }
       return new Response('not found', { status: 404 });
     } catch (e) {
       return ok();                                              /* never make Telegram or Meta retry in a loop */

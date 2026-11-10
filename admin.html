@@ -40,6 +40,15 @@ h1{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:500;margin-bottom:6px}
 .gate input{width:100%;font:inherit;font-size:.95rem;color:var(--ink);background:rgba(var(--inkr),.06);border:0;border-bottom:1px solid var(--line);padding:12px 14px;direction:ltr;text-align:start}
 .gate .row{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
 .msg{margin-top:16px;color:var(--err);font-size:.86rem;min-height:1.4em}
+.bcf label{display:block;font-size:.8rem;color:var(--soft);margin:16px 0 6px}
+.bcf input,.bcf textarea{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:rgba(var(--inkr),.06);border:0;border-bottom:1px solid var(--line);padding:11px 14px;resize:vertical}
+.bcf input{direction:ltr;text-align:start}
+.bcf textarea:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.bcf details{margin-top:14px;color:var(--soft);font-size:.84rem}
+.bcf summary{cursor:pointer;padding:6px 0}
+.bcf .row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
+.bcf .msg{color:var(--ink);margin-top:12px}
+.bcf .msg.er{color:var(--err)}
 .note{margin-top:22px;color:var(--soft);font-size:.82rem;line-height:1.9}
 .demo{background:rgba(var(--gr),.12);border-inline-start:3px solid var(--gold);padding:10px 14px;margin:18px 0 0;font-size:.86rem}
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:24px 0}
@@ -127,6 +136,17 @@ td.e{direction:ltr;text-align:start}
 <div class="card c6"><h2>البرامج الأكثر مشاهدة</h2><div class="rows" id="prog"></div></div>
 <div class="card c12" id="gcard"><div class="top"><h2>معرض الصفحة الرئيسية <small id="gcnt"></small></h2><button class="bt g" id="grf" type="button">تحديث</button></div><p class="sub" id="gmode"></p><p class="empty" id="gmsg"></p><div class="gal" id="gal"></div></div>
 <div class="card c12" id="ccard"><div class="top"><h2>المجتمع <small id="ccnt"></small></h2><button class="bt g" id="crf" type="button">تحديث</button></div><p class="sub" id="cmode"></p><p class="empty" id="cmsg"></p><div class="cmq" id="cq"></div></div>
+<div class="card c12 bcf" id="bcard"><div class="top"><h2>إعلان جماعي <small>تيليجرام</small></h2><button class="bt g" id="bcn" type="button">عدد المشتركين</button></div>
+<p class="sub">يصل فقط لمن ضغط <b>Start</b> في البوت من زر الترحيب بعد التسجيل (أي بموافقته)، ويقدر يوقفه بإرسال &#8294;/stop&#8297;. كل رسالة تنتهي تلقائياً بسطر الإيقاف بلغة الشخص. اللي حظر البوت يُحذف من القائمة.</p>
+<label for="bw">رابط البوت (Cloudflare Worker)</label><input id="bw" type="url" placeholder="https://xarch-bot.…workers.dev" autocomplete="off">
+<label for="bk">مفتاح الإعلانات <bdi dir="ltr">(BROADCAST_KEY)</bdi></label><input id="bk" type="password" autocomplete="off">
+<label for="bm">نص الإعلان (نص عادي، بدون تنسيق)</label><textarea id="bm" rows="5" maxlength="3500" dir="auto"></textarea>
+<details><summary>نص بلغات أخرى (اختياري): يصل لمن لغته كذلك، والباقي يستلم النص أعلاه</summary>
+<label for="bm-en">English</label><textarea id="bm-en" rows="3" maxlength="3500" dir="ltr"></textarea>
+<label for="bm-tr">Türkçe</label><textarea id="bm-tr" rows="3" maxlength="3500" dir="ltr"></textarea>
+<label for="bm-fr">Français</label><textarea id="bm-fr" rows="3" maxlength="3500" dir="ltr"></textarea>
+<label for="bm-ku">کوردی</label><textarea id="bm-ku" rows="3" maxlength="3500" dir="rtl"></textarea></details>
+<div class="row"><button class="bt" id="bgo" type="button">إرسال لكل المشتركين</button></div><p class="msg" id="bst" role="status"></p></div>
 <div class="card c12"><div class="top"><h2>المسجّلون <small id="cnt"></small></h2><input class="srch" id="sq" type="search" placeholder="بحث بالاسم أو البريد أو الجامعة…" aria-label="بحث"></div><div class="tw"><table><thead><tr><th>الاسم</th><th>البريد</th><th>الدولة</th><th>الصفة</th><th>الجامعة</th><th>التخصص</th><th>تواصل</th><th>الترحيب</th><th>الاهتمامات</th><th>التسجيل</th></tr></thead><tbody id="ut"></tbody></table></div></div>
 </div>
 </section>
@@ -217,6 +237,52 @@ $('gal').addEventListener('click',function(e){
   b.disabled=true;
   gpost(b.dataset.a,b.dataset.id).then(function(j){if(j&&j.ok)gdraw(j);else{b.disabled=false;$('gmsg').textContent='تعذّر تنفيذ الطلب.'}}).catch(function(){b.disabled=false;$('gmsg').textContent='تعذّر الاتصال بخادم الصور.'})});
 $('grf').addEventListener('click',gload);
+/* ---- announcements to the people who started the Telegram bot from the welcome button ---- */
+var BCW='https://xarch-bot.osama-architects.workers.dev';
+try{var sbw=localStorage.getItem('xbw');if(sbw)BCW=sbw}catch(e){}
+$('bw').value=BCW;
+try{var sbk=sessionStorage.getItem('xbk');if(sbk)$('bk').value=sbk}catch(e){}
+function bst(t,er){var m=$('bst');m.textContent=t||'';m.className='msg'+(er?' er':'')}
+function bcall(o){
+  var u=$('bw').value.trim().replace(/\/+$/,''),k=$('bk').value.trim();
+  if(!/^https:\/\/[^\s]+$/.test(u))return Promise.reject('أدخل رابط البوت (يبدأ بـ https://).');
+  if(!k)return Promise.reject('أدخل مفتاح الإعلانات.');
+  try{localStorage.setItem('xbw',u);sessionStorage.setItem('xbk',k)}catch(e){}
+  return fetch(u+'/broadcast',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify(o)})
+   .then(function(r){return r.json().catch(function(){return{ok:false,err:'bad answer'}}).then(function(j){j.status=r.status;return j})},function(){return Promise.reject('تعذّر الاتصال بالبوت. تأكد من الرابط.')})}
+function bwhy(j){
+  if(j.status===401)return'مفتاح الإعلانات غير صحيح.';
+  if(j.status===429)return'محاولات خاطئة كثيرة. انتظر دقيقة.';
+  if(j.status===503)return j.err==='no bot token'?'ناقص TG_TOKEN في إعدادات الـ Worker.':'الإعلانات غير مفعّلة بعد في الـ Worker (راجع backend/bot-worker/SETUP.md).';
+  if(j.err==='empty message')return'اكتب نص الإعلان أولاً.';
+  return'تعذّر التنفيذ: '+(j.err||'خطأ')}
+var BARM=0;
+$('bcn').addEventListener('click',function(){
+  BARM=0;$('bgo').textContent='إرسال لكل المشتركين';bst('جارٍ العدّ…');
+  bcall({dry:true}).then(function(j){
+    if(!j.ok){bst(bwhy(j),1);return}
+    var l=j.byLang||{},n=Object.keys(l).map(function(k){return k.toUpperCase()+' '+l[k]}).join(' · ');
+    bst('عدد المشتركين: '+j.subscribers+(n?' ('+n+')':'')+(j.partial?' (العدد تقريبي)':''))}).catch(function(e){bst(String(e),1)})});
+$('bgo').addEventListener('click',function(){
+  var b=$('bgo'),text=$('bm').value.trim(),tx={};
+  ['en','tr','fr','ku'].forEach(function(k){var v=$('bm-'+k).value.trim();if(v)tx[k]=v});
+  if(!text&&!Object.keys(tx).length){bst('اكتب نص الإعلان أولاً.',1);return}
+  if(!BARM){                                    /* first tap: count the people and ask to confirm */
+    bst('جارٍ العدّ…');
+    bcall({dry:true}).then(function(j){
+      if(!j.ok){bst(bwhy(j),1);return}
+      if(!j.subscribers){bst('لا يوجد مشتركون بعد. أول ما يضغط أحد Start من زر الترحيب يُضاف هنا.');return}
+      BARM=1;b.textContent='تأكيد الإرسال إلى '+j.subscribers;bst('راجع النص ثم اضغط التأكيد. الإرسال لا يمكن التراجع عنه.')}).catch(function(e){bst(String(e),1)});
+    return}
+  BARM=0;b.disabled=true;b.textContent='جارٍ الإرسال…';
+  var tot={sent:0,gone:0,failed:0},pg=0;
+  (function next(cur){
+    bcall({text:text,texts:tx,cursor:cur||undefined}).then(function(j){
+      if(!j.ok){bst('توقّف الإرسال بعد '+tot.sent+' رسالة. '+bwhy(j),1);b.disabled=false;b.textContent='إرسال لكل المشتركين';return}
+      tot.sent+=j.sent;tot.gone+=j.gone;tot.failed+=j.failed;pg++;
+      if(!j.done&&pg<500){bst('أُرسل إلى '+tot.sent+'…');next(j.cursor);return}
+      bst('انتهى الإرسال: وصل إلى '+tot.sent+(tot.gone?'، وحُذف '+tot.gone+' (حظروا البوت)':'')+(tot.failed?'، وتعذّر '+tot.failed:'')+'.');
+      b.disabled=false;b.textContent='إرسال لكل المشتركين'}).catch(function(e){bst('توقّف الإرسال بعد '+tot.sent+' رسالة. '+e,1);b.disabled=false;b.textContent='إرسال لكل المشتركين'})})(null)});
 /* ---- community moderation: posts waiting for approval, hidden or reported ---- */
 var CK='',CAPI='';
 function cimg(id){return'https://lh3.googleusercontent.com/d/'+encodeURIComponent(id)+'=w400'}
@@ -244,7 +310,7 @@ $('cq').addEventListener('click',function(e){
   b.disabled=true;
   ccall({a:'cmod',id:art.dataset.id,s:b.dataset.s}).then(function(j){if(j&&j.ok)cload();else{b.disabled=false;$('cmsg').textContent='تعذّر تنفيذ الطلب.'}}).catch(function(){b.disabled=false;$('cmsg').textContent='تعذّر الاتصال بالخادم.'})});
 $('crf').addEventListener('click',cload);
-function show(){$('gate').hidden=true;$('dash').hidden=false;['rf','ex','out'].forEach(function(i){$(i).hidden=false});render();$('gcard').hidden=DEMO;$('ccard').hidden=DEMO;if(!DEMO){gload();cload()}}
+function show(){$('gate').hidden=true;$('dash').hidden=false;['rf','ex','out'].forEach(function(i){$(i).hidden=false});render();$('gcard').hidden=DEMO;$('ccard').hidden=DEMO;$('bcard').hidden=DEMO;if(!DEMO){gload();cload()}}
 function msg(t){$('msg').textContent=t||''}
 function load(){
   var key=$('key').value.trim(),api=API||$('api').value.trim();

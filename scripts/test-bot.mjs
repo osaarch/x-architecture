@@ -78,6 +78,103 @@ t(/X Assistant/.test(j.text) && !/Thank you for registering/.test(j.text), 'welc
 r = await tw('/start welcome_xx'); j = await r.json();
 t(!/Thank you for registering/.test(j.text), 'welcome: an unknown payload falls back to the short greeting');
 
+// ---- Telegram news: subscribers and announcements (a pretend KV namespace and a pretend Telegram API) ----
+class KV {
+  constructor() { this.m = new Map(); }
+  async put(k, v, o) { this.m.set(k, { v, meta: o && o.metadata }); }
+  async delete(k) { this.m.delete(k); }
+  async get(k) { const e = this.m.get(k); return e ? e.v : null; }
+  async list({ prefix, cursor, limit }) {
+    const keys = [...this.m.keys()].filter(k => k.startsWith(prefix || '')).sort(), after = cursor ? keys.filter(k => k > cursor) : keys, page = after.slice(0, limit || 1000);
+    const complete = page.length >= after.length;                       /* like the real KV, the cursor is not an index: deleting keys between calls does not skip anyone */
+    return { keys: page.map(name => ({ name, metadata: this.m.get(name).meta })), list_complete: complete, cursor: complete ? undefined : page[page.length - 1] };
+  }
+}
+const kv = new KV(), env2 = Object.assign({}, env, { SUBS: kv, TG_TOKEN: 'bot-token-test-123', BROADCAST_KEY: 'broadcast-key-test-long-1234' });
+const call2 = (p, init) => W.fetch(new Request('https://bot.test' + p, init), env2, ctx);
+const tg2 = (id, text, from) => call2('/telegram', { method: 'POST', headers: { 'content-type': 'application/json', 'X-Telegram-Bot-Api-Secret-Token': env.TG_SECRET }, body: JSON.stringify({ message: { message_id: 1, chat: { id, type: 'private' }, from: Object.assign({ id, is_bot: false, language_code: 'en' }, from || {}), text } }) });
+r = await call2('/'); j = await r.json();
+t(j.news === true && j.announcements === true, 'news: health shows the news are set up');
+r = await call('/'); j = await r.json();
+t(j.news === false && j.announcements === false, 'news: health shows them off when nothing is bound');
+
+// subscribing happens only through the welcome link
+r = await tg2(1001, '/start welcome_ar', { first_name: 'علي' }); j = await r.json();
+t(kv.m.has('t:1001') && kv.m.get('t:1001').meta.l === 'ar', 'news: the welcome link subscribes the person with their language');
+t(/\/stop/.test(j.text) && /ستصلك أخبار/.test(j.text), 'news: the welcome tells them about the news and /stop');
+t(/⁦\/stop⁩/.test(j.text), 'news: /stop keeps reading left to right inside Arabic');
+await tg2(1002, '/start'); await tg2(1002, 'what are your prices');
+t(!kv.m.has('t:1002'), 'news: a plain /start or a question does not subscribe anyone');
+await tg2(1003, '/start welcome_en'); await tg2(1004, '/start welcome_fr'); await tg2(1005, '/start welcome_tr'); await tg2(1006, '/start welcome_ku');
+t(kv.m.size === 5, 'news: five people subscribed', kv.m.size);
+r = await tg2(1003, '/stop'); j = await r.json();
+t(!kv.m.has('t:1003') && /turned off/.test(j.text), 'news: /stop removes the person and says so');
+r = await tg2(1003, '/subscribe'); j = await r.json();
+t(kv.m.has('t:1003') && /turned on/.test(j.text), 'news: /subscribe turns it back on');
+r = await tg2(1005, '/stop@xstudio4arch_bot'); await r.json();
+t(!kv.m.has('t:1005'), 'news: /stop works with the bot name after it (groups of commands in the menu)');
+await tg2(1005, '/start welcome_tr');
+r = await call2('/telegram', { method: 'POST', headers: { 'X-Telegram-Bot-Api-Secret-Token': env.TG_SECRET }, body: JSON.stringify({ my_chat_member: { chat: { id: 1004, type: 'private' }, new_chat_member: { status: 'kicked' } } }) });
+t((await r.text()) === 'ok' && !kv.m.has('t:1004'), 'news: someone who blocks the bot is removed');
+await tg2(1004, '/start welcome_fr');
+r = await tg('/stop'); j = await r.json();
+t(/turned off/.test(j.text), 'news: /stop with nothing bound still answers politely');
+r = await tg('/subscribe'); j = await r.json();
+t(!/turned on/.test(j.text), 'news: /subscribe with nothing bound is just a normal question');
+r = await tw('/start welcome_en'); j = await r.json();
+t(!/news and offers/.test(j.text), 'news: with nothing bound the welcome does not promise news');
+
+// announcements
+let tgCalls = [], failFor = {};
+globalThis.fetch = async (url, init) => {
+  const body = JSON.parse(init.body), id = String(body.chat_id);
+  tgCalls.push({ url: String(url), id, text: body.text });
+  if (failFor[id] === 'blocked') return new Response(JSON.stringify({ ok: false, error_code: 403, description: 'Forbidden: bot was blocked by the user' }), { status: 403 });
+  if (failFor[id] === 'bad') return new Response(JSON.stringify({ ok: false, error_code: 400, description: 'Bad Request: message is too long' }), { status: 400 });
+  if (failFor[id] === 'slow' && !failFor.done) { failFor.done = 1; return new Response(JSON.stringify({ ok: false, parameters: { retry_after: 0 } }), { status: 429 }); }
+  return new Response('{"ok":true}', { status: 200 });
+};
+const bc = (body, key, method) => call2('/broadcast', { method: method || 'POST', headers: { 'content-type': 'application/json', 'Authorization': key === undefined ? 'Bearer ' + env2.BROADCAST_KEY : key }, body: method === 'GET' ? undefined : JSON.stringify(body) });
+r = await call2('/broadcast', { method: 'OPTIONS' });
+t(r.status === 204 && r.headers.get('access-control-allow-origin') === 'https://xarch.site' && /Authorization/i.test(r.headers.get('access-control-allow-headers')), 'broadcast: the browser preflight is answered for xarch.site only');
+t((await bc({}, undefined, 'GET')).status === 405, 'broadcast: GET is not allowed');
+t((await W.fetch(new Request('https://bot.test/broadcast', { method: 'POST', body: '{}' }), {}, ctx)).status === 503, 'broadcast: refuses when nothing is configured');
+t((await bc({ text: 'x' }, 'Bearer nope')).status === 401, 'broadcast: wrong key refused');
+t((await bc({ text: 'x' }, '')).status === 401, 'broadcast: missing key refused');
+t(tgCalls.length === 0, 'broadcast: nothing sent without the right key');
+r = await bc({ dry: true }); j = await r.json();
+t(j.ok && j.subscribers === 5 && j.byLang.ar === 1 && j.byLang.en === 1 && tgCalls.length === 0, 'broadcast: dry run counts the subscribers by language and sends nothing', JSON.stringify(j));
+t((await (await bc({ text: '   ' })).json()).err === 'empty message', 'broadcast: an empty message is refused');
+t((await call2('/broadcast', { method: 'POST', headers: { 'Authorization': 'Bearer ' + env2.BROADCAST_KEY }, body: 'not json' })).status === 400, 'broadcast: bad json refused');
+t((await W.fetch(new Request('https://bot.test/broadcast', { method: 'POST', headers: { 'Authorization': 'Bearer k' }, body: '{"text":"x"}' }), { SUBS: kv, BROADCAST_KEY: 'k' }, ctx)).status === 503, 'broadcast: refuses to send without the bot token');
+
+r = await bc({ text: 'Default text', texts: { ar: 'نص عربي', en: 'English text' } }); j = await r.json();
+t(j.ok && j.done === true && j.sent === 5 && j.cursor === null && tgCalls.length === 5, 'broadcast: sends to everyone in one page and says it is done', JSON.stringify(j));
+const by = id => tgCalls.find(c => c.id === id).text;
+t(/^نص عربي/.test(by('1001')) && /^English text/.test(by('1003')) && /^Default text/.test(by('1004')), 'broadcast: each person gets their own language, others get the default');
+t(/\/stop/.test(by('1001')) && /\/stop/.test(by('1003')) && /Pour arr/.test(by('1004')), 'broadcast: every message ends with how to stop, in their language');
+t(tgCalls.every(c => c.url === 'https://api.telegram.org/botbot-token-test-123/sendMessage'), 'broadcast: goes to the Telegram API with the bot token');
+t(!JSON.stringify(j).includes('bot-token'), 'broadcast: the token never comes back in the answer');
+
+// paging, blocked people, rate limit
+for (let i = 2000; i < 2050; i++) kv.m.set('t:' + i, { v: '1', meta: { l: 'en' } });          // 55 people in all
+tgCalls = []; failFor = { '2003': 'blocked', '2004': 'bad', '2005': 'slow' };
+let cur = null, tot = { sent: 0, gone: 0, failed: 0 }, pages = 0;
+do {
+  j = await (await bc({ text: 'Hello all', cursor: cur || undefined })).json(); pages++;
+  tot.sent += j.sent; tot.gone += j.gone; tot.failed += j.failed; cur = j.cursor;
+} while (!j.done && pages < 10);
+t(pages === 3 && tot.sent === 53 && tot.gone === 1 && tot.failed === 1, 'broadcast: 55 people take 3 pages (20 each); one blocked person and one failure are counted', JSON.stringify([pages, tot]));
+t(!kv.m.has('t:2003') && kv.m.has('t:2004'), 'broadcast: a person who blocked the bot is removed, but a failed message does not remove anyone');
+t(tgCalls.filter(c => c.id === '2005').length === 2, 'broadcast: a "slow down" from Telegram is waited out and retried once');
+t(tgCalls.every(c => c.text.length < 4096), 'broadcast: messages stay under the Telegram limit');
+r = await bc({ text: 'x'.repeat(9000) }); j = await r.json();
+t(j.ok && tgCalls[tgCalls.length - 1].text.length < 4096, 'broadcast: a very long text is cut to fit');
+// too many wrong keys
+for (let i = 0; i < 9; i++) await bc({ text: 'x' }, 'Bearer wrong' + i);
+t((await bc({ text: 'x' }, 'Bearer wrong')).status === 429, 'broadcast: many wrong keys in a minute are slowed down');
+globalThis.fetch = async (url, init) => { sent.push({ url: String(url), init }); return new Response('{}', { status: 200 }); };
+
 // WhatsApp verification
 r = await call('/whatsapp?hub.mode=subscribe&hub.verify_token=wa-verify-test&hub.challenge=CHAL123');
 t(r.status === 200 && (await r.text()) === 'CHAL123', 'whatsapp: verify returns the challenge as plain text');
