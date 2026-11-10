@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+const W_AR_THANKS = 'شكراً لتسجيلك معنا';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const tmp = path.join(os.tmpdir(), 'xas-worker-test-' + process.pid + '.mjs');
@@ -37,7 +38,7 @@ t((await tg('hi', null, '')).status === 403, 'telegram: missing secret refused')
 t((await W.fetch(new Request('https://bot.test/telegram', { method: 'POST', body: '{}' }), {}, ctx)).status === 503, 'telegram: refuses when no secret is configured');
 t((await call('/telegram')).status === 405, 'telegram: GET not allowed');
 r = await tg('/start'); j = await r.json();
-t(j.method === 'sendMessage' && j.chat_id === 77 && /X Assistant/.test(j.text) && j.reply_markup.keyboard.length === 3, 'telegram: /start greets in English with quick buttons');
+t(j.method === 'sendMessage' && j.chat_id === 77 && /[\u0600-\u06ff]/.test(j.text) && !/What are your|Thank you/.test(j.text) && j.reply_markup.keyboard.length === 5, 'telegram: /start greets in Arabic by default (even when Telegram is set to English), with quick buttons and language buttons');
 r = await tg('كم سعر الدورة المسجلة', { from: { id: 77, is_bot: false, language_code: 'en' } }); j = await r.json();
 t(/175|85/.test(j.text) && /ألف/.test(j.text), 'telegram: Arabic price question answered in Arabic');
 t(!/wa\.me/.test(j.text) && !/t\.me/.test(j.text), 'telegram: no platform links in answers');
@@ -48,7 +49,7 @@ t(j.reply_markup && /message us|directly/i.test(j.text), 'telegram: unknown ques
 r = await tg('xyz', { chat: { id: 5, type: 'group' } });
 t((await r.text()) === 'ok', 'telegram: groups are ignored');
 r = await tg(undefined, { text: undefined, photo: [{}] }); j = await r.json();
-t(/text/i.test(j.text), 'telegram: a photo gets a "text only" note');
+t(/النصية/.test(j.text), 'telegram: a photo gets a "text only" note (in Arabic by default)');
 // rate limit: 12 per minute per person
 let last; for (let i = 0; i < 16; i++) last = await call('/telegram', { method: 'POST', headers: { 'X-Telegram-Bot-Api-Secret-Token': env.TG_SECRET }, body: JSON.stringify({ message: { chat: { id: 900, type: 'private' }, from: { id: 900, is_bot: false }, text: 'hi' } }) });
 t((await last.text()) === 'ok', 'telegram: more than 12 a minute is ignored');
@@ -62,19 +63,36 @@ t(j.method === 'sendMessage' && /^أهلاً علي،/.test(j.text) && /ماذا
 t(/https:\/\/xarch\.site\/#courses/.test(j.text) && /#works/.test(j.text) && /#services/.test(j.text) && /#community/.test(j.text), 'welcome: has the site, services, courses, student work and community links');
 t(/⁦@xstudio4arch⁩/.test(j.text) && /⁦info@xarch\.site⁩/.test(j.text), 'welcome: the @name and the address keep reading left to right inside Arabic');
 t(!/t\.me|wa\.me|instagram/i.test(j.text), 'welcome: no platform links');
-t(j.reply_markup && j.reply_markup.keyboard.length === 3 && j.text.length < 1500, 'welcome: quick buttons for follow-up questions, and it is short');
+t(j.reply_markup && j.reply_markup.keyboard.length === 5 && j.text.length < 1500, 'welcome: quick buttons for follow-up questions plus language buttons, and it is short');
 for (const lg of ['en', 'tr', 'fr', 'ku']) {
   r = await tw('/start welcome_' + lg, { first_name: 'Sam', language_code: 'ar' }); j = await r.json();
   t(j.text.includes('Sam') && j.text.includes('https://xarch.site') && j.text.includes('X Architecture'), 'welcome: ' + lg + ' is complete');
 }
 r = await tw('/start welcome', { first_name: 'Sam', language_code: 'fr' }); j = await r.json();
-t(/^Bonjour Sam,/.test(j.text), 'welcome: without a language in the link it follows the Telegram language');
+t(/أهلاً Sam/.test(j.text), 'welcome: without a language in the link it is Arabic, the default');
 r = await tw('/start welcome_en', { first_name: '<b>Evil</b> x\n[link](http://bad)' }); j = await r.json();
 t(!/[<>]/.test(j.text.split('\n')[0]) && !j.parse_mode, 'welcome: a strange first name cannot inject markup (plain text, no parse mode)');
 r = await tw('/start welcome_en'); j = await r.json();
 t(/^Hello,/.test(j.text), 'welcome: a person without a first name still gets a clean greeting');
 r = await tw('/start'); j = await r.json();
-t(/X Assistant/.test(j.text) && !/Thank you for registering/.test(j.text), 'welcome: a plain /start (nobody registered) still gets the short greeting');
+t(/[\u0600-\u06ff]/.test(j.text) && !/Thank you for registering/.test(j.text) && !j.text.includes(W_AR_THANKS), 'welcome: a plain /start (nobody registered) still gets the short Arabic greeting');
+r = await tw('English'); j = await r.json();
+t(/Hello|Hi|Welcome|X Assistant/.test(j.text) && !/[\u0600-\u06ff]{4}/.test(j.text.replace(/X Architecture/g, '')) && j.reply_markup.keyboard[0][0].text === 'What are your services?', 'language: the English button answers in English and switches the quick buttons');
+r = await tw('Français'); j = await r.json();
+t(/Bonjour|Bienvenue|X Assistant/.test(j.text) && j.reply_markup.keyboard[0][0].text === 'Quels sont vos services ?', 'language: the French button switches to French');
+r = await tw('Türkçe'); j = await r.json();
+t(j.reply_markup.keyboard[0][0].text === 'Hizmetleriniz neler?', 'language: the Turkish button switches to Turkish');
+r = await tw('کوردی'); j = await r.json();
+t(j.reply_markup.keyboard[0][0].text === 'خزمەتگوزارییەکانتان چین؟', 'language: the Kurdish button switches to Kurdish');
+r = await tw('العربية'); j = await r.json();
+t(j.reply_markup.keyboard[0][0].text === 'ما هي خدماتكم؟', 'language: the Arabic button switches back to Arabic');
+r = await tw('/lang'); j = await r.json();
+t(/اختر اللغة/.test(j.text) && /Choose your language/.test(j.text) && j.reply_markup.keyboard.length === 5, 'language: /lang offers the choice in every language');
+t(['العربية', 'English', 'Türkçe', 'Français', 'کوردی'].every(n => JSON.stringify(j.reply_markup.keyboard).includes(n)), 'language: all five language buttons are there');
+r = await tw('ما هي خدماتكم؟', { language_code: 'en' }); j = await r.json();
+t(/[\u0600-\u06ff]/.test(j.text), 'language: an Arabic question gets an Arabic answer');
+r = await tw('what are your services', { language_code: 'ar' }); j = await r.json();
+t(/[A-Za-z]{5}/.test(j.text), 'language: writing in English gets an English answer (translation by language of the question)');
 r = await tw('/start welcome_xx'); j = await r.json();
 t(!/Thank you for registering/.test(j.text), 'welcome: an unknown payload falls back to the short greeting');
 
@@ -84,6 +102,7 @@ class KV {
   async put(k, v, o) { this.m.set(k, { v, meta: o && o.metadata }); }
   async delete(k) { this.m.delete(k); }
   async get(k) { const e = this.m.get(k); return e ? e.v : null; }
+  async getWithMetadata(k) { const e = this.m.get(k); return { value: e ? e.v : null, metadata: e ? e.meta || null : null }; }
   async list({ prefix, cursor, limit }) {
     const keys = [...this.m.keys()].filter(k => k.startsWith(prefix || '')).sort(), after = cursor ? keys.filter(k => k > cursor) : keys, page = after.slice(0, limit || 1000);
     const complete = page.length >= after.length;                       /* like the real KV, the cursor is not an index: deleting keys between calls does not skip anyone */
@@ -110,7 +129,8 @@ t(kv.m.size === 5, 'news: five people subscribed', kv.m.size);
 r = await tg2(1003, '/stop'); j = await r.json();
 t(!kv.m.has('t:1003') && /turned off/.test(j.text), 'news: /stop removes the person and says so');
 r = await tg2(1003, '/subscribe'); j = await r.json();
-t(kv.m.has('t:1003') && /turned on/.test(j.text), 'news: /subscribe turns it back on');
+t(kv.m.has('t:1003') && /تم تفعيل الأخبار/.test(j.text), 'news: /subscribe turns it back on (Arabic by default)');
+await tg2(1003, '/start welcome_en');   /* back to English for the broadcast tests below */
 r = await tg2(1005, '/stop@xstudio4arch_bot'); await r.json();
 t(!kv.m.has('t:1005'), 'news: /stop works with the bot name after it (groups of commands in the menu)');
 await tg2(1005, '/start welcome_tr');
@@ -118,9 +138,9 @@ r = await call2('/telegram', { method: 'POST', headers: { 'X-Telegram-Bot-Api-Se
 t((await r.text()) === 'ok' && !kv.m.has('t:1004'), 'news: someone who blocks the bot is removed');
 await tg2(1004, '/start welcome_fr');
 r = await tg('/stop'); j = await r.json();
-t(/turned off/.test(j.text), 'news: /stop with nothing bound still answers politely');
+t(/تم إيقاف الأخبار/.test(j.text), 'news: /stop with nothing bound still answers politely (Arabic by default)');
 r = await tg('/subscribe'); j = await r.json();
-t(!/turned on/.test(j.text), 'news: /subscribe with nothing bound is just a normal question');
+t(!/turned on|تم تفعيل الأخبار/.test(j.text), 'news: /subscribe with nothing bound is just a normal question');
 r = await tw('/start welcome_en'); j = await r.json();
 t(!/news and offers/.test(j.text), 'news: with nothing bound the welcome does not promise news');
 

@@ -20,7 +20,6 @@
 
 const MAX_IN = 300;                        /* longest question that is read */
 const PER_MIN = 12;                        /* messages per person per minute (extra ones are ignored) */
-const TG_LANG = { ar: 'ar', en: 'en', tr: 'tr', fr: 'fr', ku: 'ku', ckb: 'ku' };
 
 const seen = new Map();                    /* sender -> recent times (kept only in memory, for the rate limit) */
 const done = new Set();                    /* message ids already answered (WhatsApp may deliver one twice) */
@@ -66,11 +65,16 @@ function welcomeFull(lang, name) {
     links.map(l => l[0] + ': ' + l[1]).join('\n') + '\n\n' + w.contact + '\n\nX Architecture';
   return XASCORE.bidi(text, lang);
 }
+/* Arabic is the default language of the bot (most of the platform's people are Arabic speakers). Anyone can switch with the language buttons at the bottom of the chat or by writing in another language. */
+const LANGBTN = [['العربية', 'ar'], ['English', 'en'], ['Türkçe', 'tr'], ['Français', 'fr'], ['کوردی', 'ku']];
+const LANGMAP = {}; LANGBTN.forEach(b => { LANGMAP[b[0]] = b[1]; });
 function keyboard(lang) {
   const c = (KB.chips && KB.chips[lang]) || [], rows = [];
   for (let i = 0; i < c.length; i += 2) rows.push(c.slice(i, i + 2).map(t => ({ text: t })));
+  rows.push(LANGBTN.slice(0, 3).map(b => ({ text: b[0] })), LANGBTN.slice(3).map(b => ({ text: b[0] })));
   return { keyboard: rows, resize_keyboard: true };
 }
+const LANGPICK = 'اختر اللغة\nChoose your language\nDil seç\nChoisissez votre langue\nزمانەکەت هەڵبژێرە';
 
 /* ---------------- Telegram news: who agreed to get it, and how it is sent ----------------
    Whoever taps "Get your welcome on Telegram" on the site (Start with the welcome link) agrees to get the platform's news here; /stop turns it off, /subscribe turns it back on.
@@ -92,6 +96,13 @@ async function subPut(env, id, lang) {
   return true;
 }
 async function subDel(env, id) { if (env.SUBS) await env.SUBS.delete('t:' + id); }
+async function subLang(env, id) {                 /* the language a subscriber chose, else Arabic */
+  try {
+    if (!env.SUBS) return 'ar';
+    const r = await env.SUBS.getWithMetadata('t:' + id);
+    return r && r.metadata && SUBTXT[r.metadata.l] ? r.metadata.l : 'ar';
+  } catch (e) { return 'ar'; }
+}
 
 /* ---------------- Telegram: the webhook answers in its own response, so the bot token is not needed here ---------------- */
 async function telegram(req, env) {
@@ -107,9 +118,8 @@ async function telegram(req, env) {
   const m = u && u.message;
   if (!m || !m.chat || m.chat.type !== 'private' || !m.from || m.from.is_bot) return ok();   /* private chats only, edits ignored */
   if (limited('t' + m.chat.id)) return ok();
-  const hint = TG_LANG[String(m.from.language_code || '').toLowerCase().slice(0, 3)] || TG_LANG[String(m.from.language_code || '').toLowerCase().slice(0, 2)] || 'ar';
   const text = typeof m.text === 'string' ? m.text : '';
-  let out, lang = hint, kb = null;
+  let out, lang = 'ar', kb = null;                /* Arabic unless the person picks another language or writes in one */
   if (!text) out = XASCORE.pick(KB.nontext, lang);
   else if (/^\/start(@\w+)?\s+welcome(_(ar|en|tr|fr|ku))?\s*$/i.test(text)) {      /* the button on the site after registering */
     const pl = /welcome_(ar|en|tr|fr|ku)/i.exec(text);
@@ -117,9 +127,11 @@ async function telegram(req, env) {
     out = welcomeFull(lang, m.from.first_name); kb = keyboard(lang);
     if (await subPut(env, m.chat.id, lang)) out += '\n\n' + subText(lang, 'on');
   }
-  else if (/^\/(stop|unsubscribe)(@\w+)?\s*$/i.test(text)) { await subDel(env, m.chat.id); out = subText(lang, 'off'); }
+  else if (/^\/(stop|unsubscribe)(@\w+)?\s*$/i.test(text)) { lang = await subLang(env, m.chat.id); await subDel(env, m.chat.id); out = subText(lang, 'off'); }
   else if (env.SUBS && /^\/subscribe(@\w+)?\s*$/i.test(text)) { await subPut(env, m.chat.id, lang); out = subText(lang, 'again'); }
   else if (/^\/(start|help)(@\w+)?(\s|$)/i.test(text)) { out = welcome(lang); kb = keyboard(lang); }
+  else if (LANGMAP[text.trim()]) { lang = LANGMAP[text.trim()]; out = welcome(lang); kb = keyboard(lang); }        /* a language button */
+  else if (/^\/lang(uage)?(@\w+)?\s*$/i.test(text)) { out = LANGPICK; kb = keyboard(lang); }
   else {
     lang = XASCORE.detect(KB, text);
     const r = reply(text, lang); out = r.text; if (!r.matched) kb = keyboard(lang);
