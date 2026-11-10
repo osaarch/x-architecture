@@ -53,6 +53,31 @@ t(/text/i.test(j.text), 'telegram: a photo gets a "text only" note');
 let last; for (let i = 0; i < 16; i++) last = await call('/telegram', { method: 'POST', headers: { 'X-Telegram-Bot-Api-Secret-Token': env.TG_SECRET }, body: JSON.stringify({ message: { chat: { id: 900, type: 'private' }, from: { id: 900, is_bot: false }, text: 'hi' } }) });
 t((await last.text()) === 'ok', 'telegram: more than 12 a minute is ignored');
 
+// the welcome that the site's "Get your welcome on Telegram" button asks for: https://t.me/<bot>?start=welcome_<lang>
+// (every call uses its own chat, so the 12-a-minute limit of the test chat is never touched)
+let wid = 200;
+const tw = (text, from) => tg(text, { chat: { id: ++wid, type: 'private' }, from: Object.assign({ id: wid, is_bot: false, language_code: 'en' }, from || {}) });
+r = await tw('/start welcome_ar', { first_name: 'علي', language_code: 'en' }); j = await r.json();
+t(j.method === 'sendMessage' && /^أهلاً علي،/.test(j.text) && /ماذا نقدّم/.test(j.text), 'welcome: the language in the link wins over the Telegram language, and the first name is used');
+t(/https:\/\/xarch\.site\/#courses/.test(j.text) && /#works/.test(j.text) && /#services/.test(j.text) && /#community/.test(j.text), 'welcome: has the site, services, courses, student work and community links');
+t(/⁦@xstudio4arch⁩/.test(j.text) && /⁦info@xarch\.site⁩/.test(j.text), 'welcome: the @name and the address keep reading left to right inside Arabic');
+t(!/t\.me|wa\.me|instagram/i.test(j.text), 'welcome: no platform links');
+t(j.reply_markup && j.reply_markup.keyboard.length === 3 && j.text.length < 1500, 'welcome: quick buttons for follow-up questions, and it is short');
+for (const lg of ['en', 'tr', 'fr', 'ku']) {
+  r = await tw('/start welcome_' + lg, { first_name: 'Sam', language_code: 'ar' }); j = await r.json();
+  t(j.text.includes('Sam') && j.text.includes('https://xarch.site') && j.text.includes('X Architecture'), 'welcome: ' + lg + ' is complete');
+}
+r = await tw('/start welcome', { first_name: 'Sam', language_code: 'fr' }); j = await r.json();
+t(/^Bonjour Sam,/.test(j.text), 'welcome: without a language in the link it follows the Telegram language');
+r = await tw('/start welcome_en', { first_name: '<b>Evil</b> x\n[link](http://bad)' }); j = await r.json();
+t(!/[<>]/.test(j.text.split('\n')[0]) && !j.parse_mode, 'welcome: a strange first name cannot inject markup (plain text, no parse mode)');
+r = await tw('/start welcome_en'); j = await r.json();
+t(/^Hello,/.test(j.text), 'welcome: a person without a first name still gets a clean greeting');
+r = await tw('/start'); j = await r.json();
+t(/X Assistant/.test(j.text) && !/Thank you for registering/.test(j.text), 'welcome: a plain /start (nobody registered) still gets the short greeting');
+r = await tw('/start welcome_xx'); j = await r.json();
+t(!/Thank you for registering/.test(j.text), 'welcome: an unknown payload falls back to the short greeting');
+
 // WhatsApp verification
 r = await call('/whatsapp?hub.mode=subscribe&hub.verify_token=wa-verify-test&hub.challenge=CHAL123');
 t(r.status === 200 && (await r.text()) === 'CHAL123', 'whatsapp: verify returns the challenge as plain text');

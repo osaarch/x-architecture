@@ -50,6 +50,18 @@ function reply(text, lang) {
 function welcome(lang) {
   return XASCORE.bidi(XASCORE.greeting(KB, lang), lang) + '\n\n' + XASCORE.bidi(XASCORE.pick(KB.intents.filter(i => i.id === 'about')[0].a, lang), lang);
 }
+/* The full welcome (who we are, the site, the services, the courses, the students' work, how to reach us), the same text the registration e-mail carries.
+   People get it by tapping "Get your welcome on Telegram" on the site after they register: that opens https://t.me/<this bot>?start=welcome_<language>
+   and the bot answers the moment they press Start. (A bot can never message someone first, so the person has to open the chat once.) */
+function welcomeFull(lang, name) {
+  const w = WELCOME[lang] || WELCOME.ar, site = String(KB.site || 'https://xarch.site').replace(/\/+$/, '');
+  const nm = String(name || '').replace(/[\u0000-\u001f\u007f<>]/g, ' ').replace(/\s+/g, ' ').trim().split(' ')[0].slice(0, 40);
+  const hi = nm ? w.hi.replace('{n}', nm) : w.hi.replace(/\s*\{n\}/, '');
+  const links = [[w.site, site], [w.services, site + '/#services'], [w.courses, site + '/#courses'], [w.works, site + '/#works'], [w.community, site + '/#community']];
+  const text = hi + '\n' + w.thanks + '\n\n' + w.intro + '\n\n' + w.svcH + ':\n' + w.svc.map(x => '\u2022 ' + x).join('\n') + '\n\n' +
+    links.map(l => l[0] + ': ' + l[1]).join('\n') + '\n\n' + w.contact + '\n\nX Architecture';
+  return XASCORE.bidi(text, lang);
+}
 function keyboard(lang) {
   const c = (KB.chips && KB.chips[lang]) || [], rows = [];
   for (let i = 0; i < c.length; i += 2) rows.push(c.slice(i, i + 2).map(t => ({ text: t })));
@@ -69,6 +81,11 @@ async function telegram(req, env) {
   const text = typeof m.text === 'string' ? m.text : '';
   let out, lang = hint, kb = null;
   if (!text) out = XASCORE.pick(KB.nontext, lang);
+  else if (/^\/start(@\w+)?\s+welcome(_(ar|en|tr|fr|ku))?\s*$/i.test(text)) {      /* the button on the site after registering */
+    const pl = /welcome_(ar|en|tr|fr|ku)/i.exec(text);
+    if (pl) lang = pl[1].toLowerCase();
+    out = welcomeFull(lang, m.from.first_name); kb = keyboard(lang);
+  }
   else if (/^\/(start|help)(@\w+)?(\s|$)/i.test(text)) { out = welcome(lang); kb = keyboard(lang); }
   else {
     lang = XASCORE.detect(KB, text);

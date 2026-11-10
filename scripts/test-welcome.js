@@ -185,5 +185,14 @@ function t(name, ok, info) { total++; if (!ok) { failed++; console.log('FAIL: ' 
   t('sample is the arabic welcome', f.sent[0].subject === 'أهلاً بك في X Architecture');
 }
 
+/* 10. the Telegram bot says the same welcome as the e-mail: backend/bot-worker/welcome.json must equal WELCOME in Code.gs */
+{
+  const f = fresh(), bot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'backend', 'bot-worker', 'welcome.json'), 'utf8'));
+  const gs = JSON.parse(JSON.stringify(vm.runInContext('WELCOME', f.ctx)));
+  t('bot welcome.json is the same as WELCOME in Code.gs', JSON.stringify(bot) === JSON.stringify(gs));
+  const w = fs.readFileSync(path.join(__dirname, '..', 'backend', 'bot-worker', 'worker.js'), 'utf8');
+  t('worker.js carries the same welcome (run scripts/build_bot.py after editing welcome.json)', w.includes('const WELCOME = ' + JSON.stringify(bot) + ';'));
+}
+
 console.log('total ' + total + ' failed ' + failed);
 process.exit(failed ? 1 : 0);
