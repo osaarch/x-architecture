@@ -93,6 +93,11 @@ r = await tw('ما هي خدماتكم؟', { language_code: 'en' }); j = await r
 t(/[\u0600-\u06ff]/.test(j.text), 'language: an Arabic question gets an Arabic answer');
 r = await tw('what are your services', { language_code: 'ar' }); j = await r.json();
 t(/[A-Za-z]{5}/.test(j.text), 'language: writing in English gets an English answer (translation by language of the question)');
+r = await tw('/start'); j = await r.json();
+t(!/^[\s\u200e\u200f\u2066-\u2069]*[A-Za-z]/.test(j.text.split('\n\n')[1] || ''), 'text: the Arabic "about" paragraph starts with Arabic, not with a Latin letter (it was rendered back to front)');
+t(/إكس للعمارة/.test(j.text) && /برومبتات/.test(j.text) && !/طلابي/.test(j.text), 'text: Arabic about says إكس للعمارة, mentions the prompts, and has no "student price"');
+r = await tw('/start welcome_ar', { first_name: 'علي' }); j = await r.json();
+t(/إكس للعمارة منصة معمارية تقدّم/.test(j.text) && !/طلابي/.test(j.text) && /إكس للعمارة\s*$/.test(j.text.replace(/\n\n[^\n]*\/stop[^\n]*$/, '').trim()), 'text: the Arabic full welcome uses the Arabic name and signs off with it');
 r = await tw('/start welcome_xx'); j = await r.json();
 t(!/Thank you for registering/.test(j.text), 'welcome: an unknown payload falls back to the short greeting');
 

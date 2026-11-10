@@ -62,7 +62,7 @@ function welcomeFull(lang, name) {
   const hi = nm ? w.hi.replace('{n}', nm) : w.hi.replace(/\s*\{n\}/, '');
   const links = [[w.site, site], [w.services, site + '/#services'], [w.courses, site + '/#courses'], [w.works, site + '/#works'], [w.community, site + '/#community']];
   const text = hi + '\n' + w.thanks + '\n\n' + w.intro + '\n\n' + w.svcH + ':\n' + w.svc.map(x => '\u2022 ' + x).join('\n') + '\n\n' +
-    links.map(l => l[0] + ': ' + l[1]).join('\n') + '\n\n' + w.contact + '\n\nX Architecture';
+    links.map(l => l[0] + ': ' + l[1]).join('\n') + '\n\n' + w.contact + '\n\n' + (lang === 'ar' ? 'إكس للعمارة' : 'X Architecture');
   return XASCORE.bidi(text, lang);
 }
 /* Arabic is the default language of the bot (most of the platform's people are Arabic speakers). Anyone can switch with the language buttons at the bottom of the chat or by writing in another language. */

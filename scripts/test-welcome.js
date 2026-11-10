@@ -75,7 +75,7 @@ function t(name, ok, info) { total++; if (!ok) { failed++; console.log('FAIL: ' 
   t('goes to the registered address', m.to === 'ali.tester@example.com');
   t('arabic subject', m.subject === 'أهلاً بك في X Architecture', m.subject);
   const tx = m.body || '';
-  ['https://xarch.site', 'https://xarch.site/#services', 'https://xarch.site/#courses', 'https://xarch.site/#works', 'https://xarch.site/#community', '@xstudio4arch', 'info@xarch.site', '• تصميم معماري', '• دورات في برامج العمارة', 'منصة معمارية للطلاب'].forEach(s => t('text has ' + s, tx.indexOf(s) >= 0));
+  ['https://xarch.site', 'https://xarch.site/#services', 'https://xarch.site/#courses', 'https://xarch.site/#works', 'https://xarch.site/#community', '@xstudio4arch', 'info@xarch.site', '• تصميم معماري', '• دورات في برامج العمارة', 'إكس للعمارة منصة معمارية تقدّم'].forEach(s => t('text has ' + s, tx.indexOf(s) >= 0));
   t('text greets by first name', tx.indexOf('أهلاً <b>Ali</b>،') === 0, tx.slice(0, 40));
   const h = m.htmlBody || '';
   t('html escapes the name', h.indexOf('&lt;b&gt;Ali&lt;/b&gt;') >= 0 && h.indexOf('<b><b>Ali') < 0 && h.indexOf('<b>Ali</b>') < 0);

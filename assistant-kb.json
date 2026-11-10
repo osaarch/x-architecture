@@ -262,11 +262,11 @@
     ]
    },
    "a": {
-    "ar": "X للعمارة منصة معمارية للطلاب: خدمات إظهار وتصميم ونقد وإشراف، ودورات في برامج العمارة، وأعمال طلاب، ومكتبة كتب وملفات وبرامج مجانية أو بسعر طلابي.",
-    "en": "X Architecture is an architecture platform for students: visualization, design, critique and supervision services, courses in architecture software, student work, and a library of books, files and free or student-priced software.",
-    "tr": "X Architecture, öğrenciler için bir mimarlık platformudur: görselleştirme, tasarım, eleştiri ve denetim hizmetleri, mimarlık yazılımı kursları, öğrenci çalışmaları ve ücretsiz ya da öğrenci fiyatlı kitap, dosya ve yazılımlardan oluşan bir kütüphane.",
-    "fr": "X Architecture est une plateforme d’architecture pour les étudiants : visualisation, conception, critique et suivi, cours sur les logiciels d’architecture, travaux d’étudiants et une bibliothèque de livres, fichiers et logiciels gratuits ou à tarif étudiant.",
-    "ku": "X Architecture پلاتفۆرمێکی تەلارسازییە بۆ قوتابیان: خزمەتگوزاری ڕێندەر و دیزاین و ڕەخنە و سەرپەرشتی، خول لە بەرنامەکانی تەلارسازی، کارەکانی قوتابیان، و کتێبخانەیەک لە کتێب و فایل و بەرنامەی بێبەرامبەر یان بە نرخی قوتابی."
+    "ar": "إكس للعمارة منصة معمارية تقدّم خدمات الإظهار والتصميم والنقد والإشراف، ودورات في برامج العمارة، وبرومبتات للذكاء الاصطناعي، ومكتبة كتب وملفات وبرامج، وأعمال طلاب.",
+    "en": "X Architecture is an architecture platform offering visualization, design, critique and supervision services, courses in architecture software, AI prompts, a library of books, files and software, and student work.",
+    "tr": "X Architecture; görselleştirme, tasarım, eleştiri ve denetim hizmetleri, mimarlık yazılımı kursları, yapay zekâ promptları, kitap, dosya ve yazılımlardan oluşan bir kütüphane ve öğrenci çalışmaları sunan bir mimarlık platformudur.",
+    "fr": "X Architecture est une plateforme d’architecture qui propose des services de visualisation, de conception, de critique et de suivi, des cours sur les logiciels d’architecture, des prompts d’IA, une bibliothèque de livres, fichiers et logiciels, et des travaux d’étudiants.",
+    "ku": "پلاتفۆرمێکی تەلارسازییە بە ناوی X Architecture کە خزمەتگوزاری ڕێندەر و دیزاین و ڕەخنە و سەرپەرشتی، خول لە بەرنامەکانی تەلارسازی، پرۆمپتی زیرەکی دەستکرد، کتێبخانەیەک لە کتێب و فایل و بەرنامە، و کارەکانی قوتابیان پێشکەش دەکات."
    },
    "l": [
     "services",
