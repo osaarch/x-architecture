@@ -16,7 +16,7 @@
 
 var USERS = 'Users', EVENTS = 'Events', TZ = 'Asia/Baghdad';
 var UCOLS = ['uid', 'created', 'updated', 'name', 'email', 'country', 'countryName', 'kind', 'stage',
-             'spec', 'gradYear', 'uni', 'contact', 'interests', 'lang', 'visits', 'last_seen', 'verified'];
+             'spec', 'gradYear', 'uni', 'contact', 'interests', 'lang', 'visits', 'last_seen', 'verified', 'welcomed'];
 var ECOLS = ['time', 'uid', 'type', 'detail'];
 var KINDS = ['student', 'grad', 'other'];
 var STAGES = ['1', '2', '3', '4', '5', 'pg', 'pre'];
@@ -292,7 +292,111 @@ function reg_(d) {
     });
     sh.appendRow(vals);
   }
+  try {                                                  // the welcome message; a failure here never fails the registration
+    var rw = at || sh.getLastRow();
+    welcomeRow_(sh, rw, sh.getRange(rw, 1, 1, UCOLS.length).getValues()[0], false);
+  } catch (err) { Logger.log('welcome: ' + err); }
   return { ok: true };
+}
+
+/* ---------- welcome message ----------
+   Everyone who registers has a confirmed e-mail address, so the welcome goes there: who we are, the site, the services,
+   the courses, the students' work and how to reach us. It is sent once per person (the 'welcomed' column of Users).
+   A Telegram username or a phone number cannot be messaged first by a bot (Telegram and WhatsApp only allow that after the
+   person has written to you), so for those the admin page has a one-tap button that opens the chat with the same message ready.
+   The texts come from the site's own answers (assistant-kb.json), so they say the same thing as the site. */
+var SITE = 'https://xarch.site';
+var WELCOME_UNVERIFIED = true;      // welcomeExisting(): also welcome old registrations whose address was never confirmed (new ones are always confirmed)
+var WELCOME_BATCH = 40;             // welcomeExisting(): at most this many per run, to stay inside the daily mail limit
+var WELCOME = {
+  ar: { "subj": "أهلاً بك في X Architecture", "hi": "أهلاً {n}،", "thanks": "شكراً لتسجيلك معنا. هذا تعريف سريع بنا:", "svcH": "ماذا نقدّم", "site": "زيارة الموقع", "services": "الخدمات", "courses": "الدورات", "works": "أعمال الطلاب", "community": "المجتمع", "foot": "وصلتك هذه الرسالة لأنك سجّلت في xarch.site.", "intro": "X للعمارة منصة معمارية للطلاب: خدمات إظهار وتصميم ونقد وإشراف، ودورات في برامج العمارة، وأعمال طلاب، ومكتبة كتب وملفات وبرامج مجانية أو بسعر طلابي.", "svc": [ "تصميم معماري لأصحاب المشاريع والعملاء", "إظهار معماري (مناظير خارجية وداخلية)", "نقد معماري للطلاب", "إشراف ومتابعة للطلاب", "دورات في برامج العمارة" ], "contact": "تواصل معنا من أي قناة وبنفس الاسم @xstudio4arch، أو عبر البريد info@xarch.site. أخبرنا بما تحتاجه (خدمة أو دورة) وسنرتّب معك الخطوات التالية." },
+  en: { "subj": "Welcome to X Architecture", "hi": "Hello {n},", "thanks": "Thank you for registering with us. A quick introduction:", "svcH": "What we offer", "site": "Visit the site", "services": "Services", "courses": "Courses", "works": "Student work", "community": "Community", "foot": "You are receiving this because you registered at xarch.site.", "intro": "X Architecture is an architecture platform for students: visualization, design, critique and supervision services, courses in architecture software, student work, and a library of books, files and free or student-priced software.", "svc": [ "Architectural design for clients and project owners", "Architectural visualization (exterior and interior renders)", "Architectural critique for students", "Supervision and follow-up for students", "Courses in architecture software" ], "contact": "Reach us on any channel under the same name, @xstudio4arch, or by email at info@xarch.site. Tell us what you need (a service or a course) and we will arrange the next steps with you." },
+  tr: { "subj": "X Architecture’a hoş geldiniz", "hi": "Merhaba {n},", "thanks": "Bizimle kaydolduğunuz için teşekkürler. Kısa bir tanıtım:", "svcH": "Sunduklarımız", "site": "Siteyi ziyaret edin", "services": "Hizmetler", "courses": "Kurslar", "works": "Öğrenci çalışmaları", "community": "Topluluk", "foot": "Bu mesajı xarch.site’a kaydolduğunuz için aldınız.", "intro": "X Architecture, öğrenciler için bir mimarlık platformudur: görselleştirme, tasarım, eleştiri ve denetim hizmetleri, mimarlık yazılımı kursları, öğrenci çalışmaları ve ücretsiz ya da öğrenci fiyatlı kitap, dosya ve yazılımlardan oluşan bir kütüphane.", "svc": [ "Müşteriler ve proje sahipleri için mimari tasarım", "Mimari görselleştirme (dış ve iç mekân)", "Öğrenciler için mimari eleştiri", "Öğrenciler için denetim ve takip", "Mimarlık yazılımı kursları" ], "contact": "Bize her kanaldan aynı adla, @xstudio4arch üzerinden ya da info@xarch.site e-posta adresinden ulaşabilirsiniz. Neye ihtiyacınız olduğunu (hizmet ya da kurs) söyleyin, sonraki adımları birlikte planlayalım." },
+  fr: { "subj": "Bienvenue chez X Architecture", "hi": "Bonjour {n},", "thanks": "Merci de vous être inscrit(e). Une courte présentation :", "svcH": "Ce que nous proposons", "site": "Visiter le site", "services": "Services", "courses": "Cours", "works": "Travaux d’étudiants", "community": "Communauté", "foot": "Vous recevez ce message car vous vous êtes inscrit(e) sur xarch.site.", "intro": "X Architecture est une plateforme d’architecture pour les étudiants : visualisation, conception, critique et suivi, cours sur les logiciels d’architecture, travaux d’étudiants et une bibliothèque de livres, fichiers et logiciels gratuits ou à tarif étudiant.", "svc": [ "Conception architecturale pour les clients et porteurs de projet", "Visualisation architecturale (extérieur et intérieur)", "Critique architecturale pour les étudiants", "Suivi et supervision des étudiants", "Cours sur les logiciels d’architecture" ], "contact": "Contactez-nous sur n’importe quel canal sous le même nom, @xstudio4arch, ou par e-mail à info@xarch.site. Dites-nous ce dont vous avez besoin (un service ou un cours) et nous organiserons les prochaines étapes avec vous." },
+  ku: { "subj": "بەخێربێیت بۆ X Architecture", "hi": "سڵاو {n}،", "thanks": "سوپاس بۆ تۆمارکردنت لەگەڵمان. ناساندنێکی کورت:", "svcH": "ئەوەی پێشکەشی دەکەین", "site": "سەردانی ماڵپەڕ بکە", "services": "خزمەتگوزارییەکان", "courses": "خولەکان", "works": "کارەکانی قوتابیان", "community": "کۆمەڵگە", "foot": "ئەم نامەیە بۆت هاتووە چونکە لە xarch.site تۆمارت کرد.", "intro": "X Architecture پلاتفۆرمێکی تەلارسازییە بۆ قوتابیان: خزمەتگوزاری ڕێندەر و دیزاین و ڕەخنە و سەرپەرشتی، خول لە بەرنامەکانی تەلارسازی، کارەکانی قوتابیان، و کتێبخانەیەک لە کتێب و فایل و بەرنامەی بێبەرامبەر یان بە نرخی قوتابی.", "svc": [ "دیزاینی تەلارسازی بۆ کڕیار و خاوەن پڕۆژەکان", "ڕێندەری تەلارسازی (دەرەوە و ناوەوە)", "ڕەخنەی تەلارسازی بۆ قوتابیان", "سەرپەرشتی و شوێنکەوتن بۆ قوتابیان", "خول لە بەرنامەکانی تەلارسازی" ], "contact": "لە هەر کەناڵێکەوە بە هەمان ناوی @xstudio4arch پەیوەندیمان پێوە بکە، یان بە ئیمەیڵی info@xarch.site. پێمان بڵێ چیت پێویستە (خزمەتگوزاری یان خول) و هەنگاوەکانی دواتر لەگەڵت ڕێک دەخەین." }
+};
+
+function esc_(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+function ltr_(s) { return s.replace(/@xstudio4arch|info@xarch\.site/g, function (m) { return '\u2066' + m + '\u2069'; }); }   // keeps the @name and the address from flipping inside Arabic or Kurdish text
+
+function welcomeMsg_(lang, name) {
+  var w = WELCOME[lang] || WELCOME.ar, rtl = (WELCOME[lang] ? lang : 'ar') === 'ar' || lang === 'ku';
+  var contact = rtl ? ltr_(w.contact) : w.contact;
+  var hi = w.hi.replace('{n}', clean_(name, 80).split(' ')[0] || '');
+  var links = [[w.site, SITE], [w.services, SITE + '/#services'], [w.courses, SITE + '/#courses'], [w.works, SITE + '/#works'], [w.community, SITE + '/#community']];
+  var text = hi + '\n' + w.thanks + '\n\n' + w.intro + '\n\n' + w.svcH + ':\n' +
+    w.svc.map(function (x) { return '• ' + x; }).join('\n') + '\n\n' +
+    links.map(function (l) { return l[0] + ': ' + l[1]; }).join('\n') + '\n\n' + contact + '\n\nX Architecture\n' + w.foot;
+  var btn = function (l, first) {
+    return '<a href="' + l[1] + '" style="display:inline-block;margin:0 4px 8px;padding:9px 16px;font-size:14px;text-decoration:none;' +
+      (first ? 'background:#AD9154;color:#fff;border:1px solid #AD9154' : 'border:1px solid #AD9154;color:#6f5a2c') + '">' + esc_(l[0]) + '</a>';
+  };
+  var html = '<div style="background:#f4f1ea;padding:24px 12px;font-family:Tahoma,Arial,sans-serif">' +
+    '<div dir="' + (rtl ? 'rtl' : 'ltr') + '" style="max-width:520px;margin:auto;background:#fff;border-top:4px solid #AD9154;padding:28px 26px;color:#222;line-height:1.75;text-align:' + (rtl ? 'right' : 'left') + '">' +
+    '<p dir="ltr" style="margin:0 0 18px;font-size:12px;letter-spacing:.3em;color:#8a7240;text-align:' + (rtl ? 'right' : 'left') + '">X ARCHITECTURE</p>' +
+    '<p style="margin:0 0 6px;font-size:20px"><b>' + esc_(hi) + '</b></p>' +
+    '<p style="margin:0 0 14px">' + esc_(w.thanks) + '</p>' +
+    '<p style="margin:0 0 18px">' + esc_(w.intro) + '</p>' +
+    '<p style="margin:0 0 4px;color:#8a7240"><b>' + esc_(w.svcH) + '</b></p>' +
+    '<ul style="margin:0 0 20px;padding:0 20px">' + w.svc.map(function (x) { return '<li style="margin:2px 0">' + esc_(x) + '</li>'; }).join('') + '</ul>' +
+    '<p style="margin:0 0 6px;text-align:center">' + links.map(function (l, i) { return btn(l, i === 0); }).join('') + '</p>' +
+    '<p style="margin:20px 0 0">' + esc_(contact) + '</p>' +
+    '<hr style="border:0;border-top:1px solid #e6dfcf;margin:22px 0 12px">' +
+    '<p style="margin:0;font-size:12px;color:#888">' + esc_(w.foot) + '</p></div></div>';
+  return { subject: w.subj, text: text, html: html };
+}
+
+// room left in today's mail allowance (a registration also costs one confirmation code, so a welcome never takes the codes' share)
+function mailKey_() { return 'vd:' + Utilities.formatDate(new Date(), TZ, 'yyyyMMdd'); }
+function mailRoom_() {
+  if (mailVia_()) return parseInt(CacheService.getScriptCache().get(mailKey_()) || '0', 10) < VDAILY;
+  return MailApp.getRemainingDailyQuota() >= 5;
+}
+function mailTick_() {
+  if (!mailVia_()) return;
+  var cache = CacheService.getScriptCache(), k = mailKey_();
+  cache.put(k, String(parseInt(cache.get(k) || '0', 10) + 1), 90000);
+}
+
+// welcomes the person on row r (1-based) of Users, once; true when the message went out
+function welcomeRow_(sh, r, v, allowUnverified) {
+  var o = {}; UCOLS.forEach(function (c, i) { o[c] = String(v[i] == null ? '' : v[i]); });
+  var email = o.email.toLowerCase();
+  if (o.welcomed || emailWhy_(email)) return false;
+  if (!o.verified && !allowUnverified) return false;
+  if (!mailRoom_()) return false;
+  var m = welcomeMsg_(o.lang, o.name);
+  try { sendMail_(email, m.subject, m.text, m.html); } catch (err) { Logger.log('welcome not sent (row ' + r + '): ' + err); return false; }
+  mailTick_();
+  sh.getRange(r, col_('welcomed')).setValue(now_());
+  return true;
+}
+
+/* Sends the welcome message to the owner of this script as a sample (Run > testWelcome). Nothing is saved and nobody else gets it.
+   To see another language change 'ar' to en, tr, fr or ku. */
+function testWelcome() {
+  var to = Session.getEffectiveUser().getEmail(), m = welcomeMsg_('ar', 'Test');
+  sendMail_(to, m.subject, m.text, m.html);
+  Logger.log('sample welcome sent to ' + to);
+}
+
+/* Run once from the editor (Run > welcomeExisting) after updating the script: welcomes everyone already registered who has not been
+   welcomed yet. It stops at WELCOME_BATCH messages or when today's mail allowance is used up; run it again the next day for the rest.
+   The result is written to the execution log. */
+function welcomeExisting() {
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    var sh = sheet_(USERS, UCOLS), last = sh.getLastRow();
+    if (last < 2) { Logger.log('no registered people yet'); return; }
+    var all = sh.getRange(2, 1, last - 1, UCOLS.length).getValues(), sent = 0, skipped = 0, waiting = 0, wc = col_('welcomed') - 1;
+    for (var i = 0; i < all.length; i++) {
+      if (String(all[i][wc] || '')) continue;
+      if (sent >= WELCOME_BATCH || !mailRoom_()) { waiting++; continue; }
+      if (welcomeRow_(sh, i + 2, all[i], WELCOME_UNVERIFIED)) sent++; else skipped++;
+    }
+    Logger.log('welcome sent: ' + sent + ' | not sent (bad address, unconfirmed or failed): ' + skipped + ' | waiting for the next run: ' + waiting);
+  } finally { lock.releaseLock(); }
 }
 
 /* ---------- activity events ---------- */

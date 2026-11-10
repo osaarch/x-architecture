@@ -68,6 +68,7 @@ table{width:100%;border-collapse:collapse;font-size:.84rem}
 th,td{text-align:start;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
 th{position:sticky;top:0;background:var(--bg2);color:var(--soft);font-weight:400;font-size:.76rem}
 td.e{direction:ltr;text-align:start}
+.wk{color:var(--gold2);font-size:.76rem}.wn{color:var(--soft);font-size:.76rem}.wb{padding:3px 10px;font-size:.74rem;text-decoration:none;margin-inline-start:6px}
 .srch{width:min(340px,100%);font:inherit;font-size:.9rem;color:var(--ink);background:rgba(var(--inkr),.06);border:0;border-bottom:1px solid var(--line);padding:9px 12px}
 .top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
 [hidden]{display:none!important}
@@ -126,7 +127,7 @@ td.e{direction:ltr;text-align:start}
 <div class="card c6"><h2>البرامج الأكثر مشاهدة</h2><div class="rows" id="prog"></div></div>
 <div class="card c12" id="gcard"><div class="top"><h2>معرض الصفحة الرئيسية <small id="gcnt"></small></h2><button class="bt g" id="grf" type="button">تحديث</button></div><p class="sub" id="gmode"></p><p class="empty" id="gmsg"></p><div class="gal" id="gal"></div></div>
 <div class="card c12" id="ccard"><div class="top"><h2>المجتمع <small id="ccnt"></small></h2><button class="bt g" id="crf" type="button">تحديث</button></div><p class="sub" id="cmode"></p><p class="empty" id="cmsg"></p><div class="cmq" id="cq"></div></div>
-<div class="card c12"><div class="top"><h2>المسجّلون <small id="cnt"></small></h2><input class="srch" id="sq" type="search" placeholder="بحث بالاسم أو البريد أو الجامعة…" aria-label="بحث"></div><div class="tw"><table><thead><tr><th>الاسم</th><th>البريد</th><th>الدولة</th><th>الصفة</th><th>الجامعة</th><th>التخصص</th><th>تواصل</th><th>الاهتمامات</th><th>التسجيل</th></tr></thead><tbody id="ut"></tbody></table></div></div>
+<div class="card c12"><div class="top"><h2>المسجّلون <small id="cnt"></small></h2><input class="srch" id="sq" type="search" placeholder="بحث بالاسم أو البريد أو الجامعة…" aria-label="بحث"></div><div class="tw"><table><thead><tr><th>الاسم</th><th>البريد</th><th>الدولة</th><th>الصفة</th><th>الجامعة</th><th>التخصص</th><th>تواصل</th><th>الترحيب</th><th>الاهتمامات</th><th>التسجيل</th></tr></thead><tbody id="ut"></tbody></table></div></div>
 </div>
 </section>
 </div></main>
@@ -169,12 +170,26 @@ function render(){
   rows($('prog'),e.prog||[],function(x){return esc(PROG[x]||x)});
   tbl();
 }
+/* ---- welcome: the e-mail goes out by itself when someone registers (Code.gs). A Telegram username or a phone number cannot be messaged first by a bot,
+   so for those the row gets a button that copies the same short message and opens the chat from YOUR own Telegram / WhatsApp ---- */
+var WM={"ar":{"hi":"أهلاً {n}! ","intro":"X للعمارة منصة معمارية للطلاب: خدمات إظهار وتصميم ونقد وإشراف، ودورات في برامج العمارة، وأعمال طلاب، ومكتبة كتب وملفات وبرامج مجانية أو بسعر طلابي.","site":"زيارة الموقع","services":"الخدمات","works":"أعمال الطلاب","contact":"تواصل معنا من أي قناة وبنفس الاسم @xstudio4arch، أو عبر البريد info@xarch.site. أخبرنا بما تحتاجه (خدمة أو دورة) وسنرتّب معك الخطوات التالية."},"en":{"hi":"Hello {n}! ","intro":"X Architecture is an architecture platform for students: visualization, design, critique and supervision services, courses in architecture software, student work, and a library of books, files and free or student-priced software.","site":"Visit the site","services":"Services","works":"Student work","contact":"Reach us on any channel under the same name, @xstudio4arch, or by email at info@xarch.site. Tell us what you need (a service or a course) and we will arrange the next steps with you."},"tr":{"hi":"Merhaba {n}! ","intro":"X Architecture, öğrenciler için bir mimarlık platformudur: görselleştirme, tasarım, eleştiri ve denetim hizmetleri, mimarlık yazılımı kursları, öğrenci çalışmaları ve ücretsiz ya da öğrenci fiyatlı kitap, dosya ve yazılımlardan oluşan bir kütüphane.","site":"Siteyi ziyaret edin","services":"Hizmetler","works":"Öğrenci çalışmaları","contact":"Bize her kanaldan aynı adla, @xstudio4arch üzerinden ya da info@xarch.site e-posta adresinden ulaşabilirsiniz. Neye ihtiyacınız olduğunu (hizmet ya da kurs) söyleyin, sonraki adımları birlikte planlayalım."},"fr":{"hi":"Bonjour {n} ! ","intro":"X Architecture est une plateforme d’architecture pour les étudiants : visualisation, conception, critique et suivi, cours sur les logiciels d’architecture, travaux d’étudiants et une bibliothèque de livres, fichiers et logiciels gratuits ou à tarif étudiant.","site":"Visiter le site","services":"Services","works":"Travaux d’étudiants","contact":"Contactez-nous sur n’importe quel canal sous le même nom, @xstudio4arch, ou par e-mail à info@xarch.site. Dites-nous ce dont vous avez besoin (un service ou un cours) et nous organiserons les prochaines étapes avec vous."},"ku":{"hi":"سڵاو {n}! ","intro":"X Architecture پلاتفۆرمێکی تەلارسازییە بۆ قوتابیان: خزمەتگوزاری ڕێندەر و دیزاین و ڕەخنە و سەرپەرشتی، خول لە بەرنامەکانی تەلارسازی، کارەکانی قوتابیان، و کتێبخانەیەک لە کتێب و فایل و بەرنامەی بێبەرامبەر یان بە نرخی قوتابی.","site":"سەردانی ماڵپەڕ بکە","services":"خزمەتگوزارییەکان","works":"کارەکانی قوتابیان","contact":"لە هەر کەناڵێکەوە بە هەمان ناوی @xstudio4arch پەیوەندیمان پێوە بکە، یان بە ئیمەیڵی info@xarch.site. پێمان بڵێ چیت پێویستە (خزمەتگوزاری یان خول) و هەنگاوەکانی دواتر لەگەڵت ڕێک دەخەین."}};
+function wmsg(x){var l=WM[x.lang]||WM.ar,n=String(x.name||'').trim().split(' ')[0];
+  return l.hi.replace('{n}',n)+l.intro+'\n\n'+l.site+': https://xarch.site\n'+l.services+': https://xarch.site/#services\n'+l.works+': https://xarch.site/#works\n\n'+(x.lang==='ar'||x.lang==='ku'||!WM[x.lang]?l.contact.replace(/@xstudio4arch|info@xarch\.site/g,function(m){return'\u2066'+m+'\u2069'}):l.contact)}
+function wcell(x){
+  var h=x.welcomed?'<span class="wk" title="'+esc(x.welcomed)+'">✓ بريد · '+esc(String(x.welcomed).slice(5,10))+'</span>':'<span class="wn">لم يُرسل</span>',c=String(x.contact||'').trim(),m=wmsg(x);
+  if(/^@[A-Za-z][A-Za-z0-9_]{4,31}$/.test(c))h+=' <a class="bt g wb" data-wm="'+esc(m)+'" href="https://t.me/'+esc(c.slice(1))+'" target="_blank" rel="noopener">تيليجرام</a>';
+  else if(/^\+?\d{7,15}$/.test(c))h+=' <a class="bt g wb" data-wm="'+esc(m)+'" href="https://wa.me/'+esc(c.replace(/\D/g,''))+'?text='+encodeURIComponent(m)+'" target="_blank" rel="noopener">واتساب</a>';
+  return h}
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('a[data-wm]');if(!a)return;
+  try{navigator.clipboard.writeText(a.getAttribute('data-wm'))}catch(x){}
+  var t=a.textContent;if(a.dataset.t)return;a.dataset.t=t;a.textContent='نُسخت الرسالة، الصقها';setTimeout(function(){a.textContent=t;delete a.dataset.t},2600)});
 function tbl(){
   var q=($('sq').value||'').trim().toLowerCase(),u=(D.users||[]).filter(function(x){return!q||(x.name+' '+x.email+' '+x.uni+' '+x.spec+' '+x.contact).toLowerCase().indexOf(q)>=0});
   $('cnt').textContent=u.length+' / '+(D.users||[]).length;
   $('ut').innerHTML=u.map(function(x){
     var st=x.kind==='student'?(KIND.student+(x.stage?' · '+(STAGE[x.stage]||x.stage):'')):x.kind==='grad'?(KIND.grad+(x.gradYear?' · '+x.gradYear:'')):KIND.other;
-    return'<tr><td>'+esc(x.name)+'</td><td class="e">'+esc(x.email)+'</td><td>'+esc(cname(x.country,x.countryName))+'</td><td>'+esc(st)+'</td><td>'+esc(x.uni)+'</td><td>'+esc(x.spec)+'</td><td class="e">'+esc(x.contact)+'</td><td>'+esc((x.interests||'').split(',').filter(Boolean).map(function(i){return INT[i]||i}).join('، '))+'</td><td class="e">'+esc((x.created||'').slice(0,10))+'</td></tr>'}).join('')||'<tr><td colspan="9" class="empty">لا توجد نتائج.</td></tr>'}
+    return'<tr><td>'+esc(x.name)+'</td><td class="e">'+esc(x.email)+'</td><td>'+esc(cname(x.country,x.countryName))+'</td><td>'+esc(st)+'</td><td>'+esc(x.uni)+'</td><td>'+esc(x.spec)+'</td><td class="e">'+esc(x.contact)+'</td><td>'+wcell(x)+'</td><td>'+esc((x.interests||'').split(',').filter(Boolean).map(function(i){return INT[i]||i}).join('، '))+'</td><td class="e">'+esc((x.created||'').slice(0,10))+'</td></tr>'}).join('')||'<tr><td colspan="10" class="empty">لا توجد نتائج.</td></tr>'}
 $('sq').addEventListener('input',function(){if(D)tbl()});
 /* ---- home-page gallery: renders students agreed to show (kept by the AI Worker) ---- */
 var GW=((window.XCFG&&XCFG.render)||'').replace(/\/+$/,''),GK='';
@@ -250,7 +265,7 @@ $('out').addEventListener('click',function(){try{sessionStorage.removeItem('xk')
 var sa=null;try{sa=sessionStorage.getItem('xa')}catch(e){}if(sa&&!API)$('api').value=sa;
 if(sk&&(API||sa))load();
 $('ex').addEventListener('click',function(){
-  if(!D)return;var cols=['name','email','country','countryName','kind','stage','spec','gradYear','uni','contact','interests','lang','created','last_seen','visits'];
+  if(!D)return;var cols=['name','email','country','countryName','kind','stage','spec','gradYear','uni','contact','interests','lang','created','last_seen','visits','welcomed'];
   function c(v){v=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}
   var csv='﻿'+cols.join(',')+'\n'+(D.users||[]).map(function(u){return cols.map(function(k){return c(u[k])}).join(',')}).join('\n');
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='x-architecture-users-'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)});
@@ -263,7 +278,7 @@ function demo(){
   list=[],byDay={},k=0;
   C.forEach(function(c){for(var i=0;i<c[2];i++){k++;var dd=Math.floor(rnd(k)*34),t=new Date(Date.now()-dd*864e5),kind=rnd(k+7)<.72?'student':rnd(k+7)<.92?'grad':'other',day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baghdad'}).format(t);
     byDay[day]=(byDay[day]||0)+1;
-    list.push({name:N[k%N.length],email:'user'+k+'@example.com',country:c[0],countryName:c[1],kind:kind,stage:kind==='student'?String(1+Math.floor(rnd(k+3)*5)):'',spec:kind==='student'?'':'هندسة معمارية',gradYear:kind==='grad'?String(2018+Math.floor(rnd(k+5)*8)):'',uni:kind==='other'?'':U[Math.floor(rnd(k+11)*U.length)],contact:rnd(k)<.5?'@user'+k:'',interests:['courses','viz','design','super'].slice(0,1+Math.floor(rnd(k+2)*3)).join(','),lang:'ar',created:t.toISOString(),last_seen:t.toISOString(),visits:'1'})}});
+    list.push({name:N[k%N.length],email:'user'+k+'@example.com',country:c[0],countryName:c[1],kind:kind,stage:kind==='student'?String(1+Math.floor(rnd(k+3)*5)):'',spec:kind==='student'?'':'هندسة معمارية',gradYear:kind==='grad'?String(2018+Math.floor(rnd(k+5)*8)):'',uni:kind==='other'?'':U[Math.floor(rnd(k+11)*U.length)],contact:rnd(k)<.5?'@user'+k:'',interests:['courses','viz','design','super'].slice(0,1+Math.floor(rnd(k+2)*3)).join(','),lang:'ar',created:t.toISOString(),last_seen:t.toISOString(),visits:'1',welcomed:k%5?t.toISOString():''})}});
   var cnt=function(f){var o={};list.forEach(function(u){var v=f(u);if(v)o[v]=(o[v]||0)+1});return o},top=function(o,n){return objList(o).slice(0,n)};
   D={ok:true,generated:new Date().toISOString(),total:list.length,today:byDay[new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baghdad'}).format(new Date())]||0,last7:list.filter(function(u){return Date.now()-new Date(u.created)<7*864e5}).length,last30:list.filter(function(u){return Date.now()-new Date(u.created)<30*864e5}).length,active7:31,active30:58,
    country:C.map(function(c){return[c[0],c[1],c[2]]}),kind:cnt(function(u){return u.kind}),stage:cnt(function(u){return u.stage}),interests:(function(){var o={};list.forEach(function(u){u.interests.split(',').forEach(function(i){o[i]=(o[i]||0)+1})});return o})(),lang:{ar:80,en:12,tr:4,fr:2,ku:6},
