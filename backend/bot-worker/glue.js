@@ -80,15 +80,15 @@ const LANGPICK = 'اختر اللغة\nChoose your language\nDil seç\nChoisisse
    Whoever taps "Get your welcome on Telegram" on the site (Start with the welcome link) agrees to get the platform's news here; /stop turns it off, /subscribe turns it back on.
    Only a chat id, the language and the date are kept (never names or messages). Without the SUBS binding nothing is kept and the bot behaves as before. */
 const SUBTXT = {
-  ar: { on: 'ستصلك أخبار المنصة وعروضها هنا من وقت لآخر. لإيقافها أرسل /stop', off: 'تم إيقاف الأخبار ولن نرسل لك إعلانات. إذا غيّرت رأيك أرسل /subscribe', again: 'تم تفعيل الأخبار. لإيقافها أرسل /stop', foot: 'لإيقاف الأخبار أرسل /stop' },
-  en: { on: 'You will get the platform’s news and offers here from time to time. Send /stop to turn them off.', off: 'News turned off. We will not send you announcements. Send /subscribe if you change your mind.', again: 'News turned on. Send /stop to turn them off.', foot: 'To stop the news send /stop' },
-  tr: { on: 'Platformun haberleri ve fırsatları zaman zaman buraya gelecek. Kapatmak için /stop yaz.', off: 'Haberler kapatıldı, duyuru göndermeyeceğiz. Fikrini değiştirirsen /subscribe yaz.', again: 'Haberler açıldı. Kapatmak için /stop yaz.', foot: 'Haberleri durdurmak için /stop yaz' },
-  fr: { on: 'Vous recevrez ici de temps en temps les actualités et offres de la plateforme. Envoyez /stop pour les arrêter.', off: 'Actualités désactivées, nous ne vous enverrons plus d’annonces. Envoyez /subscribe si vous changez d’avis.', again: 'Actualités activées. Envoyez /stop pour les arrêter.', foot: 'Pour arrêter les actualités, envoyez /stop' },
-  ku: { on: 'هەواڵ و پێشکەشکراوەکانی پلاتفۆرم جار جار لێرە دێن. بۆ وەستاندنیان /stop بنێرە.', off: 'هەواڵەکان وەستێنران و ئیتر ړاگەیاندن نانێرین. ئەگەر بیرت گۆړی /subscribe بنێرە.', again: 'هەواڵەکان چالاک کران. بۆ وەستاندنیان /stop بنێرە.', foot: 'بۆ وەستاندنی هەواڵەکان /stop بنێرە' }
+  ar: { on: 'ستصلك هنا نشرة أسبوعية قصيرة: أخبار معمارية ومستجدات المنصة وعروضها. لإيقافها أرسل /stop، ولأحدث الأخبار في أي وقت أرسل /news', off: 'تم إيقاف الأخبار ولن نرسل لك إعلانات. إذا غيّرت رأيك أرسل /subscribe', again: 'تم تفعيل الأخبار. لإيقافها أرسل /stop', foot: 'لإيقاف الأخبار أرسل /stop' },
+  en: { on: 'You will get a short weekly digest here: architecture news and the platform’s updates and offers. Send /stop to turn it off, or /news any time for the latest news.', off: 'News turned off. We will not send you announcements. Send /subscribe if you change your mind.', again: 'News turned on. Send /stop to turn them off.', foot: 'To stop the news send /stop' },
+  tr: { on: 'Buraya kısa bir haftalık bülten gelecek: mimarlık haberleri ile platformun yenilikleri ve fırsatları. Kapatmak için /stop, en son haberler için istediğin zaman /news yaz.', off: 'Haberler kapatıldı, duyuru göndermeyeceğiz. Fikrini değiştirirsen /subscribe yaz.', again: 'Haberler açıldı. Kapatmak için /stop yaz.', foot: 'Haberleri durdurmak için /stop yaz' },
+  fr: { on: 'Vous recevrez ici une courte lettre hebdomadaire : actualités de l’architecture, nouveautés et offres de la plateforme. Envoyez /stop pour l’arrêter, ou /news à tout moment pour les dernières actualités.', off: 'Actualités désactivées, nous ne vous enverrons plus d’annonces. Envoyez /subscribe si vous changez d’avis.', again: 'Actualités activées. Envoyez /stop pour les arrêter.', foot: 'Pour arrêter les actualités, envoyez /stop' },
+  ku: { on: 'نامەیەکی هەفتانەی کورت لێرە دێت: هەواڵی تەلارسازی و نوێکارییەکان و پێشکەشکراوەکانی پلاتفۆرم. بۆ وەستاندنی /stop بنێرە، و بۆ نوێترین هەواڵ هەر کاتێک /news بنێرە.', off: 'هەواڵەکان وەستێنران و ئیتر ړاگەیاندن نانێرین. ئەگەر بیرت گۆړی /subscribe بنێرە.', again: 'هەواڵەکان چالاک کران. بۆ وەستاندنیان /stop بنێرە.', foot: 'بۆ وەستاندنی هەواڵەکان /stop بنێرە' }
 };
 function subText(lang, k) {
   const g = SUBTXT[lang] ? lang : 'ar', s = SUBTXT[g][k];
-  return (g === 'ar' || g === 'ku') ? s.replace(/\/(stop|subscribe)/g, '⁦/$1⁩') : s;      /* keep the command reading left to right inside Arabic and Kurdish */
+  return (g === 'ar' || g === 'ku') ? s.replace(/\/(stop|subscribe|news)/g, '⁦/$1⁩') : s;      /* keep the command reading left to right inside Arabic and Kurdish */
 }
 async function subPut(env, id, lang) {
   if (!env.SUBS) return false;
@@ -119,7 +119,7 @@ async function telegram(req, env) {
   if (!m || !m.chat || m.chat.type !== 'private' || !m.from || m.from.is_bot) return ok();   /* private chats only, edits ignored */
   if (limited('t' + m.chat.id)) return ok();
   const text = typeof m.text === 'string' ? m.text : '';
-  let out, lang = 'ar', kb = null;                /* Arabic unless the person picks another language or writes in one */
+  let out, lang = 'ar', kb = null, html = false;                /* Arabic unless the person picks another language or writes in one */
   if (!text) out = XASCORE.pick(KB.nontext, lang);
   else if (/^\/start(@\w+)?\s+welcome(_(ar|en|tr|fr|ku))?\s*$/i.test(text)) {      /* the button on the site after registering */
     const pl = /welcome_(ar|en|tr|fr|ku)/i.exec(text);
@@ -129,6 +129,11 @@ async function telegram(req, env) {
   }
   else if (/^\/(stop|unsubscribe)(@\w+)?\s*$/i.test(text)) { lang = await subLang(env, m.chat.id); await subDel(env, m.chat.id); out = subText(lang, 'off'); }
   else if (env.SUBS && /^\/subscribe(@\w+)?\s*$/i.test(text)) { await subPut(env, m.chat.id, lang); out = subText(lang, 'again'); }
+  else if (/^\/news(@\w+)?(\s+(ar|en|tr|fr|ku))?\s*$/i.test(text)) {                /* the latest digest on request, nothing is stored or sent to anyone else */
+    const al = /\s(ar|en|tr|fr|ku)\s*$/i.exec(text);
+    lang = al ? al[1].toLowerCase() : await subLang(env, m.chat.id);
+    out = digestText(lang, await digestNews(), weekNo(Date.now()), { ondemand: true }); html = true;
+  }
   else if (/^\/(start|help)(@\w+)?(\s|$)/i.test(text)) { out = welcome(lang); kb = keyboard(lang); }
   else if (LANGMAP[text.trim()]) { lang = LANGMAP[text.trim()]; out = welcome(lang); kb = keyboard(lang); }        /* a language button */
   else if (/^\/lang(uage)?(@\w+)?\s*$/i.test(text)) { out = LANGPICK; kb = keyboard(lang); }
@@ -138,6 +143,7 @@ async function telegram(req, env) {
   }
   const body = { method: 'sendMessage', chat_id: m.chat.id, text: out.slice(0, 4000), link_preview_options: { is_disabled: true } };
   if (kb) body.reply_markup = kb;
+  if (html) body.parse_mode = 'HTML';
   return json(body);
 }
 
@@ -199,11 +205,10 @@ const bcFails = [];                                          /* times of wrong k
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const PAGE = 20;                                             /* people per call: 1 list + 20 sends + up to 20 clean-ups stays under 50 */
 const BC_LANGS = ['ar', 'en', 'tr', 'fr', 'ku'];
-function tgSend(env, chat, text) {
-  return fetch('https://api.telegram.org/bot' + env.TG_TOKEN + '/sendMessage', {
-    method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ chat_id: chat, text: text, link_preview_options: { is_disabled: true } })
-  });
+function tgSend(env, chat, text, html) {
+  const b = { chat_id: chat, text: text, link_preview_options: { is_disabled: true } };
+  if (html) b.parse_mode = 'HTML';
+  return fetch('https://api.telegram.org/bot' + env.TG_TOKEN + '/sendMessage', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
 }
 async function broadcast(req, env) {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
@@ -240,8 +245,8 @@ async function broadcast(req, env) {
     const body = (texts[g] || texts._ || texts.ar || any) + '\n\n' + subText(g, 'foot');
     let r = await tgSend(env, id, body);
     if (r.status === 429) {                                  /* Telegram asks to slow down: wait as long as it says (at most 10 s), try once more */
-      const d = await r.json().catch(() => ({}));
-      await sleep(Math.min(((d && d.parameters && d.parameters.retry_after) || 3), 10) * 1000);
+      const d = await r.json().catch(() => ({})), ra = d && d.parameters && d.parameters.retry_after;
+      await sleep(Math.min(typeof ra === 'number' ? ra : 3, 10) * 1000);
       r = await tgSend(env, id, body);
     }
     if (r.ok) sent++;
@@ -255,11 +260,90 @@ async function broadcast(req, env) {
   return bj({ ok: true, sent: sent, gone: gone, failed: failed, cursor: l.list_complete ? null : l.cursor, done: !!l.list_complete });
 }
 
+/* ---------------- The weekly digest ----------------
+   Once a week the platform's news and one reminder (courses, prompts, library, services, community) go to every subscriber, in the language they chose.
+   It runs from a Cron Trigger, and only when the variable DIGEST is "on" (nothing is ever sent by default). The cron fires every few minutes during a window on one day;
+   each firing sends one page of subscribers, and the progress (week, cursor, the chosen headlines) is kept in the KV key "job:digest", so every subscriber gets it once.
+   Anyone can also ask for the latest digest with /news (that only answers them). The reminders and headings are in digest.json. */
+const DIGEST_PAGE = 18;                                      /* people per firing: 3-4 calls + 18 sends + up to 18 clean-ups stays under 50 */
+const DIGEST_CALLS = 46;                                     /* never start another call after this many in one firing (the free plan stops at 50) */
+const weekNo = now => Math.floor((now + 3 * 36e5 + 3 * 864e5) / (7 * 864e5));       /* weeks counted from Monday 00:00 in Baghdad (UTC+3); also picks this week's reminder */
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+function cleanLine(s, max) {
+  s = String(s || '').replace(/[\u0000-\u001f\u007f‪-‮⁦-⁩]/g, ' ').replace(/\s+/g, ' ').trim();
+  return s.length > max ? s.slice(0, max - 1).replace(/\s+\S*$/, '') + '…' : s;
+}
+function digestPick(list, now) {                             /* up to 3 headlines from the last 8 days, from different sources first */
+  const all = (Array.isArray(list) ? list : []).filter(i => i && typeof i.t === 'string' && /^https:\/\/[^\s"'<>\\]{4,500}$/.test(String(i.u || ''))).map(i => ({
+    t: cleanLine(i.t, 110).replace(/^[a-z]/, c => c.toUpperCase()), s: cleanLine(i.s, 30), u: i.u, d: Date.parse(i.d) || 0
+  })).filter(i => i.t).sort((a, b) => b.d - a.d);
+  const recent = all.filter(i => i.d >= now - 8 * 864e5), pool = recent.length >= 3 ? recent : all, out = [], src = {};
+  pool.forEach(i => { if (out.length < 3 && !src[i.s]) { src[i.s] = 1; out.push(i); } });
+  pool.forEach(i => { if (out.length < 3 && out.indexOf(i) < 0) out.push(i); });
+  return out.map(i => ({ t: i.t, s: i.s, u: i.u }));
+}
+async function digestNews() {                                /* the same news.json the website shows; if it cannot be read, the digest simply has no news block */
+  try {
+    const r = await fetch(String(KB.site || 'https://xarch.site').replace(/\/+$/, '') + '/news.json', { signal: AbortSignal.timeout(6000), cf: { cacheTtl: 300 } });
+    if (!r.ok) return [];
+    const d = await r.json();
+    return digestPick(d && d.items, Date.now());
+  } catch (e) { return []; }
+}
+function digestText(lang, items, wk, opt) {                  /* Telegram HTML: only text we escape ourselves, links open the site or the article */
+  opt = opt || {};
+  const g = DIGEST.head[lang] ? lang : 'ar', rtl = g === 'ar' || g === 'ku', iso = x => rtl ? '⁦' + x + '⁩' : x;
+  const site = String(KB.site || 'https://xarch.site').replace(/\/+$/, ''), n = DIGEST.reminders.length, rem = DIGEST.reminders[((wk % n) + n) % n];
+  const a = (u, label) => '<a href="' + esc(u).replace(/"/g, '&quot;') + '">' + esc(label) + '</a>';
+  const nh = KB.links && KB.links.news ? KB.links.news.h : '#news';
+  const blocks = ['<b>' + esc(DIGEST.head[g]) + '</b>'];
+  if (items && items.length) blocks.push('<b>' + esc(DIGEST.newsH[g]) + '</b>\n' + items.map(i => '• ' + iso(a(i.u, i.t) + (i.s ? ' · ' + esc(i.s) : ''))).join('\n') + '\n' + a(site + '/' + nh, DIGEST.more[g]));
+  else if (opt.ondemand) blocks.push('<b>' + esc(DIGEST.newsH[g]) + '</b>\n' + esc(DIGEST.nonews[g]) + '\n' + a(site + '/' + nh, DIGEST.more[g]));
+  blocks.push('<b>' + esc(rem.h[g]) + '</b>\n' + esc(rem.b[g]) + '\n' + a(site + '/' + KB.links[rem.k].h, rem.cta[g]));
+  return blocks.join('\n\n') + (opt.foot ? '\n\n' + esc(subText(g, 'foot')) : '');
+}
+async function digestRun(env) {
+  if (env.DIGEST !== 'on' || !env.SUBS || !env.TG_TOKEN) return { skipped: 'off' };
+  const wk = weekNo(Date.now());
+  let calls = 1, job = null;
+  try { job = await env.SUBS.get('job:digest', 'json'); } catch (e) { job = null; }
+  if (job && job.w === wk && job.done) return { skipped: 'done' };                    /* this week's digest already went out */
+  if (!job || job.w !== wk) { job = { w: wk, c: null, sent: 0, gone: 0, failed: 0, done: false, items: await digestNews() }; calls++; }
+  const l = await env.SUBS.list({ prefix: 't:', cursor: job.c || undefined, limit: DIGEST_PAGE }); calls++;
+  job.c = l.list_complete ? null : l.cursor; job.done = !!l.list_complete;
+  await env.SUBS.put('job:digest', JSON.stringify(job)); calls++;                   /* saved before sending: if this firing is cut short nobody gets it twice */
+  const texts = {}; let sent = 0, gone = 0, failed = 0;
+  for (const k of l.keys) {
+    const id = k.name.slice(2), g = k.metadata && BC_LANGS.indexOf(k.metadata.l) >= 0 ? k.metadata.l : 'ar';
+    if (calls >= DIGEST_CALLS) { failed++; continue; }
+    texts[g] = texts[g] || digestText(g, job.items, job.w, { foot: true });
+    let r = await tgSend(env, id, texts[g], true); calls++;
+    if (r.status === 429 && calls < DIGEST_CALLS) {
+      const d = await r.json().catch(() => ({})), ra = d && d.parameters && d.parameters.retry_after;
+      await sleep(Math.min(typeof ra === 'number' ? ra : 3, 10) * 1000);
+      r = await tgSend(env, id, texts[g], true); calls++;
+    }
+    if (r.ok) sent++;
+    else {
+      const d = await r.json().catch(() => ({})), why = String((d && d.description) || '').toLowerCase();
+      if ((r.status === 403 || /chat not found|deactivated|blocked/.test(why)) && calls < DIGEST_CALLS) { await env.SUBS.delete(k.name); calls++; gone++; }
+      else failed++;
+    }
+    await sleep(40);
+  }
+  job.sent += sent; job.gone += gone; job.failed += failed;
+  await env.SUBS.put('job:digest', JSON.stringify(job));
+  return { week: wk, sent: sent, gone: gone, failed: failed, done: job.done, totalSent: job.sent };
+}
+
 export default {
+  async scheduled(event, env, ctx) {                                                /* the Cron Trigger: sends the weekly digest, one page of subscribers per firing */
+    ctx.waitUntil(digestRun(env).then(r => { if (r && !r.skipped) console.log(JSON.stringify({ digest: r })); }).catch(e => console.log('digest error: ' + String((e && e.message) || e).slice(0, 160))));
+  },
   async fetch(req, env, ctx) {
     const path = new URL(req.url).pathname.replace(/\/+$/, '') || '/';
     try {
-      if (path === '/') return json({ ok: true, bot: 'x-assistant', kb: KB.updated, telegram: !!env.TG_SECRET, whatsapp: !!(env.WA_VERIFY && env.WA_APP_SECRET && env.WA_TOKEN && env.WA_PHONE_ID), news: !!env.SUBS, announcements: !!(env.SUBS && env.TG_TOKEN && env.BROADCAST_KEY) });
+      if (path === '/') return json({ ok: true, bot: 'x-assistant', kb: KB.updated, telegram: !!env.TG_SECRET, whatsapp: !!(env.WA_VERIFY && env.WA_APP_SECRET && env.WA_TOKEN && env.WA_PHONE_ID), news: !!env.SUBS, announcements: !!(env.SUBS && env.TG_TOKEN && env.BROADCAST_KEY), digest: env.DIGEST === 'on' });
       if (path === '/telegram') return req.method === 'POST' ? await telegram(req, env) : new Response('method not allowed', { status: 405 });
       if (path === '/whatsapp') return await whatsapp(req, env, ctx);
       if (path === '/broadcast') { try { return await broadcast(req, env); } catch (e) { return bj({ ok: false, err: 'error' }, 500); } }

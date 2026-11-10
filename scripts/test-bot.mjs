@@ -106,7 +106,7 @@ class KV {
   constructor() { this.m = new Map(); }
   async put(k, v, o) { this.m.set(k, { v, meta: o && o.metadata }); }
   async delete(k) { this.m.delete(k); }
-  async get(k) { const e = this.m.get(k); return e ? e.v : null; }
+  async get(k, type) { const e = this.m.get(k); if (!e) return null; return type === 'json' ? JSON.parse(e.v) : e.v; }
   async getWithMetadata(k) { const e = this.m.get(k); return { value: e ? e.v : null, metadata: e ? e.meta || null : null }; }
   async list({ prefix, cursor, limit }) {
     const keys = [...this.m.keys()].filter(k => k.startsWith(prefix || '')).sort(), after = cursor ? keys.filter(k => k > cursor) : keys, page = after.slice(0, limit || 1000);
@@ -125,7 +125,7 @@ t(j.news === false && j.announcements === false, 'news: health shows them off wh
 // subscribing happens only through the welcome link
 r = await tg2(1001, '/start welcome_ar', { first_name: 'علي' }); j = await r.json();
 t(kv.m.has('t:1001') && kv.m.get('t:1001').meta.l === 'ar', 'news: the welcome link subscribes the person with their language');
-t(/\/stop/.test(j.text) && /ستصلك أخبار/.test(j.text), 'news: the welcome tells them about the news and /stop');
+t(/\/stop/.test(j.text) && /نشرة أسبوعية/.test(j.text) && /⁦\/news⁩/.test(j.text), 'news: the welcome tells them about the weekly digest, /stop and /news');
 t(/⁦\/stop⁩/.test(j.text), 'news: /stop keeps reading left to right inside Arabic');
 await tg2(1002, '/start'); await tg2(1002, 'what are your prices');
 t(!kv.m.has('t:1002'), 'news: a plain /start or a question does not subscribe anyone');
@@ -147,7 +147,7 @@ t(/تم إيقاف الأخبار/.test(j.text), 'news: /stop with nothing bound
 r = await tg('/subscribe'); j = await r.json();
 t(!/turned on|تم تفعيل الأخبار/.test(j.text), 'news: /subscribe with nothing bound is just a normal question');
 r = await tw('/start welcome_en'); j = await r.json();
-t(!/news and offers/.test(j.text), 'news: with nothing bound the welcome does not promise news');
+t(!/weekly digest/.test(j.text), 'news: with nothing bound the welcome does not promise a digest');
 
 // announcements
 let tgCalls = [], failFor = {};
@@ -198,6 +198,119 @@ t(j.ok && tgCalls[tgCalls.length - 1].text.length < 4096, 'broadcast: a very lon
 // too many wrong keys
 for (let i = 0; i < 9; i++) await bc({ text: 'x' }, 'Bearer wrong' + i);
 t((await bc({ text: 'x' }, 'Bearer wrong')).status === 429, 'broadcast: many wrong keys in a minute are slowed down');
+globalThis.fetch = async (url, init) => { sent.push({ url: String(url), init }); return new Response('{}', { status: 200 }); };
+
+// ---- the weekly digest: texts, /news, and the Cron Trigger ----
+const NOW = Date.now(), isoDay = h => new Date(NOW - h * 36e5).toISOString();
+const NEWS = { updated: isoDay(0), items: [
+  { t: 'old one nobody should pick', x: '', s: 'Dezeen', u: 'https://example.com/old', i: '', d: isoDay(24 * 20) },
+  { t: 'Tom & Jerry House <b>x</b> / Studio "Q"', x: '', s: 'ArchDaily', u: 'https://www.archdaily.com/1?a=1&b=2', i: '', d: isoDay(2) },
+  { t: 'second archdaily item', x: '', s: 'ArchDaily', u: 'https://www.archdaily.com/2', i: '', d: isoDay(3) },
+  { t: 'a lowercase designboom title', x: '', s: 'Designboom', u: 'https://www.designboom.com/3', i: '', d: isoDay(5) },
+  { t: 'Dezeen new pavilion', x: '', s: 'Dezeen', u: 'https://www.dezeen.com/4', i: '', d: isoDay(30) },
+  { t: 'ancient dezeen item', x: '', s: 'Dezeen', u: 'https://www.dezeen.com/5', i: '', d: isoDay(24 * 30) },
+  { t: 'javascript link must be dropped', x: '', s: 'X', u: 'javascript:alert(1)', i: '', d: isoDay(1) },
+  { t: 'http link must be dropped', x: '', s: 'X', u: 'http://example.com/', i: '', d: isoDay(1) }
+] };
+let newsOk = true, tgOut = [], tgFail = {}, newsHits = 0;
+globalThis.fetch = async (url, init) => {
+  url = String(url);
+  if (url === 'https://xarch.site/news.json') { newsHits++; return newsOk ? new Response(JSON.stringify(NEWS), { status: 200 }) : new Response('nope', { status: 500 }); }
+  const b = JSON.parse(init.body), id = String(b.chat_id);
+  tgOut.push({ url, id, text: b.text, mode: b.parse_mode, prev: b.link_preview_options });
+  if (tgFail[id] === 'blocked') return new Response(JSON.stringify({ ok: false, description: 'Forbidden: bot was blocked by the user' }), { status: 403 });
+  if (tgFail[id] === 'slow' && !tgFail.done) { tgFail.done = 1; return new Response(JSON.stringify({ ok: false, parameters: { retry_after: 0 } }), { status: 429 }); }
+  return new Response('{"ok":true}', { status: 200 });
+};
+const strip = x => x.replace(/<[^>]*>/g, '');
+r = await tg2(1001, '/news'); j = await r.json();
+t(j.parse_mode === 'HTML' && j.link_preview_options.is_disabled === true, 'digest: /news answers in Telegram HTML without link previews');
+t(/^<b>نشرة إكس للعمارة الأسبوعية<\/b>/.test(j.text) && /<b>جديد العمارة هذا الأسبوع<\/b>/.test(j.text), 'digest: /news (an Arabic subscriber) is in Arabic and starts with the Arabic name', j.text.slice(0, 80));
+t(/<a href="https:\/\/www\.archdaily\.com\/1\?a=1&amp;b=2">Tom &amp; Jerry House &lt;b&gt;x&lt;\/b&gt; \/ Studio "Q"<\/a>/.test(j.text), 'digest: a headline is a link, and & < > in titles and links are escaped');
+t(!/example\.com|javascript:|old one nobody|ancient dezeen/.test(j.text), 'digest: old items, non-https links and scripts are never picked');
+const picked = (j.text.match(/•/g) || []).length;
+t(picked === 3 && /· ArchDaily/.test(j.text) && /· Designboom/.test(j.text) && /· Dezeen/.test(j.text) && !/second archdaily item/.test(j.text), 'digest: three headlines, one per source first (the second ArchDaily item loses)', j.text);
+t(/A lowercase designboom title/.test(j.text), 'digest: a lowercase headline starts with a capital');
+t(/<a href="https:\/\/xarch\.site\/#news">كل الأخبار<\/a>/.test(j.text) && /<a href="https:\/\/xarch\.site\/#[a-z-]+">[^<]+<\/a>\s*$/.test(j.text), 'digest: links to all the news and to the reminder\'s section');
+t(/⁦•?/.test(j.text) && j.text.split('\n').filter(l => /^•/.test(l)).every(l => /^•\s⁦<a /.test(l) && /⁩$/.test(l)), 'digest: each English headline line is isolated so it reads left to right inside Arabic');
+t(!/\/stop/.test(j.text), 'digest: /news carries no "stop" line (it is a reply, not a subscription message)');
+t(j.text.length < 1800, 'digest: it stays short', j.text.length);
+for (const lg of ['en', 'tr', 'fr', 'ku']) {
+  r = await tg2(1007, '/news ' + lg); j = await r.json();
+  const head = { en: 'X Architecture weekly digest', tr: 'haftalık bülten', fr: 'lettre hebdomadaire', ku: 'نامەی هەفتانەی' }[lg];
+  t(j.text.includes(head) && /https:\/\/xarch\.site\/#/.test(j.text) && (lg === 'ku' || !/[؀-ۿ]/.test(j.text)), 'digest: /news ' + lg + ' is in that language', lg);
+}
+r = await tg2(1003, '/news'); j = await r.json();
+t(/X Architecture weekly digest/.test(j.text), 'digest: /news uses the language the subscriber chose');
+newsOk = false; r = await tg2(1003, '/news'); j = await r.json();
+t(/No news is available/.test(j.text) && /Courses|Register|library|Services|prompts|Community|offers/i.test(j.text), 'digest: if the news cannot be read, /news says so and still carries the reminder');
+newsOk = true;
+// the week number and the rotating reminder
+const week = Math.floor((NOW + 3 * 36e5 + 3 * 864e5) / (7 * 864e5));
+t(week > 2900 && week < 4000, 'digest: week number is sane', week);
+
+// the Cron Trigger. The pretend KV counts its operations, because the free plan counts them with the outgoing calls (50 in all)
+let kvOps = 0, fetchCalls = 0;
+const counted = new Proxy(kv, { get(o, k) { const v = o[k]; return typeof v === 'function' && ['get', 'put', 'list', 'delete'].includes(k) ? (...a) => { kvOps++; return v.apply(o, a); } : v; } });
+const f0 = globalThis.fetch; globalThis.fetch = async (u, i) => { fetchCalls++; return f0(u, i); };
+const sched = (e) => { const c = { jobs: [], waitUntil(p) { this.jobs.push(p); } }; W.scheduled({ cron: '*/5 * * * 5' }, e, c); return Promise.all(c.jobs); };
+const jobOf = () => { const e = kv.m.get('job:digest'); return e ? JSON.parse(e.v) : null; };
+const subs = () => [...kv.m.keys()].filter(k => k.startsWith('t:'));
+for (const k of [...kv.m.keys()]) if (!k.startsWith('t:')) kv.m.delete(k);
+tgOut = []; newsHits = 0;
+await sched(env2);
+t(tgOut.length === 0 && newsHits === 0 && !kv.m.has('job:digest'), 'cron: nothing is sent and nothing is read unless DIGEST is "on"');
+await sched(Object.assign({}, env2, { DIGEST: 'on', TG_TOKEN: '' }));
+t(tgOut.length === 0 && !kv.m.has('job:digest'), 'cron: nothing is sent without the bot token');
+r = await call2('/'); j = await r.json();
+t(j.digest === false, 'cron: health shows the digest is off');
+r = await W.fetch(new Request('https://bot.test/'), Object.assign({}, env2, { DIGEST: 'on' }), ctx); j = await r.json();
+t(j.digest === true, 'cron: health shows the digest is on');
+
+const env3 = Object.assign({}, env2, { DIGEST: 'on', SUBS: counted });
+const nSubs = subs().length;
+tgOut = []; newsHits = 0; fetchCalls = 0; kvOps = 0;
+await sched(env3);
+let jb = jobOf();
+t(nSubs > 36 && tgOut.length === 18 && jb && jb.done === false && jb.c && jb.w === week && jb.items.length === 3 && newsHits === 1, 'cron: the first firing sends one page of 18 and saves the week, the cursor and the headlines', JSON.stringify([nSubs, tgOut.length, jb && jb.done, newsHits]));
+t(fetchCalls + kvOps < 50, 'cron: one firing stays under the 50 calls of the free plan (news, KV and Telegram together)', fetchCalls + ' + ' + kvOps);
+t(tgOut.every(c => c.mode === 'HTML' && c.prev.is_disabled && c.url === 'https://api.telegram.org/botbot-token-test-123/sendMessage'), 'cron: sent as HTML through the Telegram API, without link previews');
+t(tgOut.every(c => /\/stop/.test(strip(c.text))), 'cron: every digest ends with how to stop');
+const all = tgOut.map(c => c.id);
+for (let i = 0; i < 6 && !jobOf().done; i++) { tgOut = []; await sched(env3); all.push(...tgOut.map(c => c.id)); }
+jb = jobOf();
+t(new Set(all).size === all.length, 'cron: nobody gets the digest twice across firings', all.length + ' vs ' + new Set(all).size);
+t(newsHits === 1, 'cron: the news is read once per week, the same headlines go to everyone', newsHits);
+t(jb.done === true && all.length === nSubs && jb.sent === nSubs && jb.gone === 0 && jb.failed === 0 && jb.c === null, 'cron: everyone is reached and the job says done', JSON.stringify([all.length, nSubs, jb.sent]));
+tgOut = []; await sched(env3); await sched(env3);
+t(tgOut.length === 0, 'cron: once the week is done, more firings send nothing');
+t(Object.keys(jb).sort().join() === 'c,done,failed,gone,items,sent,w' && !/"id"|chat/.test(JSON.stringify(jb)), 'cron: the saved state holds no personal data (counts, a cursor and headlines)');
+kv.m.set('job:digest', { v: JSON.stringify(Object.assign({}, jb, { w: week - 1 })) });
+tgOut = []; await sched(env3);
+t(tgOut.length === 18 && jobOf().w === week && jobOf().sent === 18 && !jobOf().done, 'cron: a new week starts again from the beginning');
+
+// languages, blocked people, "slow down", and the call cap
+for (const k of subs()) kv.m.delete(k);
+for (let i = 0; i < 18; i++) kv.m.set('t:' + (5000 + i), { v: '1', meta: { l: ['ar', 'en', 'tr', 'fr', 'ku', 'xx'][i % 6] } });
+kv.m.delete('job:digest'); tgOut = []; tgFail = { '5003': 'blocked', '5004': 'slow' };
+fetchCalls = 0; kvOps = 0;
+await sched(env3); jb = jobOf();
+t(jb.done && jb.gone === 1 && jb.sent === 17 && !kv.m.has('t:5003') && kv.m.has('t:5004'), 'cron: a person who blocked the bot is removed and counted, the others stay', JSON.stringify(jb));
+t(tgOut.filter(c => c.id === '5004').length === 2, 'cron: a "slow down" from Telegram is waited out and retried once');
+const tx = id => tgOut.find(c => c.id === String(id)).text;
+t(/^<b>نشرة إكس/.test(tx(5000)) && /^<b>X Architecture weekly/.test(tx(5001)) && /^<b>X Architecture haftal/.test(tx(5002)) && /^<b>La lettre hebdomadaire/.test(tx(5003)) && /^<b>نامەی هەفتانەی/.test(tx(5004)), 'cron: each person gets the digest in their own language');
+t(/^<b>نشرة إكس/.test(tx(5005)) && /^<b>نشرة إكس/.test(tx(5017)), 'cron: an unknown language falls back to Arabic');
+t(tgOut.every(c => c.text.includes('https://xarch.site/')), 'cron: every digest links to the site');
+for (const k of subs()) kv.m.delete(k);
+for (let i = 0; i < 18; i++) { kv.m.set('t:' + (6000 + i), { v: '1', meta: { l: 'en' } }); }
+kv.m.delete('job:digest'); tgOut = []; tgFail = {}; for (let i = 0; i < 18; i++) tgFail['' + (6000 + i)] = 'slowblocked';
+globalThis.fetch = async (u, i) => { fetchCalls++; const b = i && i.body ? JSON.parse(i.body) : {}, id = String(b.chat_id); if (tgFail[id] === 'slowblocked') { tgFail[id] = 'blocked'; return new Response(JSON.stringify({ ok: false, parameters: { retry_after: 0 } }), { status: 429 }); } return f0(u, i); };
+fetchCalls = 0; kvOps = 0;
+await sched(env3);
+t(fetchCalls + kvOps <= 50, 'cron: in the worst case (everyone slowed down, then blocked) the calls in one firing never pass 50', fetchCalls + ' + ' + kvOps);
+globalThis.fetch = f0; tgFail = {};
+await sched(Object.assign({}, env3, { SUBS: { get: async () => { throw new Error('boom'); }, list: async () => { throw new Error('boom'); }, put: async () => {} } }));
+t(true, 'cron: a failing KV is caught and never crashes the Worker');
 globalThis.fetch = async (url, init) => { sent.push({ url: String(url), init }); return new Response('{}', { status: 200 }); };
 
 // WhatsApp verification

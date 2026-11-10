@@ -1,0 +1,176 @@
+{
+  "head": {
+    "ar": "نشرة إكس للعمارة الأسبوعية",
+    "en": "X Architecture weekly digest",
+    "tr": "X Architecture haftalık bülten",
+    "fr": "La lettre hebdomadaire de X Architecture",
+    "ku": "نامەی هەفتانەی ⁦X Architecture⁩"
+  },
+  "newsH": {
+    "ar": "جديد العمارة هذا الأسبوع",
+    "en": "Architecture news this week",
+    "tr": "Bu hafta mimarlıkta yeni olanlar",
+    "fr": "L’actualité de l’architecture cette semaine",
+    "ku": "نوێترین هەواڵی تەلارسازی ئەم هەفتەیە"
+  },
+  "more": {
+    "ar": "كل الأخبار",
+    "en": "All the news",
+    "tr": "Tüm haberler",
+    "fr": "Toutes les actualités",
+    "ku": "هەموو هەواڵەکان"
+  },
+  "nonews": {
+    "ar": "لا تتوفر أخبار جديدة الآن، جرّب بعد قليل.",
+    "en": "No news is available right now, try again in a little while.",
+    "tr": "Şu an yeni haber yok, biraz sonra tekrar dene.",
+    "fr": "Aucune actualité pour le moment, réessayez un peu plus tard.",
+    "ku": "ئێستا هەواڵی نوێ نییە، دواتر دووبارە هەوڵ بدەرەوە."
+  },
+  "reminders": [
+    {
+      "k": "ai",
+      "h": {
+        "ar": "جرّب برومبتات الذكاء الاصطناعي",
+        "en": "Try the AI prompts",
+        "tr": "Yapay zekâ istemlerini dene",
+        "fr": "Essayez les prompts IA",
+        "ku": "پرۆمپتەکانی ژیری دەستکرد تاقی بکەرەوە"
+      },
+      "b": {
+        "ar": "برومبتات جاهزة للإظهار: من سكيتش إلى ريندر، ومن نهار إلى ليل، وتغيير الخامات. لكل برومبت صورة توضيحية وزر نسخ.",
+        "en": "Ready-made rendering prompts: sketch to render, day to night, changing materials. Each prompt comes with an illustrative picture and a copy button.",
+        "tr": "Hazır görselleştirme istemleri: eskizden render’a, gündüzden geceye, malzeme değiştirme. Her istemin açıklayıcı bir görseli ve kopyala düğmesi var.",
+        "fr": "Des prompts de rendu prêts à l’emploi : du croquis au rendu, du jour à la nuit, changement de matériaux. Chaque prompt a une image illustrative et un bouton de copie.",
+        "ku": "پرۆمپتی ئامادە بۆ ڕێندەر: لە سکێچەوە بۆ ڕێندەر، لە ڕۆژەوە بۆ شەو، گۆڕینی ماتریاڵ. بۆ هەر پرۆمپتێک وێنەیەکی ڕوونکەرەوە و دوگمەی لەبەرگرتنەوە هەیە."
+      },
+      "cta": {
+        "ar": "برومبتات الذكاء الاصطناعي",
+        "en": "AI prompts",
+        "tr": "Yapay zekâ istemleri",
+        "fr": "Prompts IA",
+        "ku": "پرۆمپتەکانی ژیری دەستکرد"
+      }
+    },
+    {
+      "k": "services",
+      "h": {
+        "ar": "مشروعك يحتاج عيناً ثانية؟",
+        "en": "Does your project need a second pair of eyes?",
+        "tr": "Projen ikinci bir göze mi ihtiyaç duyuyor?",
+        "fr": "Votre projet a besoin d’un second regard ?",
+        "ku": "پڕۆژەکەت پێویستی بە چاوێکی دووەم هەیە؟"
+      },
+      "b": {
+        "ar": "نقد معماري صريح قبل التسليم، وإشراف ومتابعة خطوة بخطوة للطلاب، وإظهار معماري يُبرز فكرة مشروعك.",
+        "en": "Frank architectural critique before submission, step-by-step supervision for students, and architectural visualization that brings out your idea.",
+        "tr": "Teslimden önce açık sözlü mimari eleştiri, öğrenciler için adım adım danışmanlık ve takip, fikrini öne çıkaran mimari görselleştirme.",
+        "fr": "Une critique architecturale franche avant le rendu, un suivi pas à pas pour les étudiants et une visualisation architecturale qui met votre idée en valeur.",
+        "ku": "ڕەخنەی تەلارسازیی ڕاستگۆیانە پێش ڕادەستکردن، سەرپەرشتی و شوێنکەوتنی هەنگاو بە هەنگاو بۆ قوتابیان، و ڕێندەری تەلارسازی کە بیرۆکەکەت دەربخات."
+      },
+      "cta": {
+        "ar": "الخدمات",
+        "en": "Services",
+        "tr": "Hizmetler",
+        "fr": "Services",
+        "ku": "خزمەتەکان"
+      }
+    },
+    {
+      "k": "community",
+      "h": {
+        "ar": "شارك مشروعك مع المجتمع",
+        "en": "Share your project with the community",
+        "tr": "Projeni toplulukla paylaş",
+        "fr": "Partagez votre projet avec la communauté",
+        "ku": "پڕۆژەکەت لەگەڵ کۆمەڵگە هاوبەش بکە"
+      },
+      "b": {
+        "ar": "سجّل في المنصة وانشر مشروعك في المجتمع، وشارك في المسابقات، وتصفّح أعمال الطلاب.",
+        "en": "Register on the platform, publish your project in the Community, enter the competitions and browse students’ work.",
+        "tr": "Platforma kaydol, projeni Topluluk’ta yayınla, yarışmalara katıl ve öğrenci çalışmalarına göz at.",
+        "fr": "Inscrivez-vous sur la plateforme, publiez votre projet dans la Communauté, participez aux concours et parcourez les travaux d’étudiants.",
+        "ku": "لە پلاتفۆرم تۆمار بە، پڕۆژەکەت لە کۆمەڵگە بڵاو بکەرەوە، بەشداری لە پێشبڕکێکان بکە و کارەکانی قوتابیان ببینە."
+      },
+      "cta": {
+        "ar": "المجتمع",
+        "en": "Community",
+        "tr": "Topluluk",
+        "fr": "Communauté",
+        "ku": "کۆمەڵگە"
+      }
+    },
+    {
+      "k": "courses",
+      "h": {
+        "ar": "سجّل الآن وانقل مستوى مهاراتك",
+        "en": "Register now and take your skills to the next level",
+        "tr": "Şimdi kaydol, becerilerini bir üst seviyeye taşı",
+        "fr": "Inscrivez-vous maintenant et passez au niveau supérieur",
+        "ku": "ئێستا تۆمار بکە و ئاستی لێهاتووییەکانت بەرز بکەرەوە"
+      },
+      "b": {
+        "ar": "دورات تفاعلية بمجموعات أسبوعية وشرح مباشر، أو دورات مسجّلة مع تجربة 24 ساعة قبل الاشتراك. نغطي برامج ثلاثية الأبعاد والإظهار المعماري.",
+        "en": "Live courses in weekly groups with direct explanation, or recorded courses with a 24-hour trial before you subscribe. We cover 3D and architectural rendering programs.",
+        "tr": "Haftalık gruplarla canlı anlatımlı etkileşimli kurslar ya da abone olmadan önce 24 saat deneme sunan kayıtlı kurslar. 3B ve mimari görselleştirme programlarını kapsıyoruz.",
+        "fr": "Des cours en direct par groupes hebdomadaires avec explication en direct, ou des cours enregistrés avec 24 h d’essai avant de vous abonner. Nous couvrons les logiciels 3D et de rendu architectural.",
+        "ku": "خولی کارلێکەر بە گرووپی هەفتانە و ڕوونکردنەوەی ڕاستەوخۆ، یان خولی تۆمارکراو لەگەڵ 24 کاتژمێر تاقیکردنەوە پێش بەشداریکردن. بەرنامە سێ ڕەهەندییەکان و بەرنامەکانی ڕێندەری تەلارسازی دەگرینەوە."
+      },
+      "cta": {
+        "ar": "الدورات والأسعار",
+        "en": "Courses and prices",
+        "tr": "Kurslar ve fiyatlar",
+        "fr": "Cours et tarifs",
+        "ku": "خولەکان و نرخەکان"
+      }
+    },
+    {
+      "k": "library",
+      "h": {
+        "ar": "مكتبة المنصة",
+        "en": "The platform library",
+        "tr": "Platform kütüphanesi",
+        "fr": "La bibliothèque de la plateforme",
+        "ku": "کتێبخانەی پلاتفۆرم"
+      },
+      "b": {
+        "ar": "كتب حسب المرحلة، وملفات وخامات حرة الترخيص، وبرامج للطلاب، ودروس مجانية. ابحث عمّا تحتاجه بسرعة.",
+        "en": "Books by stage, freely licensed files and textures, software for students and free lessons. Search for what you need quickly.",
+        "tr": "Aşamaya göre kitaplar, serbest lisanslı dosyalar ve dokular, öğrenciler için yazılımlar ve ücretsiz dersler. İhtiyacın olanı hızla ara.",
+        "fr": "Des livres par niveau, des fichiers et textures sous licence libre, des logiciels pour étudiants et des leçons gratuites. Trouvez vite ce qu’il vous faut.",
+        "ku": "کتێب بەپێی قۆناغ، فایل و ماتریاڵی مۆڵەتی ئازاد، بەرنامە بۆ قوتابیان و وانەی بێبەرامبەر. بە خێرایی بگەڕێ بەدوای ئەوەی پێویستتە."
+      },
+      "cta": {
+        "ar": "المكتبة",
+        "en": "Library",
+        "tr": "Kütüphane",
+        "fr": "Bibliothèque",
+        "ku": "کتێبخانە"
+      }
+    },
+    {
+      "k": "courses",
+      "h": {
+        "ar": "عروض الدورات المجمّعة",
+        "en": "Bundled course offers",
+        "tr": "Birleşik kurs fırsatları",
+        "fr": "Offres de cours groupés",
+        "ku": "پاکێجی خولەکان"
+      },
+      "b": {
+        "ar": "اجمع برنامجاً ثلاثي الأبعاد مع برنامج إظهار وتنضم دورة تعليم الحاسوب إلى العرض. يشمل الاشتراك تثبيت البرامج وتفعيلها، ودعماً حتى 100 يوم بعد الدورة، وشهادة إتمام.",
+        "en": "Combine a 3D program with a rendering program and the computer-education course comes with the bundle. Every subscription includes installing and activating the software, support for up to 100 days after the course, and a completion certificate.",
+        "tr": "Bir 3B programı ile bir görselleştirme programını birleştir, bilgisayar eğitimi kursu pakete dahil olsun. Abonelik; programların kurulumunu ve etkinleştirilmesini, kurstan sonra 100 güne kadar desteği ve tamamlama sertifikasını içerir.",
+        "fr": "Associez un programme 3D à un programme de rendu et le cours d’informatique est inclus dans l’offre. L’abonnement comprend l’installation et l’activation des logiciels, un suivi jusqu’à 100 jours après le cours et un certificat de réussite.",
+        "ku": "بەرنامەیەکی سێ ڕەهەندی لەگەڵ بەرنامەیەکی ڕێندەر کۆبکەرەوە و خولی فێربوونی کۆمپیوتەر دەکەوێتە ناو پاکێجەکەوە. بەشداریکردن دامەزراندن و چالاککردنی بەرنامەکان، پشتگیری تا 100 ڕۆژ دوای خولەکە، و بڕوانامەی تەواوکردن دەگرێتەوە."
+      },
+      "cta": {
+        "ar": "العروض والأسعار",
+        "en": "Offers and prices",
+        "tr": "Fırsatlar ve fiyatlar",
+        "fr": "Offres et tarifs",
+        "ku": "پاکێج و نرخەکان"
+      }
+    }
+  ]
+}
