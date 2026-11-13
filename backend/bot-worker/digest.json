@@ -27,6 +27,20 @@
     "fr": "Aucune actualité pour le moment, réessayez un peu plus tard.",
     "ku": "ئێستا هەواڵی نوێ نییە، دواتر دووبارە هەوڵ بدەرەوە."
   },
+  "ig": {
+    "ar": "آخر المنشورات على إنستغرام",
+    "en": "Latest posts on Instagram",
+    "tr": "Instagram’daki son paylaşımlar",
+    "fr": "Dernières publications sur Instagram",
+    "ku": "دوایین بڵاوکراوەکان لە ئینستاگرام"
+  },
+  "follow": {
+    "ar": "لا يفوتك جديدنا: سجّل الآن وانقل مستوى مهاراتك، وتابع آخر المنشورات على إنستغرام.",
+    "en": "Don’t miss what’s new: register now and take your skills to the next level, and follow our latest posts on Instagram.",
+    "tr": "Yenilikleri kaçırma: şimdi kaydol, becerilerini bir üst seviyeye taşı ve en son paylaşımlarımızı Instagram’da takip et.",
+    "fr": "Ne manquez rien : inscrivez-vous maintenant, passez au niveau supérieur et suivez nos dernières publications sur Instagram.",
+    "ku": "هیچ نوێیەک لەدەست مەدە: ئێستا تۆمار بکە، ئاستی لێهاتووییەکانت بەرز بکەرەوە و دوایین بڵاوکراوەکانمان لە ئینستاگرام ببینە."
+  },
   "reminders": [
     {
       "k": "ai",

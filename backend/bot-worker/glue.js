@@ -105,7 +105,7 @@ async function subLang(env, id) {                 /* the language a subscriber c
 }
 
 /* ---------------- Telegram: the webhook answers in its own response, so the bot token is not needed here ---------------- */
-async function telegram(req, env) {
+async function telegram(req, env, ctx) {
   if (!env.TG_SECRET) return new Response('not configured', { status: 503 });
   if (!safeEq(req.headers.get('X-Telegram-Bot-Api-Secret-Token') || '', env.TG_SECRET)) return new Response('forbidden', { status: 403 });
   if (+req.headers.get('content-length') > 65536) return ok();
@@ -125,7 +125,11 @@ async function telegram(req, env) {
     const pl = /welcome_(ar|en|tr|fr|ku)/i.exec(text);
     if (pl) lang = pl[1].toLowerCase();
     out = welcomeFull(lang, m.from.first_name); kb = keyboard(lang);
-    if (await subPut(env, m.chat.id, lang)) out += '\n\n' + subText(lang, 'on');
+    const had = env.SUBS ? await env.SUBS.get('t:' + m.chat.id) : null;
+    if (await subPut(env, m.chat.id, lang)) {
+      out += '\n\n' + subText(lang, 'on');
+      if (!had && env.TG_TOKEN && ctx && ctx.waitUntil) ctx.waitUntil(followUp(env, m.chat.id, lang));        /* first time only */
+    }
   }
   else if (/^\/(stop|unsubscribe)(@\w+)?\s*$/i.test(text)) { lang = await subLang(env, m.chat.id); await subDel(env, m.chat.id); out = subText(lang, 'off'); }
   else if (env.SUBS && /^\/subscribe(@\w+)?\s*$/i.test(text)) { await subPut(env, m.chat.id, lang); out = subText(lang, 'again'); }
@@ -205,9 +209,10 @@ const bcFails = [];                                          /* times of wrong k
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const PAGE = 20;                                             /* people per call: 1 list + 20 sends + up to 20 clean-ups stays under 50 */
 const BC_LANGS = ['ar', 'en', 'tr', 'fr', 'ku'];
-function tgSend(env, chat, text, html) {
+function tgSend(env, chat, text, html, markup) {
   const b = { chat_id: chat, text: text, link_preview_options: { is_disabled: true } };
   if (html) b.parse_mode = 'HTML';
+  if (markup) b.reply_markup = markup;
   return fetch('https://api.telegram.org/bot' + env.TG_TOKEN + '/sendMessage', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
 }
 async function broadcast(req, env) {
@@ -290,6 +295,16 @@ async function digestNews() {                                /* the same news.js
     return digestPick(d && d.items, Date.now());
   } catch (e) { return []; }
 }
+const igUrl = () => 'https://instagram.com/' + String(KB.handle || 'xstudio4arch').replace(/^@/, '');
+async function followUp(env, id, lang) {                     /* a second, short message right after the welcome: courses and the latest posts, as two buttons */
+  try {
+    const g = DIGEST.follow[lang] ? lang : 'ar', site = String(KB.site || 'https://xarch.site').replace(/\/+$/, '');
+    const raw = Number(env.FOLLOW_MS), ms = env.FOLLOW_MS === undefined || env.FOLLOW_MS === '' || !Number.isFinite(raw) ? 2000 : raw;
+    if (ms < 0) return;                                      /* the variable FOLLOW_MS = -1 turns the follow-up off */
+    await sleep(ms);                                         /* let the welcome arrive first */
+    await tgSend(env, id, DIGEST.follow[g], false, { inline_keyboard: [[{ text: KB.links.courses.t[g], url: site + '/' + KB.links.courses.h }], [{ text: DIGEST.ig[g], url: igUrl() }]] });
+  } catch (e) { /* a missed follow-up is not worth an error */ }
+}
 function digestText(lang, items, wk, opt) {                  /* Telegram HTML: only text we escape ourselves, links open the site or the article */
   opt = opt || {};
   const g = DIGEST.head[lang] ? lang : 'ar', rtl = g === 'ar' || g === 'ku', iso = x => rtl ? '⁦' + x + '⁩' : x;
@@ -300,6 +315,7 @@ function digestText(lang, items, wk, opt) {                  /* Telegram HTML: o
   if (items && items.length) blocks.push('<b>' + esc(DIGEST.newsH[g]) + '</b>\n' + items.map(i => '• ' + iso(a(i.u, i.t) + (i.s ? ' · ' + esc(i.s) : ''))).join('\n') + '\n' + a(site + '/' + nh, DIGEST.more[g]));
   else if (opt.ondemand) blocks.push('<b>' + esc(DIGEST.newsH[g]) + '</b>\n' + esc(DIGEST.nonews[g]) + '\n' + a(site + '/' + nh, DIGEST.more[g]));
   blocks.push('<b>' + esc(rem.h[g]) + '</b>\n' + esc(rem.b[g]) + '\n' + a(site + '/' + KB.links[rem.k].h, rem.cta[g]));
+  blocks.push(a(igUrl(), DIGEST.ig[g]));
   return blocks.join('\n\n') + (opt.foot ? '\n\n' + esc(subText(g, 'foot')) : '');
 }
 async function digestRun(env) {
@@ -344,7 +360,7 @@ export default {
     const path = new URL(req.url).pathname.replace(/\/+$/, '') || '/';
     try {
       if (path === '/') return json({ ok: true, bot: 'x-assistant', kb: KB.updated, telegram: !!env.TG_SECRET, whatsapp: !!(env.WA_VERIFY && env.WA_APP_SECRET && env.WA_TOKEN && env.WA_PHONE_ID), news: !!env.SUBS, announcements: !!(env.SUBS && env.TG_TOKEN && env.BROADCAST_KEY), digest: env.DIGEST === 'on' });
-      if (path === '/telegram') return req.method === 'POST' ? await telegram(req, env) : new Response('method not allowed', { status: 405 });
+      if (path === '/telegram') return req.method === 'POST' ? await telegram(req, env, ctx) : new Response('method not allowed', { status: 405 });
       if (path === '/whatsapp') return await whatsapp(req, env, ctx);
       if (path === '/broadcast') { try { return await broadcast(req, env); } catch (e) { return bj({ ok: false, err: 'error' }, 500); } }
       return new Response('not found', { status: 404 });

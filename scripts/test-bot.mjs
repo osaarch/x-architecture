@@ -114,7 +114,7 @@ class KV {
     return { keys: page.map(name => ({ name, metadata: this.m.get(name).meta })), list_complete: complete, cursor: complete ? undefined : page[page.length - 1] };
   }
 }
-const kv = new KV(), env2 = Object.assign({}, env, { SUBS: kv, TG_TOKEN: 'bot-token-test-123', BROADCAST_KEY: 'broadcast-key-test-long-1234' });
+const kv = new KV(), env2 = Object.assign({}, env, { SUBS: kv, TG_TOKEN: 'bot-token-test-123', BROADCAST_KEY: 'broadcast-key-test-long-1234', FOLLOW_MS: '-1' });
 const call2 = (p, init) => W.fetch(new Request('https://bot.test' + p, init), env2, ctx);
 const tg2 = (id, text, from) => call2('/telegram', { method: 'POST', headers: { 'content-type': 'application/json', 'X-Telegram-Bot-Api-Secret-Token': env.TG_SECRET }, body: JSON.stringify({ message: { message_id: 1, chat: { id, type: 'private' }, from: Object.assign({ id, is_bot: false, language_code: 'en' }, from || {}), text } }) });
 r = await call2('/'); j = await r.json();
@@ -217,7 +217,7 @@ globalThis.fetch = async (url, init) => {
   url = String(url);
   if (url === 'https://xarch.site/news.json') { newsHits++; return newsOk ? new Response(JSON.stringify(NEWS), { status: 200 }) : new Response('nope', { status: 500 }); }
   const b = JSON.parse(init.body), id = String(b.chat_id);
-  tgOut.push({ url, id, text: b.text, mode: b.parse_mode, prev: b.link_preview_options });
+  tgOut.push({ url, id, text: b.text, mode: b.parse_mode, prev: b.link_preview_options, markup: b.reply_markup });
   if (tgFail[id] === 'blocked') return new Response(JSON.stringify({ ok: false, description: 'Forbidden: bot was blocked by the user' }), { status: 403 });
   if (tgFail[id] === 'slow' && !tgFail.done) { tgFail.done = 1; return new Response(JSON.stringify({ ok: false, parameters: { retry_after: 0 } }), { status: 429 }); }
   return new Response('{"ok":true}', { status: 200 });
@@ -231,7 +231,7 @@ t(!/example\.com|javascript:|old one nobody|ancient dezeen/.test(j.text), 'diges
 const picked = (j.text.match(/•/g) || []).length;
 t(picked === 3 && /· ArchDaily/.test(j.text) && /· Designboom/.test(j.text) && /· Dezeen/.test(j.text) && !/second archdaily item/.test(j.text), 'digest: three headlines, one per source first (the second ArchDaily item loses)', j.text);
 t(/A lowercase designboom title/.test(j.text), 'digest: a lowercase headline starts with a capital');
-t(/<a href="https:\/\/xarch\.site\/#news">كل الأخبار<\/a>/.test(j.text) && /<a href="https:\/\/xarch\.site\/#[a-z-]+">[^<]+<\/a>\s*$/.test(j.text), 'digest: links to all the news and to the reminder\'s section');
+t(/<a href="https:\/\/xarch\.site\/#news">كل الأخبار<\/a>/.test(j.text) && /<a href="https:\/\/xarch\.site\/#[a-z-]+">[^<]+<\/a>\n\n<a href="https:\/\/instagram\.com\/xstudio4arch">آخر المنشورات على إنستغرام<\/a>$/.test(j.text), 'digest: links to all the news, to the reminder\'s section and, last, to Instagram');
 t(/⁦•?/.test(j.text) && j.text.split('\n').filter(l => /^•/.test(l)).every(l => /^•\s⁦<a /.test(l) && /⁩$/.test(l)), 'digest: each English headline line is isolated so it reads left to right inside Arabic');
 t(!/\/stop/.test(j.text), 'digest: /news carries no "stop" line (it is a reply, not a subscription message)');
 t(j.text.length < 1800, 'digest: it stays short', j.text.length);
@@ -245,6 +245,29 @@ t(/X Architecture weekly digest/.test(j.text), 'digest: /news uses the language 
 newsOk = false; r = await tg2(1003, '/news'); j = await r.json();
 t(/No news is available/.test(j.text) && /Courses|Register|library|Services|prompts|Community|offers/i.test(j.text), 'digest: if the news cannot be read, /news says so and still carries the reminder');
 newsOk = true;
+// the follow-up after the first subscription, and Instagram in the digest
+{
+  const envF = Object.assign({}, env2, { FOLLOW_MS: '0' }), snap = new Map(kv.m);          // the people subscribed so far are put back at the end
+  for (const k of [...kv.m.keys()]) if (k.startsWith('t:')) kv.m.delete(k);
+  const run = async (e, id, text) => { const c = { jobs: [], waitUntil(p) { this.jobs.push(p); } }; tgOut = []; const r = await W.fetch(new Request('https://bot.test/telegram', { method: 'POST', headers: { 'content-type': 'application/json', 'x-telegram-bot-api-secret-token': env.TG_SECRET }, body: JSON.stringify({ update_id: 1, message: { message_id: 1, chat: { id, type: 'private' }, from: { id, is_bot: false, first_name: 'Sara' }, text } }) }), e, c); await Promise.all(c.jobs); return r; };
+  let r2 = await run(envF, 7001, '/start welcome_ar'); let jj = await r2.json();
+  t('follow-up: the welcome itself still comes in the reply', /ستصلك هنا نشرة أسبوعية/.test(jj.text));
+  let fu = tgOut.filter(c => c.id === '7001');
+  t('follow-up: a first-time subscriber gets one more short message', fu.length === 1 && /سجّل الآن وانقل مستوى مهاراتك/.test(fu[0].text) && /إنستغرام/.test(fu[0].text), JSON.stringify(fu).slice(0, 200));
+  const kbd = fu[0] && fu[0].markup;
+  t('follow-up: it carries two buttons, the courses page and the Instagram account', kbd && kbd.inline_keyboard.length === 2 && kbd.inline_keyboard[0][0].url === 'https://xarch.site/#courses' && kbd.inline_keyboard[1][0].url === 'https://instagram.com/xstudio4arch' && /الدورات/.test(kbd.inline_keyboard[0][0].text) && /إنستغرام/.test(kbd.inline_keyboard[1][0].text), JSON.stringify(kbd));
+  t('follow-up: no brand logo or WhatsApp link, and no preview', fu[0].prev.is_disabled && !/wa\.me|whatsapp/i.test(JSON.stringify(kbd) + fu[0].text));
+  await run(envF, 7001, '/start welcome_ar');
+  t('follow-up: pressing the link again does not send it again', tgOut.filter(c => c.id === '7001').length === 0);
+  await run(envF, 7001, '/stop'); r2 = await run(envF, 7001, '/start welcome_en');
+  t('follow-up: after /stop and a new start it is sent again, in the new language', tgOut.some(c => c.id === '7001' && /Don’t miss what’s new/.test(c.text)));
+  await run(envF, 7002, '/start welcome_ku'); t('follow-up: Kurdish too', tgOut.some(c => c.id === '7002' && /هیچ نوێیەک/.test(c.text)));
+  await run(Object.assign({}, envF, { FOLLOW_MS: '-1' }), 7003, '/start welcome_ar'); t('follow-up: FOLLOW_MS=-1 turns it off', tgOut.length === 0);
+  await run(Object.assign({}, envF, { TG_TOKEN: '' }), 7004, '/start welcome_ar'); t('follow-up: without the bot token nothing is sent', tgOut.length === 0);
+  await run(Object.assign({}, envF, { SUBS: undefined }), 7005, '/start welcome_ar'); t('follow-up: not subscribed (no storage) means no follow-up', tgOut.length === 0);
+  kv.m.clear(); snap.forEach((v, k) => kv.m.set(k, v));
+}
+
 // the week number and the rotating reminder
 const week = Math.floor((NOW + 3 * 36e5 + 3 * 864e5) / (7 * 864e5));
 t(week > 2900 && week < 4000, 'digest: week number is sane', week);
