@@ -194,5 +194,22 @@ function t(name, ok, info) { total++; if (!ok) { failed++; console.log('FAIL: ' 
   t('worker.js carries the same welcome (run scripts/build_bot.py after editing welcome.json)', w.includes('const WELCOME = ' + JSON.stringify(bot) + ';'));
 }
 
+/* 11. the message the admin page hands you to send by hand (Telegram / WhatsApp) says the same as the e-mail, points to the bot and offers an exit */
+{
+  const adm = fs.readFileSync(path.join(__dirname, '..', 'admin.html'), 'utf8'), bot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'backend', 'bot-worker', 'welcome.json'), 'utf8'));
+  const wmSrc = /var WM=(\{.*?\});\n/s.exec(adm), fnSrc = /function wmsg\(x\)\{.*?\n(?=function wcell)/s.exec(adm);
+  t('admin.html has the manual welcome message', !!wmSrc && !!fnSrc);
+  const ctx = vm.createContext({}); vm.runInContext('var WM=' + wmSrc[1] + ';' + fnSrc[0], ctx);
+  for (const l of ['ar', 'en', 'tr', 'fr', 'ku']) {
+    const m = vm.runInContext('wmsg(' + JSON.stringify({ name: 'Ali Hassan', lang: l }) + ')', ctx);
+    t('admin message (' + l + ') has the same intro as the e-mail', m.includes(bot[l].intro));
+    t('admin message (' + l + ') greets by first name and links the site and the bot in that language', m.includes('Ali') && !m.includes('Hassan') && m.includes('https://xarch.site') && m.includes('https://t.me/xstudio4arch_bot?start=welcome_' + l));
+    t('admin message (' + l + ') lets the person say no', /«لا»|“no”|“hayır”|« non »|«نەخێر»/.test(m));
+  }
+  const ar = vm.runInContext('wmsg({name:"علي",lang:"ar"})', ctx);
+  t('admin message (ar) is Arabic from the first word and has no "student price"', /^أهلاً علي! إكس للعمارة/.test(ar) && !/طلابي/.test(ar));
+  t('admin message falls back to Arabic and its bot link for an unknown language', /welcome_ar/.test(vm.runInContext('wmsg({name:"x",lang:"xx"})', ctx)));
+}
+
 console.log('total ' + total + ' failed ' + failed);
 process.exit(failed ? 1 : 0);
